@@ -6,8 +6,12 @@ exports.handler = async (event) => {
   const { SUPABASE_URL, SUPABASE_KEY } = process.env;
   if (!SUPABASE_URL || !SUPABASE_KEY) return json(500, 'Server not configured');
 
-  const q = new URLSearchParams(event.rawQuery || '');
-  const table = q.get('table') || '';
+  // หาชื่อตารางจากหลายแหล่ง (พารามิเตอร์ที่ redirect ส่งมา หรือเส้นทางที่เบราว์เซอร์เรียก)
+  let q;
+  try { q = new URLSearchParams(event.rawUrl ? new URL(event.rawUrl).search : (event.rawQuery || '')); }
+  catch { q = new URLSearchParams(event.rawQuery || ''); }
+  const fromPath = ((event.rawUrl || '') + ' ' + (event.path || '')).match(/(hospital_[a-z_]+_stats)(?:[?\s/]|$)/);
+  const table = q.get('table') || (event.queryStringParameters || {}).table || (fromPath ? fromPath[1] : '');
   q.delete('table');
   if (!/^hospital_[a-z_]+_stats$/.test(table)) return json(404, 'Not Found'); // อนุญาตเฉพาะตารางสถิติ
 
