@@ -11,7 +11,9 @@ exports.handler = async (event) => {
   q.delete('table');
   if (!/^hospital_[a-z_]+_stats$/.test(table)) return json(404, 'Not Found'); // อนุญาตเฉพาะตารางสถิติ
 
-  const h = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY };
+  const key = SUPABASE_KEY.trim();
+  const h = { apikey: key };
+  if (!key.startsWith('sb_')) h.Authorization = 'Bearer ' + key; // คีย์แบบใหม่ (sb_...) ไม่ใช่ JWT ห้ามส่งใน Authorization
   if (event.headers['range']) h['Range'] = event.headers['range'];
   if (event.headers['range-unit']) h['Range-Unit'] = event.headers['range-unit'];
 
