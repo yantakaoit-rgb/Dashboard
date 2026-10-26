@@ -38,7 +38,8 @@ http.createServer(async (req, res) => {
     const m = u.pathname.match(/^\/api\/sb\/rest\/v1\/(hospital_[a-z_]+_stats)$/); // อนุญาตเฉพาะตารางสถิติ
     if (m) {
       if (limited(req.socket.remoteAddress)) return send(res, 429, 'Too Many Requests');
-      const h = { apikey: SUPABASE_KEY, Authorization: 'Bearer ' + SUPABASE_KEY };
+      const h = { apikey: SUPABASE_KEY.trim() };
+      if (!SUPABASE_KEY.trim().startsWith('sb_')) h.Authorization = 'Bearer ' + SUPABASE_KEY.trim();
       if (req.headers['range']) h['Range'] = req.headers['range'];
       if (req.headers['range-unit']) h['Range-Unit'] = req.headers['range-unit'];
       const r = await fetch(`${BASE}/rest/v1/${m[1]}${u.search}`, { headers: h });
