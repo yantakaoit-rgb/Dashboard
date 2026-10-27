@@ -72,6 +72,9 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vtl,#vtr{position:absolute;top:50%;z-index:5;width:22px;height:54px;margin-top:-27px;padding:0;border:1px solid var(--line);background:var(--panel);color:#e8f1f8;cursor:pointer;font-size:14px;backdrop-filter:blur(8px);transition:left .3s,right .3s}
 #vtl{left:200px;border-radius:0 10px 10px 0;border-left:0}#vtr{right:280px;border-radius:10px 0 0 10px;border-right:0}
 #v3.hl #vtl{left:0}#v3.hr #vtr{right:0}
+#vlist .lh{position:sticky;top:-6px;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:-6px -6px 4px;padding:8px 10px;background:#0f2236;border-radius:12px 12px 0 0;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:600;color:#e8f1f8;cursor:pointer;user-select:none}
+#vlist .lh span{color:var(--mut);font-weight:400;font-size:11px}#vlist .lh b{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#ffffff14;font-size:15px;line-height:1}#vlist .lh:hover b{background:#ffffff26}
+#vlist.min{overflow:hidden;padding-bottom:0}#vlist.min .lh{margin:-6px;border-bottom:0;border-radius:12px;position:static}#vlist.min button{display:none}
 #vlist button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;font:inherit;font-size:13px;color:#e8f1f8;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer}
 #vlist button:hover,#vlist button.on{background:#ffffff14}#vlist button i{width:9px;height:9px;border-radius:50%;flex:none}#vlist small{display:block;color:var(--mut);font-size:11px}
 #vdet{right:10px;top:68px;width:270px;padding:14px;max-height:calc(100% - 130px);overflow:auto;font-size:13.5px}
@@ -80,7 +83,7 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vhint{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;color:var(--mut);font-size:12px;white-space:nowrap}
 #vmsg{left:50%;top:62px;transform:translateX(-50%);padding:4px 12px;color:#f5b441;font-size:12.5px}#vmsg:empty{display:none}
 #vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
-@media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto;top:70px}#vtl,#vtr{top:auto;bottom:10px;margin:0;height:34px}#vtl{left:0}#vtr{right:auto;left:26px;border-radius:0 10px 10px 0;border:1px solid var(--line);border-left:0}#v3.hl #vtl{left:0}#v3.hr #vtr{left:26px}}
+@media(max-width:900px){#vlist .lh{display:none}#vlist.min button{display:flex}#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto;top:70px}#vtl,#vtr{top:auto;bottom:10px;margin:0;height:34px}#vtl{left:0}#vtr{right:auto;left:26px;border-radius:0 10px 10px 0;border:1px solid var(--line);border-left:0}#v3.hl #vtl{left:0}#v3.hr #vtr{left:26px}}
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
 dialog input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:var(--teal);color:#fff;cursor:pointer;margin:14px 6px 0 0}dialog button.g{background:#64748b}
@@ -464,6 +467,9 @@ function setR(h){vr.classList.toggle('hid',h);V.classList.toggle('hr',h);br.text
 const isHid=()=>vl.classList.contains('hid')&&vr.classList.contains('hid');
 bl.onclick=e=>{e.stopPropagation();setL(!vl.classList.contains('hid'))};
 br.onclick=e=>{e.stopPropagation();setR(!vr.classList.contains('hid'))};
+function setMin(m){vl.classList.toggle('min',m);const b=vl.querySelector('.lh b');if(b)b.textContent=m?'+':'−'}
+vl.addEventListener('click',e=>{if(e.target.closest('.lh'))setMin(!vl.classList.contains('min'))});
+vl.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.lh')){e.preventDefault();setMin(!vl.classList.contains('min'))}});
 /* คลิกพื้นที่ว่างในฉาก = ซ่อน/แสดงทั้งซ้ายและขวา */
 function togglePanels(){const h=!isHid();setL(h);setR(h)}
 const stt=(w,tg)=>w==null?'ok':w<=tg?'ok':w<=tg*1.3?'warn':'bad';
@@ -495,7 +501,7 @@ function build(D){
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:Math.min(8,1.5+(tri||5)/3),q:Math.min(8,1+(doc||10)/6),room:Math.min(9,2+(con||10)/3),ph:Math.min(8,1.5+(pha||8)/4)};
   spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));
-  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
+  $('#vlist').innerHTML='<div class="lh" role="button" tabindex="0" title="ย่อ/ขยายรายการ"><div>จุดบริการ <span>'+ITEMS.length+' จุด</span></div><b>'+(vl.classList.contains('min')?'+':'−')+'</b></div>'+ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
   $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · คลิกพื้นที่ว่างหรือปุ่มขอบ ◀ ▶ เพื่อซ่อน/แสดงแผงซ้าย-ขวา · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนสีส้มไหลเข้า = ยังไม่มีเวลาในระบบ`;
