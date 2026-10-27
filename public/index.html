@@ -474,7 +474,7 @@ function select(i){sel=i;auto=false;const o=ITEMS[i];
 function build(D){
   M=derive(D);const m=model(D);M.m=m;
   ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);o.lbl=o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที');o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
-    paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
+    (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
   signs.forEach(paintSign);
   {const d=D.d,tm=(v,t)=>v==null?'รอข้อมูลเวลา':t+' '+fm(v,1)+' นาที';
    paintT(TP.reg,'เปิดบัตร '+fm(m.opd)+' ราย','#27c4cf');
