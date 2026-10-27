@@ -340,7 +340,7 @@ function derive(D){
 }
 
 /* ---------- 3D scene: ห้องโรงพยาบาลจำลอง (ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง) ---------- */
-const COL={ok:0x2fd08a,warn:0xf5b441,bad:0xff5d4a},CSS={ok:'#2fd08a',warn:'#f5b441',bad:'#ff5d4a'},STT={ok:'ปกติ',warn:'เฝ้าระวัง',bad:'เกินเป้าหมาย'};
+const COL={ok:0x2fd08a,warn:0xf5b441,bad:0xff5d4a,na:0x8da4b8},CSS={ok:'#2fd08a',warn:'#f5b441',bad:'#ff5d4a',na:'#8da4b8'},STT={ok:'ปกติ',warn:'เฝ้าระวัง',bad:'เกินเป้าหมาย',na:'ยังไม่มีเวลาในระบบ'};
 const V=document.querySelector('#v3'),cv=$('#vc'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;
 const SC=new THREE.Scene();SC.background=new THREE.Color(0x0a1626);SC.fog=new THREE.Fog(0x0a1626,85,180);
 const CAM=new THREE.PerspectiveCamera(42,1,.1,300);
@@ -415,10 +415,17 @@ function drawQueues(){while(qG.children.length)qG.remove(qG.children[0]);
 /* ผู้ป่วยเดินในโรงพยาบาล */
 const pats=[],pm=new THREE.MeshStandardMaterial({color:0x27c4cf,roughness:.5,emissive:0x0a5a62,emissiveIntensity:.4});
 let M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,WT={reg:2,desk:3,q:2,room:4,ph:3};
-function spawn(){if(pats.length>=40)return;const d=dc++%5,r=rcn++%6,xd=XD[d],xr=XR[r],j=(Math.random()-.5)*.5;
+const pmF=new THREE.MeshStandardMaterial({color:0xf5b441,roughness:.5,emissive:0x8a5a00,emissiveIntensity:.5});let flowT=0;
+function mk(P,m,j){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,m),h=new THREE.Mesh(headG,m);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
+function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;let P;
+  if(o.kind==='desk')P=[[-19.5,11,0],[o.x,11,0],[o.x,5.6,1.5],[o.x,9.5,0]];
+  else if(o.kind==='room')P=[[-13.2,9.5,0],[-13.2,.5,0],[o.x,.5,0],[o.x,-5.8,1],[o.x,-9,2],[o.x,-5.8,0],[o.x,.5,0]];
+  else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
+  mk(P,pmF,j)}
+function spawn(){if(pats.length>=60)return;const d=dc++%5,r=rcn++%6,xd=XD[d],xr=XR[r],j=(Math.random()-.5)*.5;
   const P=[[-28,12,0],[-19.5,12,0],[-19.5,5,WT.reg],[-19.5,11,0],[xd,11,0],[xd,5.6,WT.desk],[xd,9.5,0],[-13.2,9.5,0],[-13.2,.5,0],[xr,.5,0],[xr,-5.8,WT.q],[xr,-9,WT.room],[xr,-5.8,0],[xr,.5,0],[21.2,.5,0],[21.2,-1,WT.ph],[21.2,11,0],[29,12,0]];
   const g=new THREE.Group(),b=new THREE.Mesh(bodyG,pm),h=new THREE.Mesh(headG,pm);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
-function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
+function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}flowT+=dt;if(flowT>.7){flowT=0;ITEMS.forEach(o=>{if(o.flow)spawnFlow(o)})}
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];if(p.w>0){p.w-=dt;continue}
     const T=p.P[p.i],t=new THREE.Vector3(T[0]+p.j,0,T[1]),v=t.clone().sub(p.g.position),d=v.length();
     if(d<.2){p.w=T[2]*(.6+Math.random()*.8);p.i++;if(p.i>=p.P.length){SC.remove(p.g);pats.splice(k,1)}}
@@ -448,28 +455,28 @@ function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_dai
   const tri=val(d.avg_wait_reg_to_triage),doc=val(d.avg_wait_for_doctor),con=val(d.avg_doctor_consult_time),pha=val(d.avg_wait_for_pharmacy),tot=val(d.avg_total_process_time);
   const dk=split(net,5),rm=split(net,6),mn=v=>v==null?'-':fm(v,1)+' นาที';
   const info=ITEMS.map(o=>{
-    if(o.kind==='reg')return{cnt:opd,st:'ok',u:'ราย (ผู้ป่วยนอกทั้งหมด)',rows:[['ผู้ป่วยนอกทั้งหมด',fm(opd)+' ราย'],['หัก: รับเป็นผู้ป่วยใน','− '+fm(adm)+' ราย'],['หัก: จำหน่ายออก','− '+fm(dis)+' ราย'],['คงเหลือเข้าระบบตรวจ',fm(net)+' ราย'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]};
-    if(o.kind==='desk')return{cnt:dk[o.no-1],st:stt(tri,TG.triage),u:'ราย (เฉลี่ยต่อโต๊ะ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน 5 โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
-    if(o.kind==='room')return{cnt:rm[o.no-1],st:stt(doc,TG.doctor),u:'ราย (เฉลี่ยต่อห้อง)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน 6 ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
-    return{cnt:net,st:stt(pha,TG.pharm),u:'ราย (รับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
+    if(o.kind==='reg')return{cnt:opd,big:opd,st:'ok',u:'ราย (เปิดบัตรวันนี้)',rows:[['ผู้ป่วยนอกทั้งหมด',fm(opd)+' ราย'],['หัก: รับเป็นผู้ป่วยใน','− '+fm(adm)+' ราย'],['หัก: จำหน่ายออก','− '+fm(dis)+' ราย'],['คงเหลือเข้าระบบตรวจ',fm(net)+' ราย'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]};
+    if(o.kind==='desk')return{cnt:dk[o.no-1],tm:tri,big:tri==null?'-':fm(tri,1),st:tri==null?'na':stt(tri,TG.triage),u:'นาที (รอคัดกรอง/ซักประวัติ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน 5 โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
+    if(o.kind==='room')return{cnt:rm[o.no-1],tm:doc,big:doc==null?'-':fm(doc,1),st:doc==null?'na':stt(doc,TG.doctor),u:'นาที (รอพบแพทย์)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน 6 ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
+    return{cnt:net,tm:pha,big:pha==null?'-':fm(pha,1),st:pha==null?'na':stt(pha,TG.pharm),u:'นาที (รอรับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
   return{opd,adm,dis,net,info,per5:net/5,per6:net/6}}
 function select(i){sel=i;auto=false;const o=ITEMS[i];
   document.querySelectorAll('#vlist button').forEach((b,k)=>b.classList.toggle('on',k===i));
-  $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${fm(o.cnt)}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
+  $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${o.big}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
   tgt.set(o.x*.7,0,o.z*.6+1);selR.visible=true;selR.position.x=o.x;selR.position.z=o.z;selR.scale.setScalar(o.kind==='desk'?.75:o.kind==='room'?.9:1.4)}
 function build(D){
   M=derive(D);const m=model(D);M.m=m;
-  ITEMS.forEach((o,k)=>{const f=m.info[k];Object.assign(o,f);const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
-    paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
+  ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);o.lbl=o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที');o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
+    paint(o.lb,o.name,o.lbl,CSS[o.st])});
   signs.forEach(paintSign);
   unit=Math.max(1,Math.ceil(Math.max(m.per5,m.per6)/8));drawQueues();
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:Math.min(8,1.5+(tri||5)/3),q:Math.min(8,1+(doc||10)/6),room:Math.min(9,2+(con||10)/3),ph:Math.min(8,1.5+(pha||8)/4)};
   spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));
-  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${fm(o.cnt)} ราย</small></span></button>`).join('');
+  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   $('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก</i><b>${fm(m.opd)}</b></div><div><i>หัก IPD + จำหน่าย</i><b>−${fm(m.adm+m.dis)}</b></div><div><i>คงเหลือ</i><b>${fm(m.net)}</b></div><div><i>เฉลี่ย/โต๊ะซักประวัติ (5)</i><b>${fm(m.per5,1)}</b></div><div><i>เฉลี่ย/ห้องตรวจ (6)</i><b>${fm(m.per6,1)}</b></div>`;
-  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · คนที่ยืนรอ 1 รูป ≈ ${unit} ราย · ลูกศรเขียว/เหลือง/แดง = สถานะเวลารอ`;
+  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · คนที่ยืนรอ 1 รูป ≈ ${unit} ราย · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนสีส้มไหลเข้า = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง':'';
   if(sel!=null)select(sel)}
 
