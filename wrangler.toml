@@ -1,4 +1,4 @@
-name = "hospital-dashboard"
+name = "dashboard-ytkhos"
 main = "worker.js"
 compatibility_date = "2025-09-01"
 
