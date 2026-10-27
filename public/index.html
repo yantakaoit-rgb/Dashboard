@@ -122,7 +122,7 @@ const CONFIG={
   logo:''
 };
 const AUTO=!/YOUR_/.test(CONFIG.url+CONFIG.key)&&CONFIG.url&&CONFIG.key;
-const TARGET={occ:85,wait:20,readmit:10,total:60}; // เป้าหมายส่วนแจ้งเตือน (แก้ได้)
+const TARGET={occ:85,wait:20,consult:15,readmit:10,total:60}; // เป้าหมายส่วนแจ้งเตือน (แก้ได้)
 const $=s=>document.querySelector(s),TB=['daily','hourly','department','pttype','er_triage','doctor_clinic'];
 const num=v=>+v||0,sum=(a,f)=>a.reduce((s,r)=>s+num(f(r)),0);
 const avg=(a,f)=>{const x=a.map(f).filter(v=>v!==null&&v!==''&&v!==undefined&&isFinite(+v)).map(Number);return x.length?x.reduce((s,v)=>s+v,0)/x.length:null};
@@ -151,7 +151,7 @@ function demo(a,b){
     [['อายุรกรรม',70],['กุมารเวช',45],['ศัลยกรรม',35],['สูติ-นรีเวช',30]].forEach(([d,n])=>D.department.push({record_date:s,department:d,visit_count:n+R(15)}));
     [['UC',.6],['ประกันสังคม',.25],['ชำระเงินเอง',.15]].forEach(([d,p])=>D.pttype.push({record_date:s,pttype_name:d,his_income:Math.round(300e3*p*w)}));
     [['Level 1',1],['Level 2',6],['Level 3',14],['Level 4',9],['Level 5',3]].forEach(([d,n],j)=>D.er_triage.push({record_date:s,triage_level_id:j+1,triage_level_name:d,patient_count:n+R(3)}));
-    [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4)}));
+    [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4),avg_consult_time:9+R(8)}));
   }
   return D;
 }
@@ -238,19 +238,19 @@ function render(cur,prev,a,b){
   const opd=sum(d,r=>r.opd_daily_count),adm=sum(d,r=>r.ipd_new_admit_daily),dis=sum(d,r=>r.ipd_discharged_daily),er=sum(erR,r=>r.service_count);
   const tot=avg(d,r=>r.ipd_total_beds)||0,used=avg(d,r=>r.ipd_current_beds)||0,occ=tot?used/tot*100:0;
   const pt=avg(pd,r=>r.ipd_total_beds)||0,pocc=pt?(avg(pd,r=>r.ipd_current_beds)||0)/pt*100:0;
-  const wait=avg(d,r=>r.avg_wait_for_doctor),los=avg(d,r=>r.ipd_avg_length_of_stay);
+  const wait=avg(d,r=>r.avg_wait_for_doctor),consult=avg(d,r=>r.avg_doctor_consult_time),los=avg(d,r=>r.ipd_avg_length_of_stay);
   const iO=sum(d,r=>r.opd_his_income),iI=sum(d,r=>r.ipd_his_discharge_income),iE=sum(d,r=>r.er_his_income),inc=iO+iI;
   const pinc=sum(pd,r=>r.opd_his_income)+sum(pd,r=>r.ipd_his_discharge_income);
   const readmit=avg(d,r=>r.readmit_28days_pct),proc=avg(d,r=>r.avg_total_process_time);
   const keyf=span>62?(s=>s.slice(0,7)):(s=>s),keys=[...new Set(d.map(r=>keyf(r.record_date)))].sort();
   const mv=(rows,f)=>keys.map(k=>sum(rows.filter(r=>keyf(r.record_date)===k),f));
-  const flow=[['ลงทะเบียน→คัดกรอง',avg(d,r=>r.avg_wait_reg_to_triage)],['รอพบแพทย์',wait],['ตรวจโดยแพทย์',avg(d,r=>r.avg_doctor_consult_time)],['รอรับยา',avg(d,r=>r.avg_wait_for_pharmacy)],['รวมทั้งกระบวนการ',proc]];
+  const flow=[['ลงทะเบียน→คัดกรอง',avg(d,r=>r.avg_wait_reg_to_triage)],['รอพบแพทย์',wait],['ตรวจโดยแพทย์',consult],['รอรับยา',avg(d,r=>r.avg_wait_for_pharmacy)],['รวมทั้งกระบวนการ',proc]];
   const dep=group(cur.department,r=>r.department,r=>r.visit_count).slice(0,10);
   const tri=group(cur.er_triage,r=>r.triage_level_name,r=>r.patient_count).sort((x,y)=>x[0]<y[0]?-1:1),trT=sum(tri,r=>r[1])||1;
-  const dr={};cur.doctor_clinic.forEach(r=>{const o=dr[r.doctor_code]||(dr[r.doctor_code]={n:r.doctor_name,c:r.clinic_name,v:0,p:0,a:0});o.v+=num(r.visit_count);o.p+=num(r.patient_count);o.a+=num(r.admit_count)});
-  const drs=Object.values(dr).sort((x,y)=>y.v-x.v).slice(0,8);
+  const dr={};cur.doctor_clinic.forEach(r=>{const o=dr[r.doctor_code]||(dr[r.doctor_code]={n:r.doctor_name,c:r.clinic_name,v:0,p:0,a:0,t:[]});o.v+=num(r.visit_count);o.p+=num(r.patient_count);o.a+=num(r.admit_count);if(r.avg_consult_time!=null&&r.avg_consult_time!==''&&isFinite(+r.avg_consult_time))o.t.push(+r.avg_consult_time)});
+  const drs=Object.values(dr).sort((x,y)=>y.v-x.v).slice(0,8),hasT=drs.some(r=>r.t.length);
   const pay=group(cur.pttype,r=>r.pttype_name,r=>r.his_income),payT=sum(pay,r=>r[1])||1;
-  const al=[['อัตราการครองเตียง',occ,TARGET.occ,'%'],['เวลารอพบแพทย์',wait,TARGET.wait,' นาที'],['Readmit 28 วัน',readmit,TARGET.readmit,'%'],['เวลารวมทั้งกระบวนการ OPD',proc,TARGET.total,' นาที']];
+  const al=[['อัตราการครองเตียง',occ,TARGET.occ,'%'],['เวลารอพบแพทย์',wait,TARGET.wait,' นาที'],['ระยะเวลาตรวจแพทย์',consult,TARGET.consult,' นาที'],['Readmit 28 วัน',readmit,TARGET.readmit,'%'],['เวลารวมทั้งกระบวนการ OPD',proc,TARGET.total,' นาที']];
   const deep=deepCharts(cur,d,keys,keyf,erR);
   const gcol=occ>TARGET.occ?'#e2563c':'#14a3a8';
   $('#app').innerHTML=
@@ -260,6 +260,7 @@ function render(cur,prev,a,b){
      kpi('ER ผู้ป่วยฉุกเฉิน',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0,ser(erR,r=>r.service_count),'#e2563c')+
      kpi('จำหน่ายผู้ป่วยใน',fm(dis),'ราย',dis,sum(pd,r=>r.ipd_discharged_daily),0,ser(d,r=>r.ipd_discharged_daily),'#7c6bd6')+
      kpi('เวลารอพบแพทย์',fm(wait,1),'นาที',wait,avg(pd,r=>r.avg_wait_for_doctor),1,ser(d,r=>r.avg_wait_for_doctor),'#e9a23b')+
+     kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc/1e6,2),'ล้านบาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
@@ -267,7 +268,7 @@ function render(cur,prev,a,b){
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
    sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>`)+
    sec(6,'งานอุบัติเหตุฉุกเฉิน','Emergency Department',`<div class="kp" style="grid-template-columns:1fr 1fr">${kpi('ผู้ป่วย ER',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0)}${kpi('เฉลี่ยต่อวัน',fm(er/days,1),'ครั้ง',0,0)}</div><p style="margin:12px 0 2px;font-weight:600">ระดับความเร่งด่วน (Triage)</p>${bars(tri.map((t,i)=>[t[0]+' ('+fm(t[1]/trT*100,0)+'%)',t[1],['#e2563c','#f08a3c','#e9a23b','#2f9e6b','#8aa0b3'][i%5]]))}`)+
-   sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
+   sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th>${hasT?'<th>ตรวจเฉลี่ย (นาที)</th>':''}</tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td>${hasT?`<td>${r.t.length?fm(r.t.reduce((x,y)=>x+y,0)/r.t.length,1):'-'}</td>`:''}</tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
    sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc/1e6,1)+'M',132,{sub:'ล้านบาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v/1e6,2)+' ล้านบาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v/1e6,2)+' ลบ.')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
    sec(9,'คุณภาพบริการ','Quality',`<div class="kp" style="grid-template-columns:1fr">${kpi('อัตรากลับมารักษาซ้ำภายใน 28 วัน',fm(readmit,1),'%',readmit,avg(pd,r=>r.readmit_28days_pct),1,ser(d,r=>r.readmit_28days_pct),'#e9a23b')}</div><p class="nd">ความพึงพอใจผู้ป่วยยังไม่มีข้อมูล — เพิ่มตารางแบบสำรวจเพื่อแสดงส่วนนี้</p>`)+
    sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
