@@ -1,0 +1,10 @@
+name = "hospital-dashboard"
+main = "worker.js"
+compatibility_date = "2025-09-01"
+
+# ไฟล์หน้าเว็บ (ไฟล์ที่ตรงกับ path จะถูกเสิร์ฟก่อน ที่เหลือส่งเข้า Worker)
+[assets]
+directory = "./public"
+binding = "ASSETS"
+
+# ห้ามใส่ SUPABASE_URL / SUPABASE_KEY ที่นี่ — ตั้งเป็น Secret แทน (ดู README)

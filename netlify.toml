@@ -1,0 +1,9 @@
+[build]
+  publish = "public"
+  functions = "netlify/functions"
+
+[functions]
+  node_bundler = "esbuild"
+
+# เส้นทาง /api/sb/* ถูกกำหนดในไฟล์ฟังก์ชันเอง (netlify/functions/sb.mjs)
+# security headers อยู่ใน public/_headers (ใช้ร่วมกับ Cloudflare)
