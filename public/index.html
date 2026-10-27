@@ -68,13 +68,7 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vkc{display:flex;gap:8px;flex-wrap:wrap}#vkc div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#vkc i{font-style:normal;color:var(--mut);font-size:11px;display:block}#vkc b{font-size:16px}
 #vtop .c3{display:flex;gap:6px;align-items:center}#vtop input,#vtop button,#vz button{font:inherit;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#ffffff12;color:#e8f1f8;color-scheme:dark;cursor:pointer}
 #vlist{left:10px;top:68px;width:190px;padding:6px;max-height:calc(100% - 130px);overflow:auto}
-#vlist,#vdet{transition:opacity .3s,transform .3s}#vlist.hid{opacity:0;transform:translateX(-14px);pointer-events:none}#vdet.hid{opacity:0;transform:translateX(14px);pointer-events:none}
-#vtl,#vtr{position:absolute;top:50%;z-index:5;width:22px;height:54px;margin-top:-27px;padding:0;border:1px solid var(--line);background:var(--panel);color:#e8f1f8;cursor:pointer;font-size:14px;backdrop-filter:blur(8px);transition:left .3s,right .3s}
-#vtl{left:200px;border-radius:0 10px 10px 0;border-left:0}#vtr{right:280px;border-radius:10px 0 0 10px;border-right:0}
-#v3.hl #vtl{left:0}#v3.hr #vtr{right:0}
-#vlist .lh{position:sticky;top:-6px;z-index:2;display:flex;justify-content:space-between;align-items:center;gap:8px;margin:-6px -6px 4px;padding:8px 10px;background:#0f2236;border-radius:12px 12px 0 0;border-bottom:1px solid var(--line);font-size:12.5px;font-weight:600;color:#e8f1f8;cursor:pointer;user-select:none}
-#vlist .lh span{color:var(--mut);font-weight:400;font-size:11px}#vlist .lh b{display:grid;place-items:center;width:24px;height:24px;border-radius:7px;background:#ffffff14;font-size:15px;line-height:1}#vlist .lh:hover b{background:#ffffff26}
-#vlist.min{overflow:hidden;padding-bottom:0}#vlist.min .lh{margin:-6px;border-bottom:0;border-radius:12px;position:static}#vlist.min button{display:none}
+#vlist{transition:opacity .35s,transform .35s}#vlist.hid{opacity:0;transform:translateX(-14px);pointer-events:none}
 #vlist button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;font:inherit;font-size:13px;color:#e8f1f8;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer}
 #vlist button:hover,#vlist button.on{background:#ffffff14}#vlist button i{width:9px;height:9px;border-radius:50%;flex:none}#vlist small{display:block;color:var(--mut);font-size:11px}
 #vdet{right:10px;top:68px;width:270px;padding:14px;max-height:calc(100% - 130px);overflow:auto;font-size:13.5px}
@@ -83,10 +77,12 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vhint{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;color:var(--mut);font-size:12px;white-space:nowrap}
 #vmsg{left:50%;top:62px;transform:translateX(-50%);padding:4px 12px;color:#f5b441;font-size:12.5px}#vmsg:empty{display:none}
 #vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
-@media(max-width:900px){#vlist .lh{display:none}#vlist.min button{display:flex}#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto;top:70px}#vtl,#vtr{top:auto;bottom:10px;margin:0;height:34px}#vtl{left:0}#vtr{right:auto;left:26px;border-radius:0 10px 10px 0;border:1px solid var(--line);border-left:0}#v3.hl #vtl{left:0}#v3.hr #vtr{left:26px}}
+@media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto;top:70px}}
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
 dialog input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:var(--teal);color:#fff;cursor:pointer;margin:14px 6px 0 0}dialog button.g{background:#64748b}
+.tg{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tg button{font:inherit;font-size:13px;padding:6px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}.tg button.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}.tg button:focus-visible{outline:2px solid var(--amber)}.tg span{margin-left:auto;color:var(--mut);font-size:12px}
+@media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
@@ -108,7 +104,7 @@ dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;backgroun
 <div class="p" id="vtop"><div id="vkc"></div><div class="c3"><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
-<button id="vtl" title="ซ่อน/แสดงรายการซ้าย" aria-label="ซ่อนหรือแสดงรายการซ้าย">◀</button><button id="vtr" title="ซ่อน/แสดงข้อมูลขวา" aria-label="ซ่อนหรือแสดงข้อมูลขวา">▶</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+<div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
 <dialog id="dlg">
@@ -149,13 +145,14 @@ async function get(t,a,b){
   return out;
 }
 function demo(a,b){
-  const D={};TB.forEach(t=>D[t]=[]);let i=0;const R=n=>Math.round(Math.random()*n);
+  const D={};TB.forEach(t=>D[t]=[]);D.dept_pttype=[];let i=0;const R=n=>Math.round(Math.random()*n);
   for(let s=a;s<=b;s=addD(s,1),i++){
     const w=1+.15*Math.sin(i/9);
     D.daily.push({record_date:s,opd_daily_count:Math.round(230*w)+R(30),ipd_new_admit_daily:R(8)+14,ipd_discharged_daily:R(8)+13,ipd_avg_length_of_stay:3.5+Math.random(),ipd_current_beds:Math.round(60*w),ipd_total_beds:80,opd_his_income:Math.round(420e3*w),ipd_his_discharge_income:Math.round(260e3*w),er_his_income:Math.round(60e3*w),readmit_28days_pct:6+Math.random()*3,avg_wait_reg_to_triage:8+R(4),avg_wait_for_doctor:22+R(8),avg_doctor_consult_time:11+R(5),avg_wait_for_pharmacy:14+R(6),avg_total_process_time:55+R(15)});
     D.hourly.push({record_date:s,patient_type:'ER',time_hour:'08:00',service_count:R(15)+25});
     [['อายุรกรรม',70],['กุมารเวช',45],['ศัลยกรรม',35],['สูติ-นรีเวช',30]].forEach(([d,n])=>D.department.push({record_date:s,department:d,visit_count:n+R(15)}));
     [['UC',.6],['ประกันสังคม',.25],['ชำระเงินเอง',.15]].forEach(([d,p])=>D.pttype.push({record_date:s,pttype_name:d,his_income:Math.round(300e3*p*w)}));
+    [['อายุรกรรม',90e3],['กุมารเวช',55e3],['ศัลยกรรม',80e3],['สูติ-นรีเวช',60e3],['ทันตกรรม',35e3],['ER',70e3]].forEach(([dp,base])=>[['UC',.6],['ประกันสังคม',.25],['ข้าราชการ',.1],['ชำระเงินเอง',.05]].forEach(([pt,sh])=>{const inc=Math.round(base*sh*w*(.9+Math.random()*.2));D.dept_pttype.push({record_date:s,department:dp,pttype_name:pt,income:inc})}));
     [['Level 1',1],['Level 2',6],['Level 3',14],['Level 4',9],['Level 5',3]].forEach(([d,n],j)=>D.er_triage.push({record_date:s,triage_level_id:j+1,triage_level_name:d,patient_count:n+R(3)}));
     [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4)}));
   }
@@ -236,6 +233,34 @@ function deepCharts(cur,d,keys,keyf,erR){
 
 const fdt=s=>new Date(s+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
 function banner(a,b,pa,pb,n,seven,have){const $r=$('#rb');$r.innerHTML=`<div>${seven?'<span class="pill">7 วันล่าสุด</span>':`<span class="pill">${n} วัน</span>`}<b>${fdt(a)} – ${fdt(b)}</b><span>เปรียบเทียบกับ ${fdt(pa)} – ${fdt(pb)}</span>${have!=null?`<span>มีข้อมูล ${have}/${n} วัน</span>`:''}<span style="margin-left:auto;font-size:12px">ข้อมูลล่าสุด ${fdt(b)}</span></div>`}
+/* ===== การ์ดรายรับแยกตามแผนก × สิทธิการรักษา (ตาราง hospital_dept_pttype_stats: record_date, department, pttype_name, income) ===== */
+const PTC=['#0b7a8a','#e9a23b','#2f9e6b','#7c6bd6','#e2563c','#14a3a8','#8aa0b3'];
+let DPV='dept',DPD=null,DPP=[];
+function dpRender(){
+  const box=$('#dpc');if(!box)return;
+  if(DPD===null){box.innerHTML='<div class="nd">ยังไม่พบตาราง <b>hospital_dept_pttype_stats</b> ใน Supabase (หรือยังไม่อนุญาตให้อ่าน) — สร้างตารางตามโครงสร้างที่แนบไว้ แล้วกด "โหลด" อีกครั้ง</div>';return}
+  if(!DPD.length){box.innerHTML='<div class="nd">ไม่มีข้อมูลรายรับในช่วงวันที่ที่เลือก</div>';return}
+  const byD=DPV==='dept',RK=r=>(byD?r.department:r.pttype_name)||'ไม่ระบุ',SK=r=>(byD?r.pttype_name:r.department)||'ไม่ระบุ',I=r=>num(r.income);
+  const rl=byD?'แผนก':'สิทธิการรักษา',sl=byD?'สิทธิการรักษา':'แผนก';
+  const T=sum(DPD,I),TP=sum(DPP,I);
+  const rowAll=group(DPD,RK,I),segAll=group(DPD,SK,I);
+  const top=segAll.slice(0,6).map(x=>x[0]),pts=segAll.length>6?[...top,'อื่นๆ']:top,pk=n=>top.includes(n)?n:'อื่นๆ';
+  const col=n=>PTC[pts.indexOf(n)%PTC.length];
+  const prev={};DPP.forEach(r=>{const k=RK(r);prev[k]=(prev[k]||0)+I(r)});
+  const dm={};DPD.forEach(r=>{const k=RK(r),o=dm[k]||(dm[k]={n:k,t:0,p:{}}),s=pk(SK(r));o.t+=I(r);o.p[s]=(o.p[s]||0)+I(r)});
+  const dl=Object.values(dm).sort((x,y)=>y.t-x.t).slice(0,12),mxT=dl[0].t||1,mxC=Math.max(...dl.flatMap(o=>pts.map(p=>o.p[p]||0)),1);
+  const dchg=(v,p)=>p?`<span class="${v>=p?'up':'dn'}">${v>=p?'▲':'▼'} ${fm(Math.abs((v-p)/p*100),1)}%</span>`:'<span style="color:var(--mut)">-</span>';
+  const topR=rowAll[0],topS=segAll[0],cnt=(a)=>`<div class="k"><i>${a[0]}</i><strong style="font-size:18px;line-height:1.5">${esc(a[1])}</strong><em style="color:var(--mut)">${a[2]}</em></div>`;
+  const bar=o=>{const tot=o.t||1;
+    return `<div style="background:#eaf0f5;border-radius:99px;height:12px;overflow:hidden;min-width:120px"><div style="display:flex;height:100%;width:${o.t/mxT*100}%">${pts.map(p=>{const v=o.p[p]||0;return v>0?`<u style="display:block;height:100%;width:${v/tot*100}%;background:${col(p)}" data-tip="${esc(`<b>${o.n}</b><div class="tr"><span><i style="background:${col(p)}"></i>${p}</span><b>${fm(v)} บาท<em>${fm(v/tot*100,1)}%</em></b></div>`)}"></u>`:''}).join('')}</div></div>`};
+  const t1=`<table><tr><th>${rl}</th><th style="text-align:left;width:32%">สัดส่วนตาม${sl}</th><th>รายรับ (บาท)</th><th>% ของทั้งหมด</th><th>เทียบช่วงก่อน</th></tr>${dl.map(o=>`<tr><td><b>${esc(o.n)}</b></td><td style="text-align:left">${bar(o)}</td><td>${fm(o.t)}</td><td>${fm(o.t/T*100,1)}%</td><td>${dchg(o.t,prev[o.n]||0)}</td></tr>`).join('')}<tr><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>100%</b></td><td>${dchg(T,TP)}</td></tr></table>`;
+  const colT=p=>dl.reduce((s,o)=>s+(o.p[p]||0),0);
+  const t2=`<p style="margin:16px 0 6px;font-weight:600">ตาราง${rl} × ${sl} (รายรับ บาท)</p><div style="overflow-x:auto"><table><tr><th>${rl}</th>${pts.map(p=>`<th><i style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;background:${col(p)}"></i>${esc(p)}</th>`).join('')}<th>รวม</th></tr>${dl.map(o=>`<tr><td>${esc(o.n)}</td>${pts.map(p=>{const v=o.p[p]||0;return `<td style="background:rgba(11,122,138,${(v/mxC*.28).toFixed(3)})">${v?fm(v):'-'}</td>`}).join('')}<td><b>${fm(o.t)}</b></td></tr>`).join('')}<tr><td><b>รวม</b></td>${pts.map(p=>`<td><b>${fm(colT(p))}</b></td>`).join('')}<td><b>${fm(dl.reduce((s,o)=>s+o.t,0))}</b></td></tr></table></div>`;
+  const nD=new Set(DPD.map(r=>r.department||'ไม่ระบุ')).size,nP=new Set(DPD.map(r=>r.pttype_name||'ไม่ระบุ')).size;
+  box.innerHTML=`<div class="kp" style="margin-bottom:12px">${kpi('รายรับรวม',fm(T/1e6,2),'ล้านบาท',T,TP,0)}${cnt([byD?'แผนกรายรับสูงสุด':'สิทธิรายรับสูงสุด',topR[0],fm(topR[1]/T*100,1)+'% ของรายรับทั้งหมด'])}${cnt([byD?'สิทธิรายรับสูงสุด':'แผนกรายรับสูงสุด',topS[0],fm(topS[1]/T*100,1)+'% ของรายรับทั้งหมด'])}<div class="k"><i>จำนวนที่ครอบคลุม</i><strong style="font-size:18px;line-height:1.5">${nD} แผนก · ${nP} สิทธิ</strong><em style="color:var(--mut)">ในช่วงวันที่ที่เลือก</em></div></div><div class="tg"><button data-dpv="dept" class="${byD?'on':''}">ดูตามแผนก</button><button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button><span>หน่วย: บาท · แสดงสูงสุด 12 แถว</span></div><div class="lg" style="flex-wrap:wrap;margin:10px 0 8px">${pts.map(p=>`<span><i style="background:${col(p)}"></i>${esc(p)}</span>`).join('')}</div>`+t1+t2;
+}
+document.addEventListener('click',e=>{const b=e.target.closest?e.target.closest('[data-dpv]'):null;if(b){DPV=b.dataset.dpv;dpRender()}});
+
 function render(cur,prev,a,b){
   SHORT=(new Date(b)-new Date(a))/864e5<=13;
   const d=cur.daily,pd=prev.daily,days=d.length||1,span=(new Date(b)-new Date(a))/864e5;
@@ -277,7 +302,9 @@ function render(cur,prev,a,b){
    sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
    sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc/1e6,1)+'M',132,{sub:'ล้านบาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v/1e6,2)+' ล้านบาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v/1e6,2)+' ลบ.')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
    sec(9,'คุณภาพบริการ','Quality',`<div class="kp" style="grid-template-columns:1fr">${kpi('อัตรากลับมารักษาซ้ำภายใน 28 วัน',fm(readmit,1),'%',readmit,avg(pd,r=>r.readmit_28days_pct),1,ser(d,r=>r.readmit_28days_pct),'#e9a23b')}</div><p class="nd">ความพึงพอใจผู้ป่วยยังไม่มีข้อมูล — เพิ่มตารางแบบสำรวจเพื่อแสดงส่วนนี้</p>`)+
+   sec('8.1','รายรับแยกตามแผนกและสิทธิการรักษา','Revenue by Department × Patient Right','<div id="dpc"></div>','w12')+
    sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
+  DPD=cur.dept_pttype===undefined?null:cur.dept_pttype;DPP=prev.dept_pttype||[];dpRender();
 }
 
 async function load(){
@@ -286,10 +313,10 @@ async function load(){
   $('#msg').textContent=live?'กำลังโหลดข้อมูล…':'กำลังแสดงข้อมูลตัวอย่าง — แก้ CONFIG ในไฟล์ หรือกด "ตั้งค่า" เพื่อเชื่อมต่อ Supabase';
   try{
     let all;
-    if(live){const r=await Promise.all(TB.map(t=>get(t,pa,b)));all={};TB.forEach((t,i)=>all[t]=r[i]);$('#msg').textContent='';}
+    if(live){const r=await Promise.all(TB.map(t=>get(t,pa,b)));all={};TB.forEach((t,i)=>all[t]=r[i]);try{all.dept_pttype=await get('dept_pttype',pa,b)}catch(e){all.dept_pttype=null}$('#msg').textContent='';}
     else all=demo(pa,b);
     const cut=(o,f)=>{const x={};TB.forEach(t=>x[t]=o[t].filter(f));return x};
-    const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b),have=new Set(cc.daily.map(r=>r.record_date)).size;render(cc,cut(all,r=>r.record_date>=pa&&r.record_date<=pb),a,b);banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have);window.v3sync&&v3sync(b);
+    const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b);cc.dept_pttype=all.dept_pttype?all.dept_pttype.filter(r=>r.record_date>=a&&r.record_date<=b):null;const have=new Set(cc.daily.map(r=>r.record_date)).size;const pv=cut(all,r=>r.record_date>=pa&&r.record_date<=pb);pv.dept_pttype=all.dept_pttype?all.dept_pttype.filter(r=>r.record_date>=pa&&r.record_date<=pb):[];render(cc,pv,a,b);banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have);window.v3sync&&v3sync(b);
   }catch(e){$('#msg').textContent=(AUTO?'ไม่สามารถโหลดข้อมูลได้ในขณะนี้ กรุณาลองใหม่ภายหลัง':'โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจ URL, key และสิทธิ์อ่านตาราง (RLS policy)')}
 }
 function logo(){const l=cfg().l;$('#logo').innerHTML=l?`<img src="${l.replace(/"/g,'')}" alt="โลโก้" onerror="this.parentNode.textContent='✚'">`:'✚'}
@@ -457,21 +484,12 @@ cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefau
 const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
 function hit(e){const b=cv.getBoundingClientRect();mv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height)*2+1);rc.setFromCamera(mv,CAM);const h=rc.intersectObjects(pick)[0];return h?h.object.userData.i:null}
 function hover(e){cv.style.cursor=hit(e)!=null?'pointer':'grab'}
-function clickAt(e){const i=hit(e);if(i!=null){select(i);setR(false)}else togglePanels()}
+function clickAt(e){const i=hit(e);if(i!=null)select(i)}
 
 /* ---------- UI / ข้อมูล ---------- */
 let sel=null,hT;const vl=$('#vlist');
-const vr=$('#vdet'),bl=$('#vtl'),br=$('#vtr');
-function setL(h){vl.classList.toggle('hid',h);V.classList.toggle('hl',h);bl.textContent=h?'▶':'◀'}
-function setR(h){vr.classList.toggle('hid',h);V.classList.toggle('hr',h);br.textContent=h?'◀':'▶'}
-const isHid=()=>vl.classList.contains('hid')&&vr.classList.contains('hid');
-bl.onclick=e=>{e.stopPropagation();setL(!vl.classList.contains('hid'))};
-br.onclick=e=>{e.stopPropagation();setR(!vr.classList.contains('hid'))};
-function setMin(m){vl.classList.toggle('min',m);const b=vl.querySelector('.lh b');if(b)b.textContent=m?'+':'−'}
-vl.addEventListener('click',e=>{if(e.target.closest('.lh'))setMin(!vl.classList.contains('min'))});
-vl.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.closest('.lh')){e.preventDefault();setMin(!vl.classList.contains('min'))}});
-/* คลิกพื้นที่ว่างในฉาก = ซ่อน/แสดงทั้งซ้ายและขวา */
-function togglePanels(){const h=!isHid();setL(h);setR(h)}
+function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
+V.addEventListener('pointermove',showL);V.addEventListener('pointerdown',showL);showL();
 const stt=(w,tg)=>w==null?'ok':w<=tg?'ok':w<=tg*1.3?'warn':'bad';
 const split=(t,k)=>Array.from({length:k},(_,i)=>Math.floor(t/k)+(i<t%k?1:0));
 function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_daily),dis=n(d.ipd_discharged_daily),net=Math.max(opd-adm-dis,0);
@@ -501,10 +519,10 @@ function build(D){
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:Math.min(8,1.5+(tri||5)/3),q:Math.min(8,1+(doc||10)/6),room:Math.min(9,2+(con||10)/3),ph:Math.min(8,1.5+(pha||8)/4)};
   spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));
-  $('#vlist').innerHTML='<div class="lh" role="button" tabindex="0" title="ย่อ/ขยายรายการ"><div>จุดบริการ <span>'+ITEMS.length+' จุด</span></div><b>'+(vl.classList.contains('min')?'+':'−')+'</b></div>'+ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
+  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
-  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · คลิกพื้นที่ว่างหรือปุ่มขอบ ◀ ▶ เพื่อซ่อน/แสดงแผงซ้าย-ขวา · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนสีส้มไหลเข้า = ยังไม่มีเวลาในระบบ`;
+  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนสีส้มไหลเข้า = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง':'';
   if(sel!=null)select(sel)}
 
