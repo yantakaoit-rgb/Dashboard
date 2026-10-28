@@ -121,6 +121,10 @@ main .tg button{border-radius:999px;padding:6px 18px;transition:.15s}main .tg bu
 #sec1{background:linear-gradient(180deg,#fff,#f4f9fc)}
 @media(max-width:600px){.s{padding:16px;border-radius:18px}header{border-radius:0 0 20px 20px}}
 @media(prefers-reduced-motion:no-preference){.s{animation:rise .5s ease both}@keyframes rise{from{opacity:0;transform:translateY(10px)}}}
+.now{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);background:#eef6f7;border-radius:999px;padding:5px 14px;margin-bottom:12px;font-variant-numeric:tabular-nums}
+.now b{color:var(--ink);font-weight:600}.nd0{width:8px;height:8px;border-radius:50%;background:#16a37a;box-shadow:0 0 0 0 #16a37a88;animation:pls 1.6s infinite}
+#v3 .now{margin:0;color:#e8f1f8}#v3 .now b{color:#fff}@keyframes pls{70%{box-shadow:0 0 0 7px #16a37a00}}
+@media(prefers-reduced-motion:reduce){.nd0{animation:none}}
 </style>
 </head>
 <body>
@@ -139,7 +143,7 @@ main .tg button{border-radius:999px;padding:6px 18px;transition:.15s}main .tg bu
 <main id="app"></main>
 <div style="max-width:1480px;margin:0 auto;padding:0 clamp(14px,3vw,36px) 36px"><section class="s" id="s3d" style="padding:18px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
-<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
@@ -526,7 +530,7 @@ function render(cur,prev,a,b){
      kpi('รายได้รวม',fm(inc/1e6,2),'ล้านบาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
-   sec(4,'ระยะเวลารอ OPD (วันนี้)','OPD Flow & Waiting Time',bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
+   sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time','<div class="now"><span class="nd0"></span>เวลาปัจจุบัน <b class="nowclk"></b></div>'+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
    sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>${wardBedHtml(cur.bed_occupancy,IPDERR.bed_occupancy)}`)+
    sec(6,'งานอุบัติเหตุฉุกเฉิน','Emergency Department',`<div class="kp" style="grid-template-columns:1fr 1fr">${kpi('ผู้ป่วย ER',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0)}${kpi('เฉลี่ยต่อวัน',fm(er/days,1),'ครั้ง',0,0)}</div><p style="margin:12px 0 2px;font-weight:600">ระดับความเร่งด่วน (Triage)</p>${bars(tri.map((t,i)=>[t[0]+' ('+fm(t[1]/trT*100,0)+'%)',t[1],['#e2563c','#f08a3c','#e9a23b','#2f9e6b','#8aa0b3'][i%5]]))}`)+
    sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
@@ -850,6 +854,11 @@ n.onclick=e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();cons
 if(window.IntersectionObserver){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)n.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+x.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
 const watch=()=>L.forEach(([i])=>{const e=document.getElementById(i);if(e&&!e._w){e._w=1;io.observe(e)}});watch();new MutationObserver(watch).observe(document.body,{childList:true,subtree:true})}
 })();
+</script>
+<script>
+/* นาฬิกาเวลาปัจจุบัน (เขตเวลาไทย) สำหรับการ์ด 4 และ 3D */
+(function(){const f=new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.';document.querySelectorAll('.nowclk').forEach(e=>e.textContent=x)};t();setInterval(t,1000)})();
 </script>
 </body>
 </html>
