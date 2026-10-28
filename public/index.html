@@ -64,7 +64,8 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #v3{--ink:#0a1626;--panel:#0f2236ee;--line:#ffffff1f;--tx:#e8f1f8;--mut:#8da4b8;position:relative;height:min(86vh,760px);min-height:480px;border-radius:12px;overflow:hidden;background:#0a1626;color:#e8f1f8}
 #v3 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
 #v3.tbh #vtop,#v3.tbh #vlist,#v3.tbh #vdet,#v3.tbh #vhint,#v3.tbh #vzi,#v3.tbh #vzo,#v3.tbh #vzr{display:none}
-#v3.tbh #vz{top:10px;bottom:auto}#vtg{min-width:34px}
+#vtg{position:absolute;right:10px;bottom:10px;z-index:30;font:inherit;font-size:13px;font-weight:600;padding:8px 14px;border-radius:999px;border:1px solid #ffffff55;background:#0f2236;color:#fff;cursor:pointer;box-shadow:0 2px 10px #0006}#vtg:hover{background:#1b3a57}
+#vz{bottom:56px!important}#vz button{background:#0f2236!important;border-color:#ffffff40!important;box-shadow:0 2px 8px #0005}
 #v3 .p{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px)}
 #vtop{top:10px;left:10px;right:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 #vkc{display:flex;gap:8px;flex-wrap:wrap}#vkc div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#vkc i{font-style:normal;color:var(--mut);font-size:11px;display:block}#vkc b{font-size:16px}
@@ -79,7 +80,7 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vhint{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;color:var(--mut);font-size:12px;white-space:nowrap}
 #vmsg{left:50%;top:62px;transform:translateX(-50%);padding:4px 12px;color:#f5b441;font-size:12.5px}#vmsg:empty{display:none}
 #vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
-@media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto;top:70px}}
+@media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto!important;top:70px}}
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
 dialog input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:var(--teal);color:#fff;cursor:pointer;margin:14px 6px 0 0}dialog button.g{background:#64748b}
@@ -111,7 +112,7 @@ dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;backgroun
 <div class="p" id="vtop"><div id="vkc"></div><div class="c3"><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
-<div id="vz"><button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰</button><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+<button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
 <dialog id="dlg">
@@ -683,7 +684,7 @@ function clickAt(e){const i=hit(e);if(i!=null)select(i)}
 
 /* ---------- UI / ข้อมูล ---------- */
 /* เปิด/ปิดแถบเครื่องมือทั้งหมด (สถิติด้านบน รายการซ้าย รายละเอียดขวา คำแนะนำ ปุ่มซูม) */
-{const tb=()=>{try{return store.getItem('v3tb')==='0'}catch(e){return false}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰':'✕';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
+{const tb=()=>{try{return store.getItem('v3tb')==='0'}catch(e){return false}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
  ap(tb());$('#vtg').onclick=()=>{const h=!V.classList.contains('tbh');ap(h);try{store.setItem('v3tb',h?'0':'1')}catch(e){}}}
 let sel=null,hT;const vl=$('#vlist');
 function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
