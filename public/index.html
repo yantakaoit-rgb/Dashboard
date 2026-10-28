@@ -63,6 +63,8 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 
 #v3{--ink:#0a1626;--panel:#0f2236ee;--line:#ffffff1f;--tx:#e8f1f8;--mut:#8da4b8;position:relative;height:min(86vh,760px);min-height:480px;border-radius:12px;overflow:hidden;background:#0a1626;color:#e8f1f8}
 #v3 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#v3.tbh #vtop,#v3.tbh #vlist,#v3.tbh #vdet,#v3.tbh #vhint,#v3.tbh #vzi,#v3.tbh #vzo,#v3.tbh #vzr{display:none}
+#v3.tbh #vz{top:10px;bottom:auto}#vtg{min-width:34px}
 #v3 .p{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px)}
 #vtop{top:10px;left:10px;right:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 #vkc{display:flex;gap:8px;flex-wrap:wrap}#vkc div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#vkc i{font-style:normal;color:var(--mut);font-size:11px;display:block}#vkc b{font-size:16px}
@@ -109,7 +111,7 @@ dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;backgroun
 <div class="p" id="vtop"><div id="vkc"></div><div class="c3"><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
-<div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+<div id="vz"><button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰</button><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
 <dialog id="dlg">
@@ -140,10 +142,11 @@ const cfg=()=>AUTO?{u:CONFIG.url.replace(/\/$/,''),k:CONFIG.key,l:CONFIG.logo}:{
 
 const san=v=>typeof v==='string'?v.replace(/[<>"'`]/g,'’'):Array.isArray(v)?v.map(san):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,san(x)])):v;
 async function get(t,a,b){
-  const c=cfg(),out=[];
+  const c=cfg(),out=[];let ord='key_id'; // เรียงตาม key_id ก่อน ถ้าตารางไม่มีคอลัมน์นี้ (HTTP 400) จะถอยไปเรียงตามวันที่
   for(let o=0;;o+=1000){
-    const r=await fetch(`${c.u}/rest/v1/hospital_${t}_stats?select=*&record_date=gte.${a}&record_date=lte.${b}&order=key_id`,
-      {headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
+    const u=od=>`${c.u}/rest/v1/hospital_${t}_stats?select=*&record_date=gte.${a}&record_date=lte.${b}&order=${od}`,hd={headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}};
+    let r=await fetch(u(ord),hd);
+    if(r.status===400&&ord==='key_id'){ord='record_date';r=await fetch(u(ord),hd)} // ตารางผู้ป่วยในอาจไม่มี key_id ทำให้เดิมโหลดไม่ได้และแสดงว่าไม่พบข้อมูล
     if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(e){}throw new Error(`${t}: HTTP ${r.status}${m?' — '+m:''}`)}
     const j=san(await r.json());out.push(...j);if(j.length<1000)break;
   }
@@ -273,6 +276,7 @@ const DPC={uc:'#0b7a8a',paid:'#e9a23b',oth:'#8aa0b3'}; // สีของแต�
 const DPN={uc:'เบิกตามสิทธิ',paid:'ผู้ป่วยชำระเอง',oth:'อื่นๆ (ไม่ระบุ)'}; // ชื่อของแต่ละส่วน ใช้ในคำอธิบายสีและ tooltip
 let DPV='dept'; // มุมมองปัจจุบัน: 'dept' = ตามแผนก/หอผู้ป่วย, 'pt' = ตามสิทธิการรักษา
 let DPT='opd'; // ประเภทผู้ป่วยปัจจุบัน: 'opd' = ผู้ป่วยนอก, 'ipd' = ผู้ป่วยใน, 'all' = รวมทั้งหมด
+let IPDERR={}; // เก็บข้อความ error จริงตอนโหลดตารางผู้ป่วยใน ไว้แสดงในการ์ด
 let DPS={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงที่เลือก (แผนก, สิทธิ OPD, หอผู้ป่วย, สิทธิ IPD)
 let DPQ={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงก่อนหน้า ใช้เทียบ %
 
@@ -282,7 +286,7 @@ function dpRows(src,byD,pt){ // ปรับข้อมูลดิบจาก
   const mk=(k,n,r)=>({k:k,n:n,inc:num(r.his_income),uc:num(r.uc_money),paid:num(r.paid_money),an:num(r.discharge_an_count)}); // สร้างแถวมาตรฐาน (an = จำนวนผู้ป่วยจำหน่าย มีเฉพาะผู้ป่วยใน)
   if(byD){ // มุมมองตามแผนก/หอผู้ป่วย
     if(pt!=='ipd')(src.dept||[]).forEach(r=>out.push(mk('o:'+(r.main_dep||r.department||'ไม่ระบุ'),tag('[นอก] ')+(r.department||'ไม่ระบุ'),r))); // แผนกผู้ป่วยนอก (คีย์ใช้รหัสแผนก)
-    if(pt!=='opd')(src.ward||[]).forEach(r=>out.push(mk('i:'+(r.ward||r.ward_name||'ไม่ระบุ'),tag('[ใน] ')+(r.ward_name||'ไม่ระบุ'),r))); // หอผู้ป่วยใน (คีย์ใช้รหัสหอ)
+    if(pt!=='opd')(src.ward||[]).forEach(r=>out.push(mk('i:'+(r.ward||r.ward_name||'ไม่ระบุ'),tag('[ใน] ')+(r.ward_name||r.wardname||r.ward||'ไม่ระบุ'),r))); // หอผู้ป่วยใน (คีย์ใช้รหัสหอ)
   }else{ // มุมมองตามสิทธิการรักษา
     const f=r=>out.push(mk(r.pttype_name||'ไม่ระบุ',r.pttype_name||'ไม่ระบุ',r)); // แถวสิทธิ: คีย์และชื่อใช้ชื่อสิทธิ (OPD กับ IPD ที่ชื่อเดียวกันจะรวมกันตอนดูรวม)
     if(pt!=='ipd')(src.pt||[]).forEach(f); // สิทธิผู้ป่วยนอก
@@ -322,7 +326,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     `<button data-dpv="dept" class="${byD?'on':''}">${pt==='ipd'?'ดูตามหอผู้ป่วย':pt==='all'?'ดูตามแผนก/หอผู้ป่วย':'ดูตามแผนก'}</button>`+ // ปุ่มมุมมองแรก ชื่อเปลี่ยนตามประเภทผู้ป่วย
     `<button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button>`+ // ปุ่มดูตามสิทธิการรักษา
     '<span>หน่วย: บาท · แสดงสูงสุด 12 แถว ที่เหลือรวมเป็น "อื่นๆ"</span></div>'; // ข้อความหน่วยและข้อจำกัด
-  const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
+  const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว'+(Object.keys(IPDERR).length?'<br><small style="color:#b42318">สาเหตุที่โหลดไม่ได้: '+Object.values(IPDERR).map(esc).join(' | ')+'</small>':'')+'</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
   const note=(pt!=='opd'&&!ipdMiss)?'<p style="margin:8px 0 0;color:var(--mut);font-size:12px">ผู้ป่วยใน: นับตามผู้ป่วยที่จำหน่ายในช่วงวันที่ที่เลือก (ระดับหอผู้ป่วย/สิทธิ)</p>':''; // หมายเหตุวิธีนับรายรับผู้ป่วยใน
   if(!all.length){ // กรณีไม่มีข้อมูลรายรับในช่วงที่เลือก
     box.innerHTML=b1+b2+(warn||'<div class="nd">ไม่มีข้อมูลรายรับในช่วงวันที่ที่เลือก</div>'); // แสดงปุ่มพร้อมข้อความ (สาเหตุผู้ป่วยในถ้าเกี่ยวข้อง)
@@ -488,9 +492,10 @@ async function load(){
       const r=await Promise.all(TB.map(t=>get(t,pa,b))); // ดึงตารางเดิมทั้งหมดพร้อมกัน
       all={}; // อ็อบเจ็กต์เก็บข้อมูลทุกตาราง
       TB.forEach((t,i)=>all[t]=r[i]); // จับคู่ชื่อตารางกับข้อมูลที่ดึงมา
+      IPDERR={};
       for(const t of ['ward','ipd_pttype']){ // [เพิ่มใหม่] วนดึงตารางผู้ป่วยในทีละตาราง (แยกจากตารางหลัก)
         try{all[t]=await get(t,pa,b);} // ดึงจาก hospital_ward_stats / hospital_ipd_pttype_stats
-        catch(e){all[t]=[];} // ถ้าอ่านไม่ได้ ต้องไม่ทำให้ทั้งแดชบอร์ดพัง (การ์ดจะแสดงข้อความเตือนเอง)
+        catch(e){all[t]=[];IPDERR[t]=e.message;} // ถ้าอ่านไม่ได้ ต้องไม่ทำให้ทั้งแดชบอร์ดพัง (การ์ดจะแสดงข้อความเตือนเอง)
       }
       $('#msg').textContent=''; // ล้างข้อความสถานะ "กำลังโหลด"
     }
@@ -640,7 +645,7 @@ function qpos(o,k){const c=k%2,r=Math.floor(k/2);
   if(o.kind==='ph')return[21.6-r*.85,o.z+(c?.8:-.8)];
   return[-19.6+r*.85,o.z-2.5+(c?5:0)]}
 function drawQueues(){while(qG.children.length)qG.remove(qG.children[0]);
-  ITEMS.forEach(o=>{const f=Math.min(8,Math.ceil((o.cnt||0)/unit));for(let k=0;k<f;k++){const[x,z]=qpos(o,k);person(o.kind==='room'?0x3f9fd0:o.kind==='ph'?0x2fb27a:0xe9a23b,x,z,qG)}})}
+  ITEMS.forEach(o=>{const f=Math.min(8,Math.ceil((o.cnt||0)/unit));for(let k=0;k<f;k++){const[x,z]=qpos(o,k);person(o.kind==='room'?0x3f9fd0:o.kind==='ph'?0x2fb27a:0x27c4cf,x,z,qG)}})}
 /* ผู้ป่วยเดินในโรงพยาบาล */
 const pats=[],pm=new THREE.MeshStandardMaterial({color:0x27c4cf,roughness:.5,emissive:0x0a5a62,emissiveIntensity:.4});
 let M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,WT={reg:2,desk:3,q:2,room:4,ph:3};
@@ -652,9 +657,9 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
   else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
   mk(P,pmF,j)}
 function spawn(){if(pats.length>=60)return;const d=dc++%5,r=rcn++%6,xd=XD[d],xr=XR[r],j=(Math.random()-.5)*.5;
-  const P=[[-28,12,0],[-19.5,12,0],[-19.5,5,WT.reg],[-19.5,11,0],[xd,11,0],[xd,5.6,WT.desk],[xd,9.5,0],[-13.2,9.5,0],[-13.2,.5,0],[xr,.5,0],[xr,-5.8,WT.q],[xr,-9,WT.room],[xr,-5.8,0],[xr,.5,0],[21.2,.5,0],[21.2,-1,WT.ph],[21.2,11,0],[29,12,0]];
+  const q=()=>(Math.random()-.5)*.9,P=[[-28,12,0],[-19.5,12,0],[-19.5,5,WT.reg],[-19.5,11,0],[xd,11,0],[xd,5.6+q(),WT.desk],[xd,9.5,0],[-13.2,9.5,0],[-13.2,.5,0],[xr,.5,0],[xr,-5.8+q(),WT.q],[xr,-9,WT.room],[xr,-5.8,0],[xr,.5,0],[21.2,.5,0],[21.2+q(),-1+q(),WT.ph],[21.2,11,0],[29,12,0]]; // q() = กระจายจุดยืนรอเล็กน้อยไม่ให้ซ้อนกัน
   const g=new THREE.Group(),b=new THREE.Mesh(bodyG,pm),h=new THREE.Mesh(headG,pm);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
-function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}flowT+=dt;if(flowT>.7){flowT=0;ITEMS.forEach(o=>{if(o.flow)spawnFlow(o)})}
+function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];if(p.w>0){p.w-=dt;continue}
     const T=p.P[p.i],t=new THREE.Vector3(T[0]+p.j,0,T[1]),v=t.clone().sub(p.g.position),d=v.length();
     if(d<.2){p.w=T[2]*(.6+Math.random()*.8);p.i++;if(p.i>=p.P.length){SC.remove(p.g);pats.splice(k,1)}}
@@ -677,6 +682,9 @@ function hover(e){cv.style.cursor=hit(e)!=null?'pointer':'grab'}
 function clickAt(e){const i=hit(e);if(i!=null)select(i)}
 
 /* ---------- UI / ข้อมูล ---------- */
+/* เปิด/ปิดแถบเครื่องมือทั้งหมด (สถิติด้านบน รายการซ้าย รายละเอียดขวา คำแนะนำ ปุ่มซูม) */
+{const tb=()=>{try{return store.getItem('v3tb')==='0'}catch(e){return false}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰':'✕';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
+ ap(tb());$('#vtg').onclick=()=>{const h=!V.classList.contains('tbh');ap(h);try{store.setItem('v3tb',h?'0':'1')}catch(e){}}}
 let sel=null,hT;const vl=$('#vlist');
 function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
 V.addEventListener('pointermove',showL);V.addEventListener('pointerdown',showL);showL();
@@ -707,12 +715,12 @@ function build(D){
    paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[ITEMS[12].st])}
   
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
-  WT={reg:2,desk:Math.min(8,1.5+(tri||5)/3),q:Math.min(8,1+(doc||10)/6),room:Math.min(9,2+(con||10)/3),ph:Math.min(8,1.5+(pha||8)/4)};
+  WT={reg:2,desk:tri==null?9:Math.min(8,1.5+tri/3),q:doc==null?9:Math.min(8,1+doc/6),room:Math.min(9,2+(con||10)/3),ph:pha==null?9:Math.min(8,1.5+pha/4)}; // ไม่มีเวลา = ให้คนเดินไปยืนรอที่จุดบริการนานขึ้น แทนตัวสีเหลือง
   spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));
-  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · กำลังไหลเข้า':''}</small></span></button>`).join('');
+  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
-  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนสีส้มไหลเข้า = ยังไม่มีเวลาในระบบ`;
+  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง':'';
   if(sel!=null)select(sel)}
 
