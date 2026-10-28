@@ -543,8 +543,8 @@ function render(cur,prev,a,b){
 
 
 /* ===== ส่วนเพิ่มตามโครงเว็บสถิติโรงพยาบาล: รายงานรายเดือน / KPI / รับ–จำหน่ายรายวอร์ด (ข้อมูลจาก Supabase) ===== */
-const XT=[{k:'opd_daily_count',n:'ผู้ป่วยนอก (OPD)',u:'ครั้ง',g:'sum'},{k:'ipd_new_admit_daily',n:'รับใหม่ IPD',u:'ราย',g:'sum'},{k:'ipd_discharged_daily',n:'จำหน่าย IPD',u:'ราย',g:'sum'},{k:'ipd_avg_length_of_stay',n:'วันนอนเฉลี่ย',u:'วัน',g:'avg',d:1},{k:'opd_total_income',n:'รายได้ OPD',u:'บาท',g:'sum'},{k:'ipd_total_income',n:'รายได้ IPD',u:'บาท',g:'sum'}];
-let XD=null,xk=XT[0],xm=null;
+const XT=[{k:'opd_daily_count',n:'ผู้ป่วยนอก (OPD)',u:'ครั้ง',g:'sum'},{k:'ipd_new_admit_daily',n:'รับใหม่ IPD',u:'ราย',g:'sum'},{k:'ipd_discharged_daily',n:'จำหน่าย IPD',u:'ราย',g:'sum'},{k:'ipd_avg_length_of_stay',n:'วันนอนเฉลี่ย',u:'วัน',g:'avg',d:1},{k:'opd_his_income',n:'รายได้ OPD',u:'บาท',g:'sum'},{k:'ipd_cash_discharge_income',n:'รายได้ IPD',u:'บาท',g:'sum'}];
+let XD=null,xk=XT[0];
 const xmon=k=>['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+k.slice(5)-1]+' '+String(+k.slice(0,4)+543).slice(2);
 function xbars(ser,lab,d=0){
   const W=700,H=250,L=46,B=30,T=14,n=lab.length,mx=Math.max(1,...ser.flatMap(x=>x.v))*1.12,cw=(W-L)/Math.max(n,1),bw=Math.min(36,cw*.72/ser.length);let g='';
@@ -555,43 +555,22 @@ function xbars(ser,lab,d=0){
 }
 const xsec=(n,t,s,b)=>`<section class="s w12" id="sec${n}"><div class="h"><b>${n}</b><h2>${t}</h2><span>${s}</span></div>${b}</section>`;
 function xmonthly(rows,t){const m={};rows.forEach(r=>{const v=r[t.k];if(v===''||v==null||isNaN(+v))return;const k=String(r.record_date).slice(0,7),o=m[k]??={s:0,n:0};o.s+=+v;o.n++});return Object.keys(m).sort().map(k=>({k,n:m[k].n,v:t.g=='sum'?m[k].s:m[k].s/m[k].n}))}
-function xKpi(){ // KPI รายเดือน เทียบเป้าหมาย (TARGET ชุดเดียวกับส่วนแจ้งเตือน): ผ่านเมื่อค่า ≤ เป้า
-  const by={};XD.daily.forEach(r=>(by[String(r.record_date).slice(0,7)]??=[]).push(r));
-  const A=(rs,k)=>avg(rs,x=>x[k]),defs=[['อัตราครองเตียง (%)',TARGET.occ,rs=>{const u=A(rs,'ipd_current_beds'),t=A(rs,'ipd_total_beds');return t?u/t*100:null}],['รอพบแพทย์ (นาที)',TARGET.wait,rs=>A(rs,'avg_wait_for_doctor')],['ตรวจแพทย์ (นาที)',TARGET.consult,rs=>A(rs,'avg_doctor_consult_time')],['Readmit 28 วัน (%)',TARGET.readmit,rs=>A(rs,'readmit_28days_pct')],['เวลารวม OPD (นาที)',TARGET.total,rs=>A(rs,'avg_total_process_time')]];
-  const ks=Object.keys(by).sort(),last=ks[ks.length-1];let ok=0,bad=0,na=0;
-  const rows=defs.map(([n,t,f])=>{const v=last?f(by[last]):null;const st=v==null?'na':v<=t?'ok':'bad';st=='ok'?ok++:st=='bad'?bad++:na++;
-    const cells=ks.slice(-6).map(k=>{const x=f(by[k]);return `<td style="color:${x==null?'#60758a':x<=t?'#16a37a':'#ef4444'};font-weight:600">${x==null?'N/A':fm(x,1)}</td>`}).join('');
-    return `<tr><td>${n}</td><td>≤ ${t}</td>${cells}<td><span class="chip ${st=='ok'?'ok':st=='bad'?'bad':''}" style="${st=='na'?'background:#94a3b8':''}">${st=='ok'?'ผ่านเกณฑ์':st=='bad'?'ไม่ผ่าน':'N/A'}</span></td></tr>`}).join('');
-  const kp=[['ผ่านเกณฑ์',ok,'#16a37a'],['ไม่ผ่านเกณฑ์',bad,'#ef4444'],['N/A',na,'#94a3b8']].map(([l,v,c])=>`<div class="k"><i>${l}</i><strong style="color:${c}">${v}</strong></div>`).join('');
-  return `<div class="kp" style="grid-template-columns:repeat(3,1fr);margin-bottom:14px">${kp}</div><div style="overflow-x:auto"><table><tr><th>ตัวชี้วัด</th><th>เป้าหมาย</th>${ks.slice(-6).map(k=>`<th>${xmon(k)}</th>`).join('')}<th>สถานะเดือนล่าสุด</th></tr>${rows}</table></div>`;
-}
 function xDraw(){
   const ms=xmonthly(XD.daily,xk);
   $('#xchips').innerHTML=XT.map(t=>`<button class="${t===xk?'on':''}" data-k="${t.k}">${t.n}</button>`).join('');
   $('#xchart').innerHTML=ms.length?xbars([{v:ms.map(x=>x.v),c:'url(#xg)'}],ms.map(x=>xmon(x.k)),xk.d||0):'<div class="nd">ไม่มีข้อมูล</div>';
   $('#xtab').innerHTML=`<tr><th>เดือน</th><th>${xk.u}${xk.g=='avg'?' (เฉลี่ย/วัน)':' (รวม)'}</th><th>เทียบเดือนก่อน</th><th>วันที่มีข้อมูล</th></tr>`+ms.map((x,i)=>{const p=i?ms[i-1].v:0,c=p?(x.v-p)/p*100:null;return `<tr><td>${xmon(x.k)}</td><td><b>${fm(x.v,xk.d||0)}</b></td><td class="${c==null?'':c>=0?'up':'dn'}">${c==null?'-':(c>=0?'▲ ':'▼ ')+fm(Math.abs(c),1)+'%'}</td><td>${x.n}</td></tr>`}).reverse().join('');
 }
-function xWard(){
-  const w=$('#xw').value,m=$('#xm').value,by={};
-  XD.ward.filter(r=>r.record_date.startsWith(m)&&(!w||r.ward===w)).forEach(r=>{const o=by[r.record_date]??={a:0,d:0};o.a+=+r.patient_count||0;o.d+=+r.discharge_an_count||0});
-  const ks=Object.keys(by).sort(),A=ks.reduce((s,k)=>s+by[k].a,0),D=ks.reduce((s,k)=>s+by[k].d,0);
-  $('#xwc').innerHTML=ks.length?xbars([{v:ks.map(k=>by[k].a),c:'#14a3a8'},{v:ks.map(k=>by[k].d),c:'#2563eb'}],ks.map(k=>+k.slice(8)))+`<div class="lg" style="margin-top:6px"><span><i style="background:#14a3a8"></i>รับใหม่ ${fm(A)} ราย</span><span><i style="background:#2563eb"></i>จำหน่าย ${fm(D)} ราย</span></div>`:'<div class="nd">ไม่พบรายการในเดือนที่เลือก</div>';
-}
 async function xtra(){
   document.querySelectorAll('.xs').forEach(e=>e.remove());
   const host=document.querySelector('main');if(!host)return;
   const mk=h=>{const d=document.createElement('div');d.className='xs';d.style.display='contents';d.innerHTML=h;host.append(d)};
   try{
-    if(!XD){const a='2025-10-01',b=iso(new Date());const [daily,ward]=await Promise.all([get('daily',a,b),get('ward',a,b)]);XD={daily,ward}}
+    if(!XD){const a='2025-10-01',b=iso(new Date());XD={daily:await get('daily',a,b)}}
     if(!XD.daily.length){mk(xsec(19,'รายงานรายเดือน','Monthly Report','<div class="nd">ยังไม่มีข้อมูลรายเดือน</div>'));return}
-    const wards=[...new Map(XD.ward.map(r=>[r.ward,r.ward_name||r.ward]))],mos=[...new Set(XD.ward.map(r=>r.record_date.slice(0,7)))].sort();
-    mk(xsec(19,'รายงานรายเดือน','Monthly Report',`<div class="tg" id="xchips" style="margin-bottom:12px"></div><div id="xchart"></div><div style="overflow-x:auto;margin-top:12px"><table id="xtab"></table></div>`)
-      +xsec(20,'KPI เทียบเป้าหมาย','KPI Scorecard · ผ่านเมื่อค่า ≤ เป้า (N/A = ไม่มีข้อมูล)',xKpi())
-      +xsec(21,'รับใหม่–จำหน่ายรายวอร์ด','Admit / Discharge by Ward',`<div class="tg" style="margin-bottom:10px"><select id="xw"><option value="">ทุกวอร์ด</option>${wards.map(([c,n])=>`<option value="${c}">${n}</option>`).join('')}</select><select id="xm">${mos.map(m=>`<option value="${m}">${xmon(m)}</option>`).join('')}</select></div><div id="xwc"></div>`));
-    $('#xm').value=xm||mos[mos.length-1];
+        mk(xsec(19,'รายงานรายเดือน','Monthly Report',`<div class="tg" id="xchips" style="margin-bottom:12px"></div><div id="xchart"></div><div style="overflow-x:auto;margin-top:12px"><table id="xtab"></table></div>`));
     $('#xchips').onclick=e=>{const k=e.target.dataset.k;if(k){xk=XT.find(t=>t.k===k);xDraw()}};
-    $('#xw').onchange=$('#xm').onchange=()=>{xm=$('#xm').value;xWard()};
-    xDraw();xWard();
+    xDraw();
   }catch(e){mk(xsec(19,'รายงานรายเดือน','Monthly Report',`<div class="nd">โหลดข้อมูลไม่สำเร็จ: ${String(e.message).replace(/[<>]/g,'')}</div>`))}
 }
 async function load(){
@@ -863,7 +842,7 @@ logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
 <script>
 /* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
-(function(){const L=[['sec1','ภาพรวม'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['sec20','KPI'],['sec21','รับ–จำหน่าย'],['s3d','3D']];
+(function(){const L=[['sec1','ภาพรวม'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
 const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
 n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
 const h=document.querySelector('header');h.after(n);
