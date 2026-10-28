@@ -125,6 +125,7 @@ main .tg button{border-radius:999px;padding:6px 18px;transition:.15s}main .tg bu
 .now b{color:var(--ink);font-weight:600}.nd0{width:8px;height:8px;border-radius:50%;background:#16a37a;box-shadow:0 0 0 0 #16a37a88;animation:pls 1.6s infinite}
 #v3 .now{margin:0;color:#e8f1f8}#v3 .now b{color:#fff}@keyframes pls{70%{box-shadow:0 0 0 7px #16a37a00}}
 @media(prefers-reduced-motion:reduce){.nd0{animation:none}}
+.gb{display:flex;height:14px;border-radius:99px;overflow:hidden;background:#e8eef5;margin:6px 0}.gb i{display:block;height:100%}.gl{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin-bottom:4px}.gl b{font-variant-numeric:tabular-nums}
 </style>
 </head>
 <body>
@@ -241,7 +242,7 @@ const donut=(parts,cols,center,size=132,o={})=>{
     tip=esc(`<b>${p[0]}</b><div class="tr"><span><i style="background:${c}"></i>สัดส่วน</span><b>${fm(l,1)}%</b></div>${o.fmtv?`<div class="tr"><span>มูลค่า</span><b>${o.fmtv(p[1])}</b></div>`:''}`),
     e=l>0?`<circle class="dsg" cx="21" cy="21" r="${R}" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="butt" stroke-dasharray="${vis.toFixed(3)} ${(100-vis).toFixed(3)}" stroke-dashoffset="${(off-gap/2).toFixed(3)}" data-tip="${tip}" data-i="${i}"/>`:'';off-=l;return e}).join('');
   const tgt=o.target!=null?(()=>{const a=o.target/100*2*Math.PI-Math.PI/2,x1=21+Math.cos(a)*12.2,y1=21+Math.sin(a)*12.2,x2=21+Math.cos(a)*19.2,y2=21+Math.sin(a)*19.2;return `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${dark?'#f5b441':'#0e2235'}" stroke-width="1.1" stroke-linecap="round" data-tip="${esc(`<b>เป้าหมาย</b><div class="tr"><span>ไม่เกิน</span><b>${o.target}%</b></div>`)}"/>`})():'';
-  return `<svg viewBox="0 0 42 42" width="${size}" height="${size}" role="img" aria-label="${esc(o.label||'แผนภูมิโดนัท')}: ${esc(parts.map(p=>p[0]+' '+fm(p[1]/T*100,1)+'%').join(', '))}"><circle cx="21" cy="21" r="${R}" fill="none" stroke="${trk}" stroke-width="6"/>${seg}${tgt}<text x="21" y="${o.sub?21.6:23}" text-anchor="middle" font-size="6.6" font-weight="700" fill="${tx}" style="letter-spacing:-.2px">${center}</text>${o.sub?`<text x="21" y="27" text-anchor="middle" font-size="2.9" fill="${ms}">${o.sub}</text>`:''}</svg>`};
+  return `<svg viewBox="0 0 42 42" width="${size}" height="${size}" role="img" aria-label="${esc(o.label||'แผนภูมิโดนัท')}: ${esc(parts.map(p=>p[0]+' '+fm(p[1]/T*100,1)+'%').join(', '))}"><circle cx="21" cy="21" r="${R}" fill="none" stroke="${trk}" stroke-width="6"/>${seg}${tgt}<text x="21" y="${o.sub?21.6:23}" text-anchor="middle" font-size="${String(center).length>6?Math.max(3.4,27/String(center).length):6.6}" font-weight="700" fill="${tx}" style="letter-spacing:-.2px">${center}</text>${o.sub?`<text x="21" y="27" text-anchor="middle" font-size="2.9" fill="${ms}">${o.sub}</text>`:''}</svg>`};
 const dlegend=(parts,cols,fmtv,dark)=>{const T=parts.reduce((s,p)=>s+p[1],0)||1;return `<div class="dl">${parts.map((p,i)=>`<div><i style="background:${cols[i%cols.length]}"></i><span>${p[0]}</span>${fmtv?`<b>${fmtv(p[1])}</b>`:'<b></b>'}<em>${fm(p[1]/T*100,1)}%</em></div>`).join('')}</div>`};
 const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
 
@@ -293,7 +294,7 @@ function deepCharts(cur,d,keys,keyf,erR){
   return `<div class="h" style="grid-column:span 12;margin:10px 0 -4px"><h2 style="font-size:18px">กราฟเชิงลึก</h2><span>Deep-dive Analytics</span></div>`+
    W(11,'อัตราครองเตียงเทียบเป้าหมาย (%)','Bed Occupancy vs Target',chart(keys,[{n:'อัตราครองเตียง',c:'#0b7a8a',u:'%',v:keys.map((_,i)=>{const r=d.filter(x=>keyf(x.record_date)===keys[i]),t=avg(r,x=>x.ipd_total_beds);return t?(avg(r,x=>x.ipd_current_beds)||0)/t*100:0})}],TARGET.occ,'ค่าเฉลี่ยทั้งเดือน'))+
    W(12,'รับใหม่ เทียบ จำหน่าย','Admission vs Discharge',cols(keys,[{n:'รับใหม่',c:'#2f9e6b',u:' ราย',v:mvS(d,r=>r.ipd_new_admit_daily)},{n:'จำหน่าย',c:'#7c6bd6',u:' ราย',v:mvS(d,r=>r.ipd_discharged_daily)}],false,0,'ผลรวมทั้งเดือน'))+
-   W(13,'รายได้แยกประเภท (ล้านบาท)','Revenue Breakdown',cols(keys,[{n:'OPD',c:'#0b7a8a',u:' ล้านบาท',v:mvS(d,O).map(x=>x/1e6)},{n:'IPD',c:'#2f9e6b',u:' ล้านบาท',v:mvS(d,r=>r.ipd_his_discharge_income).map(x=>x/1e6)},{n:'ER',c:'#e2563c',u:' ล้านบาท',v:mvS(d,E).map(x=>x/1e6)}],true,2,'ผลรวมทั้งเดือน'))+
+   W(13,'รายได้แยกประเภท (บาท)','Revenue Breakdown',cols(keys,[{n:'OPD',c:'#0b7a8a',u:' บาท',v:mvS(d,O)},{n:'IPD',c:'#2f9e6b',u:' บาท',v:mvS(d,r=>r.ipd_his_discharge_income)},{n:'ER',c:'#e2563c',u:' บาท',v:mvS(d,E)}],true,0,'ผลรวมทั้งเดือน'))+
    W(14,'เวลารอแต่ละขั้นตอน (นาที)','Waiting Time by Stage',cols(keys,[{n:'ลงทะเบียน→คัดกรอง',c:'#8aa0b3',u:' นาที',v:mvA(r=>r.avg_wait_reg_to_triage)},{n:'รอพบแพทย์',c:'#e9a23b',u:' นาที',v:mvA(r=>r.avg_wait_for_doctor)},{n:'ตรวจ',c:'#0b7a8a',u:' นาที',v:mvA(r=>r.avg_doctor_consult_time)},{n:'รอรับยา',c:'#7c6bd6',u:' นาที',v:mvA(r=>r.avg_wait_for_pharmacy)}],true,1,'ค่าเฉลี่ยทั้งเดือน'))+
    W(15,'ช่วงเวลาที่ผู้ป่วยมาใช้บริการ','Hourly Arrival Profile',chart(H24.map(h=>String(h).padStart(2,'0')+':00'),[{n:'OPD',c:'#0b7a8a',u:' ราย/ชม.',v:hp('OPD')},{n:'ER',c:'#e2563c',u:' ราย/ชม.',v:hp('ER')}]))+
    W(16,'OPD เฉลี่ยตามวันในสัปดาห์','Weekday Pattern',bars(wk.map(w=>[w[0],w[1],'linear-gradient(90deg,#0b7a8a,#14a3a8)'])))+
@@ -400,7 +401,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด
   };
   const kc=(l,v,s)=>`<div class="k"><i>${l}</i><strong style="font-size:18px;line-height:1.5">${v}</strong><em style="color:var(--mut)">${s}</em></div>`; // สร้างช่องสรุปแบบข้อความ (หัวข้อ, ค่า, คำอธิบาย)
-  const mil=v=>`${fm(v/1e6,2)} ล้านบาท`; // แปลงบาทเป็นล้านบาทพร้อมหน่วย
+  const mil=v=>`${fm(v)} บาท`; // แสดงเป็นบาทเต็มจำนวน
   const perAN=o=>o.an?fm(o.inc/o.an):'-'; // รายรับเฉลี่ยต่อผู้ป่วยจำหน่าย 1 ราย (AN)
 
   const bar=o=>{ // ฟังก์ชันสร้างแถบสัดส่วน 3 ส่วนของหนึ่งแถว
@@ -438,7 +439,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
 
   box.innerHTML= // ประกอบทั้งการ์ดแล้วใส่ลงในกล่อง
     '<div class="kp" style="margin-bottom:12px">'+ // เริ่มแถวช่องสรุป 4 ช่อง
-    kpi('รายรับรวม',fm(T/1e6,2),'ล้านบาท',T,TP,0)+ // ช่อง 1: รายรับรวม + % เทียบช่วงก่อน (ฟังก์ชัน kpi เดิมของแดชบอร์ด)
+    kpi('รายรับรวม',fm(T),'บาท',T,TP,0)+ // ช่อง 1: รายรับรวม + % เทียบช่วงก่อน (ฟังก์ชัน kpi เดิมของแดชบอร์ด)
     kc('เบิกตามสิทธิ',mil(UC),fm(UC/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 2: ยอดและสัดส่วนที่เบิกตามสิทธิ
     kc('ผู้ป่วยชำระเอง',mil(PD),fm(PD/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 3: ยอดและสัดส่วนที่ผู้ป่วยชำระเอง
     kc(byD?(pt==='ipd'?'หอผู้ป่วยรายรับสูงสุด':'แผนก/หอรายรับสูงสุด'):'สิทธิรายรับสูงสุด',esc(all[0].n),fm(all[0].inc/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 4: แถวที่รายรับสูงสุด
@@ -477,32 +478,39 @@ function bedField(r,kind){ // อ่านค่าเตียงจากแ�
   const k=Object.keys(r).find(k=>/bed/i.test(k)&&re.test(k)&&!ex.test(k)&&r[k]!=null&&r[k]!==''&&isFinite(+r[k]));
   return k?+r[k]:null;
 }
+const bedNum=v=>v===''||v==null||isNaN(+v)?null:+v;
+function bedStats(rows){ // สรุปเตียงรายหอจาก hospital_bed_occupancy_stats: เตียง=ค่าล่าสุด, ใช้งาน/ชาย/หญิง=เฉลี่ยต่อวัน
+  const m=new Map();(rows||[]).forEach(r=>{const k=r.ward||r.ward_name||'ไม่ระบุ';if(!m.has(k))m.set(k,{n:r.ward_name||r.ward||'ไม่ระบุ',rows:[]});m.get(k).rows.push(r)});
+  const av=(rs,f)=>{const v=rs.map(f).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null};
+  const ws=[...m.values()].map(w=>{const last=w.rows.reduce((x,y)=>String(y.record_date)>String(x.record_date)?y:x);
+    return{n:w.n,tot:bedNum(last.total_beds)??bedField(last,'tot'),used:av(w.rows,r=>bedNum(r.used_beds)??bedField(r,'use')),male:av(w.rows,r=>bedNum(r.male_count)),female:av(w.rows,r=>bedNum(r.female_count))}}).sort((x,y)=>String(x.n).localeCompare(String(y.n),'th'));
+  const sm=k=>ws.reduce((s,w)=>s+(w[k]||0),0);
+  return{ws,T:sm('tot'),U:sm('used'),M:sm('male'),F:sm('female')};
+}
 function wardBedHtml(rows,err){
-  const h='<p style="margin:16px 0 4px;font-weight:600">เตียงแต่ละหอผู้ป่วย</p>';
+  const h='<p style="margin:16px 0 4px;font-weight:600">การใช้งานเตียงแต่ละหอผู้ป่วย</p>';
   if(err)return h+'<div class="nd">โหลดตาราง <b>hospital_bed_occupancy_stats</b> ไม่ได้ — ตรวจสิทธิ์อ่าน (RLS policy)<br><small style="color:#b42318">'+esc(err)+'</small></div>';
   if(!rows||!rows.length)return h+'<div class="nd">ไม่มีข้อมูลเตียงรายหอผู้ป่วยในช่วงที่เลือก (hospital_bed_occupancy_stats)</div>';
-  const m=new Map();
-  rows.forEach(r=>{const k=r.ward||r.ward_name||r.wardname||'ไม่ระบุ';if(!m.has(k))m.set(k,{n:r.ward_name||r.wardname||r.ward||'ไม่ระบุ',rows:[]});m.get(k).rows.push(r)});
-  const ws=[...m.values()].map(w=>{
-    const last=w.rows.reduce((x,y)=>String(y.record_date)>String(x.record_date)?y:x); // เตียงทั้งหมด = ค่าล่าสุดในช่วงที่เลือก
-    const us=w.rows.map(r=>bedField(r,'use')).filter(v=>v!=null);
-    return {n:w.n,tot:bedField(last,'tot'),used:us.length?us.reduce((s,v)=>s+v,0)/us.length:null}; // เตียงใช้งาน = เฉลี่ยต่อวัน
-  }).sort((x,y)=>String(x.n).localeCompare(String(y.n),'th'));
-  if(!ws.some(w=>w.tot!=null||w.used!=null))
-    return h+'<div class="nd">ตาราง hospital_bed_occupancy_stats ไม่พบคอลัมน์จำนวนเตียง (พบคอลัมน์: '+esc(Object.keys(rows[0]).join(', '))+')</div>';
-  const T=ws.reduce((s,w)=>s+(w.tot||0),0),U=ws.reduce((s,w)=>s+(w.used||0),0);
-  const col=p=>p>=90?'#e2563c':p>=75?'#e9a23b':'#2f9e6b';
-  const row=(n,tot,used,b)=>{const p=tot?used/tot*100:null;return `<tr${b?' style="font-weight:700;background:#f4f8fb"':''}><td>${esc(n)}</td><td style="text-align:right">${fm(tot)}</td><td style="text-align:right">${fm(used,1)}</td><td style="min-width:110px">${p==null?'-':`<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;background:#eaf0f5;border-radius:99px;height:8px;overflow:hidden"><u style="display:block;height:100%;width:${Math.min(p,100)}%;background:${col(p)}"></u></div><span style="min-width:38px;text-align:right">${fm(p,0)}%</span></div>`}</td></tr>`};
-  return h+'<div style="overflow-x:auto"><table><tr><th>หอผู้ป่วย</th><th style="text-align:right">เตียง</th><th style="text-align:right">ใช้งานเฉลี่ย/วัน</th><th>ครองเตียง</th></tr>'+ws.map(w=>row(w.n,w.tot,w.used)).join('')+row('รวมทุกหอ',T,U,true)+'</table></div><small style="color:var(--mut)">เตียง = ค่าล่าสุดในช่วงที่เลือก · ใช้งาน = ค่าเฉลี่ยต่อวัน</small>';
+  const B=bedStats(rows),ws=B.ws;
+  if(!ws.some(w=>w.tot!=null||w.used!=null))return h+'<div class="nd">ตาราง hospital_bed_occupancy_stats ไม่พบคอลัมน์จำนวนเตียง</div>';
+  const col=p=>p>100?'#c2371f':p>=90?'#e2563c':p>=75?'#e9a23b':'#2f9e6b',f1=v=>v==null?'-':fm(v,1);
+  const gT=B.M+B.F,mp=gT?B.M/gT*100:0,fp=gT?B.F/gT*100:0;
+  const gender=gT?`<div style="margin:6px 0 2px;font-size:12px;color:var(--mut)">ผู้ป่วยที่ครองเตียงแยกเพศ (เฉลี่ยต่อวัน)</div><div class="gb"><i style="width:${mp}%;background:#2563eb" title="ชาย"></i><i style="width:${fp}%;background:#d6457f" title="หญิง"></i></div><div class="gl"><span style="color:#2563eb">● ชาย <b>${f1(B.M)}</b> ราย (${fm(mp,1)}%)</span><span style="color:#d6457f">● หญิง <b>${f1(B.F)}</b> ราย (${fm(fp,1)}%)</span></div>`:'';
+  const row=(n,tot,used,m,f,b)=>{const p=tot?used/tot*100:null;return `<tr${b?' style="font-weight:700;background:#f4f8fb"':''}><td>${esc(n)}</td><td style="text-align:right">${fm(tot)}</td><td style="text-align:right">${f1(used)}</td><td style="text-align:right;color:#2563eb">${f1(m)}</td><td style="text-align:right;color:#d6457f">${f1(f)}</td><td style="min-width:140px">${p==null?'-':`<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:10px;border-radius:9px;background:#e8eef5;overflow:hidden"><div style="height:100%;width:${Math.min(p,100)}%;background:${col(p)};border-radius:9px"></div></div><span style="min-width:42px;text-align:right">${fm(p,0)}%</span></div>${p>100?`<small style="color:#c2371f">เกินจำนวนเตียง ${fm(used-tot,1)}</small>`:''}`}</td></tr>`};
+  return h+gender+'<div style="overflow-x:auto;margin-top:8px"><table><tr><th>หอผู้ป่วย</th><th style="text-align:right">เตียง</th><th style="text-align:right">ใช้งาน</th><th style="text-align:right">ชาย</th><th style="text-align:right">หญิง</th><th>ครองเตียง</th></tr>'+ws.map(w=>row(w.n,w.tot,w.used,w.male,w.female)).join('')+row('รวมทุกหอ',B.T,B.U,B.M,B.F,true)+'</table></div><small style="color:var(--mut)">เตียง = ค่าล่าสุดในช่วงที่เลือก · ใช้งาน/ชาย/หญิง = เฉลี่ยต่อวัน (ชาย+หญิง = ผู้ป่วยที่ครองเตียง) · ครองเตียงเกิน 100% = ผู้ป่วยมากกว่าจำนวนเตียงที่ตั้งไว้</small>';
 }
+function nowStamp(a,b){ // เวลาปัจจุบัน ณ ตอนกดค้นหา — ค่าเปลี่ยนเฉพาะเมื่อเลือกวันที่แล้วค้นหา/โหลดใหม่
+  const t=new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).replace(/\s+(?=\d{2}:)/,' · ');
+  return `<div class="now"><span class="nd0" style="animation:none"></span>เวลาปัจจุบัน ณ ตอนค้นหา <b>${t} น.</b><span>· ข้อมูลวันที่ ${a===b?a:a+' ถึง '+b}</span></div>`}
 function render(cur,prev,a,b){
   SHORT=(new Date(b)-new Date(a))/864e5<=13;
   const d=cur.daily,pd=prev.daily,days=d.length||1,span=(new Date(b)-new Date(a))/864e5;
   const ser=(rows,f)=>group(rows,r=>r.record_date,f).sort((x,y)=>x[0]<y[0]?-1:1);
   const erR=cur.hourly.filter(r=>r.patient_type==='ER'),erP=prev.hourly.filter(r=>r.patient_type==='ER');
   const opd=sum(d,r=>r.opd_daily_count),adm=sum(d,r=>r.ipd_new_admit_daily),dis=sum(d,r=>r.ipd_discharged_daily),er=sum(erR,r=>r.service_count);
-  const tot=avg(d,r=>r.ipd_total_beds)||0,used=avg(d,r=>r.ipd_current_beds)||0,occ=tot?used/tot*100:0;
-  const pt=avg(pd,r=>r.ipd_total_beds)||0,pocc=pt?(avg(pd,r=>r.ipd_current_beds)||0)/pt*100:0;
+  const BO=bedStats(cur.bed_occupancy),BOp=bedStats(prev.bed_occupancy),hasB=BO.T>0; // เตียง/ใช้งานจาก hospital_bed_occupancy_stats (ถ้าไม่มีใช้ daily เดิม)
+  const tot=hasB?BO.T:(avg(d,r=>r.ipd_total_beds)||0),used=hasB?BO.U:(avg(d,r=>r.ipd_current_beds)||0),occ=tot?used/tot*100:0;
+  const pt=BOp.T>0?BOp.T:(avg(pd,r=>r.ipd_total_beds)||0),pocc=pt?(BOp.T>0?BOp.U:(avg(pd,r=>r.ipd_current_beds)||0))/pt*100:0;
   const wait=avg(d,r=>r.avg_wait_for_doctor),consult=avg(d,r=>r.avg_doctor_consult_time),los=avg(d,r=>r.ipd_avg_length_of_stay);
   const iO=sum(d,r=>r.opd_his_income),iI=sum(d,r=>r.ipd_his_discharge_income),iE=sum(d,r=>r.er_his_income),inc=iO+iI;
   const pinc=sum(pd,r=>r.opd_his_income)+sum(pd,r=>r.ipd_his_discharge_income);
@@ -527,14 +535,14 @@ function render(cur,prev,a,b){
      kpi('เวลารอพบแพทย์',fm(wait,1),'นาที',wait,avg(pd,r=>r.avg_wait_for_doctor),1,ser(d,r=>r.avg_wait_for_doctor),'#e9a23b')+
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
-     kpi('รายได้รวม',fm(inc/1e6,2),'ล้านบาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
+     kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
-   sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time','<div class="now"><span class="nd0"></span>เวลาปัจจุบัน <b class="nowclk"></b></div>'+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
+   sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
    sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>${wardBedHtml(cur.bed_occupancy,IPDERR.bed_occupancy)}`)+
    sec(6,'งานอุบัติเหตุฉุกเฉิน','Emergency Department',`<div class="kp" style="grid-template-columns:1fr 1fr">${kpi('ผู้ป่วย ER',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0)}${kpi('เฉลี่ยต่อวัน',fm(er/days,1),'ครั้ง',0,0)}</div><p style="margin:12px 0 2px;font-weight:600">ระดับความเร่งด่วน (Triage)</p>${bars(tri.map((t,i)=>[t[0]+' ('+fm(t[1]/trT*100,0)+'%)',t[1],['#e2563c','#f08a3c','#e9a23b','#2f9e6b','#8aa0b3'][i%5]]))}`)+
    sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
-   sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc/1e6,1)+'M',132,{sub:'ล้านบาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v/1e6,2)+' ล้านบาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v/1e6,2)+' ลบ.')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
+   sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc),132,{sub:'บาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v)+' บาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v)+' บาท')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
    sec(9,'คุณภาพบริการ','Quality',`<div class="kp" style="grid-template-columns:1fr">${kpi('อัตรากลับมารักษาซ้ำภายใน 28 วัน',fm(readmit,1),'%',readmit,avg(pd,r=>r.readmit_28days_pct),1,ser(d,r=>r.readmit_28days_pct),'#e9a23b')}</div><p class="nd">ความพึงพอใจผู้ป่วยยังไม่มีข้อมูล — เพิ่มตารางแบบสำรวจเพื่อแสดงส่วนนี้</p>`)+
    // [เพิ่มใหม่] การ์ดรายรับแยกตามแผนก/หอผู้ป่วย/สิทธิ (เป็นกล่องว่าง #dpc แล้ว dpRender() ค่อยเติมเนื้อหา)
    sec('8.1','รายรับแยกตามแผนก หอผู้ป่วย และสิทธิการรักษา','Revenue by Department, Ward & Patient Right','<div id="dpc"></div>','w12')+
@@ -732,7 +740,7 @@ XR.forEach((x,k)=>{const o={id:'ex'+(k+1),kind:'room',no:k+1,name:'ห้อง�
 {const a=label(3.4,1.15);a.position.set(-29,2.2,12);paint(a,'ทางเข้า','Entrance','#27c4cf');SC.add(a);const b=label(3.4,1.15);b.position.set(29,2.2,12);paint(b,'ทางออก','Exit','#27c4cf');SC.add(b)}
 const TP={};
 function tplate(k,x,y,z){const l=label(5.4,1.8);l.position.set(x,y,z);SC.add(l);TP[k]=l}
-tplate('reg',-21.6,4.2,-3.5);tplate('desk',0,5.4,.2);tplate('room',0,5.0,-11.6);tplate('ph',24.8,4.6,-1);
+tplate('reg',-21.6,4.2,-3.5);tplate('desk',0,5.4,.2);tplate('room',0,5.0,-11.6);tplate('ph',24.8,4.6,-1);tplate('exit',29,4.3,12);
 function paintT(sp,txt,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,24,496,122,30):x.rect(8,24,496,122);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle=col;x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(txt,256,102);sp.userData.t.needsUpdate=true}
 const selR=new THREE.Mesh(new THREE.RingGeometry(2.4,2.7,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.85}));selR.rotation.x=-Math.PI/2;selR.position.y=.12;selR.visible=false;SC.add(selR);
 /* คิวผู้ป่วย (1 รูป = unit ราย) */
@@ -810,7 +818,8 @@ function build(D){
    paintT(TP.reg,'เปิดบัตร '+fm(m.opd)+' ราย','#27c4cf');
    paintT(TP.desk,tm(val(d.avg_wait_reg_to_triage),'รอคัดกรอง'),CSS[ITEMS[1].st]);
    paintT(TP.room,tm(val(d.avg_wait_for_doctor),'รอพบแพทย์'),CSS[ITEMS[6].st]);
-   paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[ITEMS[12].st])}
+   paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[ITEMS[12].st]);
+{const tt=val(d.avg_total_process_time);paintT(TP.exit,tt==null?'รอข้อมูลเวลา':'เฉลี่ย '+fm(tt,1)+' นาที',tt==null?'#27c4cf':CSS[stt(tt,TG.total)])}}
   
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:tri==null?9:Math.min(8,1.5+tri/3),q:doc==null?9:Math.min(8,1+doc/6),room:Math.min(9,2+(con||10)/3),ph:pha==null?9:Math.min(8,1.5+pha/4)}; // ไม่มีเวลา = ให้คนเดินไปยืนรอที่จุดบริการนานขึ้น แทนตัวสีเหลือง
