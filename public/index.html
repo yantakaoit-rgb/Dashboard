@@ -81,8 +81,13 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
 dialog input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
 dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:var(--teal);color:#fff;cursor:pointer;margin:14px 6px 0 0}dialog button.g{background:#64748b}
-.tg{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.tg button{font:inherit;font-size:13px;padding:6px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer}.tg button.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600}.tg button:focus-visible{outline:2px solid var(--amber)}.tg span{margin-left:auto;color:var(--mut);font-size:12px}
-@media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}}
+/* ===== สไตล์ของการ์ดรายรับ แผนก/หอผู้ป่วย/สิทธิ ===== */
+.tg{display:flex;gap:6px;align-items:center;flex-wrap:wrap} /* แถวปุ่ม: เรียงแนวนอน เว้นช่อง 6px ขึ้นบรรทัดใหม่ได้ */
+.tg button{font:inherit;font-size:13px;padding:6px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer} /* ปุ่มปกติ: พื้นขาว ขอบเทา มุมมน */
+.tg button.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600} /* ปุ่มที่เลือกอยู่: พื้นเขียวน้ำเงิน ตัวขาวหนา */
+.tg button:focus-visible{outline:2px solid var(--amber)} /* วงโฟกัสสีอำพันเมื่อใช้คีย์บอร์ด */
+.tg span{margin-left:auto;color:var(--mut);font-size:12px} /* ข้อความหน่วยชิดขวา สีจาง */
+@media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}} /* มือถือ: ช่องสรุปเรียงเป็นคอลัมน์เดียว */
 </style>
 </head>
 <body>
@@ -145,14 +150,40 @@ async function get(t,a,b){
   return out;
 }
 function demo(a,b){
-  const D={};TB.forEach(t=>D[t]=[]);D.dept_pttype=[];let i=0;const R=n=>Math.round(Math.random()*n);
+  const D={};TB.forEach(t=>D[t]=[]);
+  D.ward=[]; // [เพิ่มใหม่] ข้อมูลตัวอย่างหอผู้ป่วย (ผู้ป่วยใน)
+  D.ipd_pttype=[]; // [เพิ่มใหม่] ข้อมูลตัวอย่างสิทธิผู้ป่วยใน
+  let i=0;const R=n=>Math.round(Math.random()*n);
   for(let s=a;s<=b;s=addD(s,1),i++){
     const w=1+.15*Math.sin(i/9);
     D.daily.push({record_date:s,opd_daily_count:Math.round(230*w)+R(30),ipd_new_admit_daily:R(8)+14,ipd_discharged_daily:R(8)+13,ipd_avg_length_of_stay:3.5+Math.random(),ipd_current_beds:Math.round(60*w),ipd_total_beds:80,opd_his_income:Math.round(420e3*w),ipd_his_discharge_income:Math.round(260e3*w),er_his_income:Math.round(60e3*w),readmit_28days_pct:6+Math.random()*3,avg_wait_reg_to_triage:8+R(4),avg_wait_for_doctor:22+R(8),avg_doctor_consult_time:11+R(5),avg_wait_for_pharmacy:14+R(6),avg_total_process_time:55+R(15)});
     D.hourly.push({record_date:s,patient_type:'ER',time_hour:'08:00',service_count:R(15)+25});
-    [['อายุรกรรม',70],['กุมารเวช',45],['ศัลยกรรม',35],['สูติ-นรีเวช',30]].forEach(([d,n])=>D.department.push({record_date:s,department:d,visit_count:n+R(15)}));
-    [['UC',.6],['ประกันสังคม',.25],['ชำระเงินเอง',.15]].forEach(([d,p])=>D.pttype.push({record_date:s,pttype_name:d,his_income:Math.round(300e3*p*w)}));
-    [['อายุรกรรม',90e3],['กุมารเวช',55e3],['ศัลยกรรม',80e3],['สูติ-นรีเวช',60e3],['ทันตกรรม',35e3],['ER',70e3]].forEach(([dp,base])=>[['UC',.6],['ประกันสังคม',.25],['ข้าราชการ',.1],['ชำระเงินเอง',.05]].forEach(([pt,sh])=>{const inc=Math.round(base*sh*w*(.9+Math.random()*.2));D.dept_pttype.push({record_date:s,department:dp,pttype_name:pt,income:inc})}));
+    // [แก้ไข] ข้อมูลตัวอย่างแผนก: เพิ่มรหัสแผนก รายรับ เบิกตามสิทธิ และชำระเอง เพื่อให้การ์ดรายรับมีข้อมูลทดลอง
+    [['อายุรกรรม',70,'001'],['กุมารเวช',45,'002'],['ศัลยกรรม',35,'003'],['สูติ-นรีเวช',30,'004']].forEach(([d,n,c])=>{ // วนแต่ละแผนก (ชื่อ, ฐานจำนวนผู้ป่วย, รหัสแผนก)
+      const v=n+R(15); // จำนวนผู้ป่วยของวันนั้น (เหมือนเดิม)
+      const inc=v*320; // รายรับตัวอย่าง = จำนวนผู้ป่วย × 320 บาท
+      const paid=Math.round(inc*(.04+Math.random()*.1)); // ส่วนที่ผู้ป่วยชำระเอง สุ่ม 4-14% ของรายรับ
+      D.department.push({record_date:s,main_dep:c,department:d,visit_count:v,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวข้อมูลตัวอย่าง
+    });
+    // [แก้ไข] ข้อมูลตัวอย่างสิทธิ: เพิ่มยอดเบิกตามสิทธิและชำระเอง
+    [['UC',.6],['ประกันสังคม',.25],['ชำระเงินเอง',.15]].forEach(([d,p])=>{ // วนแต่ละสิทธิ (ชื่อ, สัดส่วนรายรับ)
+      const inc=Math.round(300e3*p*w); // รายรับของสิทธินั้น (เหมือนเดิม)
+      const paid=d==='ชำระเงินเอง'?inc:Math.round(inc*.05); // สิทธิ "ชำระเงินเอง" ผู้ป่วยจ่ายทั้งหมด ส่วนอื่นจ่ายเอง 5%
+      D.pttype.push({record_date:s,pttype_name:d,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวข้อมูลตัวอย่าง
+    });
+    // [เพิ่มใหม่] ข้อมูลตัวอย่างหอผู้ป่วยใน: รายรับตามจำนวนผู้ป่วยที่จำหน่าย
+    [['W1','ตึกผู้ป่วยใน 1',9],['W2','ตึกผู้ป่วยใน 2',8],['W3','หลังคลอด',2]].forEach(([c,nm,n])=>{ // วนแต่ละหอ (รหัส, ชื่อ, ฐานจำนวนจำหน่าย)
+      const an=n+R(3); // จำนวนผู้ป่วยจำหน่ายของวันนั้น
+      const inc=an*14000; // รายรับตัวอย่าง = จำนวนจำหน่าย × 14,000 บาท
+      const paid=Math.round(inc*.05); // ผู้ป่วยชำระเอง 5%
+      D.ward.push({record_date:s,ward:c,ward_name:nm,patient_count:an,discharge_an_count:an,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวหอผู้ป่วย
+    });
+    // [เพิ่มใหม่] ข้อมูลตัวอย่างสิทธิผู้ป่วยใน
+    [['บัตรทอง',.55],['เบิกกรมบัญชีกลาง',.2],['ประกันสังคม',.15],['ชำระเงินเอง',.1]].forEach(([nm,p])=>{ // วนแต่ละสิทธิ (ชื่อ, สัดส่วน)
+      const inc=Math.round(120e3*p*w); // รายรับของสิทธินั้น
+      const paid=nm==='ชำระเงินเอง'?inc:Math.round(inc*.03); // ชำระเอง: ทั้งหมด หรือ 3%
+      D.ipd_pttype.push({record_date:s,pttype_name:nm,discharge_an_count:Math.max(1,Math.round(inc/14000)),his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวสิทธิผู้ป่วยใน
+    });
     [['Level 1',1],['Level 2',6],['Level 3',14],['Level 4',9],['Level 5',3]].forEach(([d,n],j)=>D.er_triage.push({record_date:s,triage_level_id:j+1,triage_level_name:d,patient_count:n+R(3)}));
     [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4)}));
   }
@@ -233,33 +264,169 @@ function deepCharts(cur,d,keys,keyf,erR){
 
 const fdt=s=>new Date(s+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
 function banner(a,b,pa,pb,n,seven,have){const $r=$('#rb');$r.innerHTML=`<div>${seven?'<span class="pill">7 วันล่าสุด</span>':`<span class="pill">${n} วัน</span>`}<b>${fdt(a)} – ${fdt(b)}</b><span>เปรียบเทียบกับ ${fdt(pa)} – ${fdt(pb)}</span>${have!=null?`<span>มีข้อมูล ${have}/${n} วัน</span>`:''}<span style="margin-left:auto;font-size:12px">ข้อมูลล่าสุด ${fdt(b)}</span></div>`}
-/* ===== การ์ดรายรับแยกตามแผนก × สิทธิการรักษา (ตาราง hospital_dept_pttype_stats: record_date, department, pttype_name, income) ===== */
-const PTC=['#0b7a8a','#e9a23b','#2f9e6b','#7c6bd6','#e2563c','#14a3a8','#8aa0b3'];
-let DPV='dept',DPD=null,DPP=[];
-function dpRender(){
-  const box=$('#dpc');if(!box)return;
-  if(DPD===null){box.innerHTML='<div class="nd">ยังไม่พบตาราง <b>hospital_dept_pttype_stats</b> ใน Supabase (หรือยังไม่อนุญาตให้อ่าน) — สร้างตารางตามโครงสร้างที่แนบไว้ แล้วกด "โหลด" อีกครั้ง</div>';return}
-  if(!DPD.length){box.innerHTML='<div class="nd">ไม่มีข้อมูลรายรับในช่วงวันที่ที่เลือก</div>';return}
-  const byD=DPV==='dept',RK=r=>(byD?r.department:r.pttype_name)||'ไม่ระบุ',SK=r=>(byD?r.pttype_name:r.department)||'ไม่ระบุ',I=r=>num(r.income);
-  const rl=byD?'แผนก':'สิทธิการรักษา',sl=byD?'สิทธิการรักษา':'แผนก';
-  const T=sum(DPD,I),TP=sum(DPP,I);
-  const rowAll=group(DPD,RK,I),segAll=group(DPD,SK,I);
-  const top=segAll.slice(0,6).map(x=>x[0]),pts=segAll.length>6?[...top,'อื่นๆ']:top,pk=n=>top.includes(n)?n:'อื่นๆ';
-  const col=n=>PTC[pts.indexOf(n)%PTC.length];
-  const prev={};DPP.forEach(r=>{const k=RK(r);prev[k]=(prev[k]||0)+I(r)});
-  const dm={};DPD.forEach(r=>{const k=RK(r),o=dm[k]||(dm[k]={n:k,t:0,p:{}}),s=pk(SK(r));o.t+=I(r);o.p[s]=(o.p[s]||0)+I(r)});
-  const dl=Object.values(dm).sort((x,y)=>y.t-x.t).slice(0,12),mxT=dl[0].t||1,mxC=Math.max(...dl.flatMap(o=>pts.map(p=>o.p[p]||0)),1);
-  const dchg=(v,p)=>p?`<span class="${v>=p?'up':'dn'}">${v>=p?'▲':'▼'} ${fm(Math.abs((v-p)/p*100),1)}%</span>`:'<span style="color:var(--mut)">-</span>';
-  const topR=rowAll[0],topS=segAll[0],cnt=(a)=>`<div class="k"><i>${a[0]}</i><strong style="font-size:18px;line-height:1.5">${esc(a[1])}</strong><em style="color:var(--mut)">${a[2]}</em></div>`;
-  const bar=o=>{const tot=o.t||1;
-    return `<div style="background:#eaf0f5;border-radius:99px;height:12px;overflow:hidden;min-width:120px"><div style="display:flex;height:100%;width:${o.t/mxT*100}%">${pts.map(p=>{const v=o.p[p]||0;return v>0?`<u style="display:block;height:100%;width:${v/tot*100}%;background:${col(p)}" data-tip="${esc(`<b>${o.n}</b><div class="tr"><span><i style="background:${col(p)}"></i>${p}</span><b>${fm(v)} บาท<em>${fm(v/tot*100,1)}%</em></b></div>`)}"></u>`:''}).join('')}</div></div>`};
-  const t1=`<table><tr><th>${rl}</th><th style="text-align:left;width:32%">สัดส่วนตาม${sl}</th><th>รายรับ (บาท)</th><th>% ของทั้งหมด</th><th>เทียบช่วงก่อน</th></tr>${dl.map(o=>`<tr><td><b>${esc(o.n)}</b></td><td style="text-align:left">${bar(o)}</td><td>${fm(o.t)}</td><td>${fm(o.t/T*100,1)}%</td><td>${dchg(o.t,prev[o.n]||0)}</td></tr>`).join('')}<tr><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>100%</b></td><td>${dchg(T,TP)}</td></tr></table>`;
-  const colT=p=>dl.reduce((s,o)=>s+(o.p[p]||0),0);
-  const t2=`<p style="margin:16px 0 6px;font-weight:600">ตาราง${rl} × ${sl} (รายรับ บาท)</p><div style="overflow-x:auto"><table><tr><th>${rl}</th>${pts.map(p=>`<th><i style="display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:5px;background:${col(p)}"></i>${esc(p)}</th>`).join('')}<th>รวม</th></tr>${dl.map(o=>`<tr><td>${esc(o.n)}</td>${pts.map(p=>{const v=o.p[p]||0;return `<td style="background:rgba(11,122,138,${(v/mxC*.28).toFixed(3)})">${v?fm(v):'-'}</td>`}).join('')}<td><b>${fm(o.t)}</b></td></tr>`).join('')}<tr><td><b>รวม</b></td>${pts.map(p=>`<td><b>${fm(colT(p))}</b></td>`).join('')}<td><b>${fm(dl.reduce((s,o)=>s+o.t,0))}</b></td></tr></table></div>`;
-  const nD=new Set(DPD.map(r=>r.department||'ไม่ระบุ')).size,nP=new Set(DPD.map(r=>r.pttype_name||'ไม่ระบุ')).size;
-  box.innerHTML=`<div class="kp" style="margin-bottom:12px">${kpi('รายรับรวม',fm(T/1e6,2),'ล้านบาท',T,TP,0)}${cnt([byD?'แผนกรายรับสูงสุด':'สิทธิรายรับสูงสุด',topR[0],fm(topR[1]/T*100,1)+'% ของรายรับทั้งหมด'])}${cnt([byD?'สิทธิรายรับสูงสุด':'แผนกรายรับสูงสุด',topS[0],fm(topS[1]/T*100,1)+'% ของรายรับทั้งหมด'])}<div class="k"><i>จำนวนที่ครอบคลุม</i><strong style="font-size:18px;line-height:1.5">${nD} แผนก · ${nP} สิทธิ</strong><em style="color:var(--mut)">ในช่วงวันที่ที่เลือก</em></div></div><div class="tg"><button data-dpv="dept" class="${byD?'on':''}">ดูตามแผนก</button><button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button><span>หน่วย: บาท · แสดงสูงสุด 12 แถว</span></div><div class="lg" style="flex-wrap:wrap;margin:10px 0 8px">${pts.map(p=>`<span><i style="background:${col(p)}"></i>${esc(p)}</span>`).join('')}</div>`+t1+t2;
+/* ===== การ์ดรายรับแยกตามแผนก/หอผู้ป่วย และสิทธิการรักษา (ผู้ป่วยนอก / ผู้ป่วยใน / รวม) =====
+   ผู้ป่วยนอก: hospital_department_stats (ตามแผนก) และ hospital_pttype_stats (ตามสิทธิ)
+   ผู้ป่วยใน : hospital_ward_stats (ตามหอผู้ป่วย) และ hospital_ipd_pttype_stats (ตามสิทธิ)
+   รายรับของแต่ละแถวแบ่งเป็น 3 ส่วน: เบิกตามสิทธิ (uc_money) / ผู้ป่วยชำระเอง (paid_money) / อื่นๆ (ส่วนที่เหลือจาก his_income) */
+
+const DPC={uc:'#0b7a8a',paid:'#e9a23b',oth:'#8aa0b3'}; // สีของแต่ละส่วนในแถบสัดส่วน
+const DPN={uc:'เบิกตามสิทธิ',paid:'ผู้ป่วยชำระเอง',oth:'อื่นๆ (ไม่ระบุ)'}; // ชื่อของแต่ละส่วน ใช้ในคำอธิบายสีและ tooltip
+let DPV='dept'; // มุมมองปัจจุบัน: 'dept' = ตามแผนก/หอผู้ป่วย, 'pt' = ตามสิทธิการรักษา
+let DPT='opd'; // ประเภทผู้ป่วยปัจจุบัน: 'opd' = ผู้ป่วยนอก, 'ipd' = ผู้ป่วยใน, 'all' = รวมทั้งหมด
+let DPS={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงที่เลือก (แผนก, สิทธิ OPD, หอผู้ป่วย, สิทธิ IPD)
+let DPQ={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงก่อนหน้า ใช้เทียบ %
+
+function dpRows(src,byD,pt){ // ปรับข้อมูลดิบจากหลายตารางให้เป็นรูปแบบเดียวกัน {k,n,inc,uc,paid,an}
+  const out=[]; // อาร์เรย์ผลลัพธ์
+  const tag=t=>pt==='all'?t:''; // ใส่ป้าย [นอก]/[ใน] นำหน้าชื่อเฉพาะตอนดูรวม เพื่อแยกแผนกกับหอผู้ป่วย
+  const mk=(k,n,r)=>({k:k,n:n,inc:num(r.his_income),uc:num(r.uc_money),paid:num(r.paid_money),an:num(r.discharge_an_count)}); // สร้างแถวมาตรฐาน (an = จำนวนผู้ป่วยจำหน่าย มีเฉพาะผู้ป่วยใน)
+  if(byD){ // มุมมองตามแผนก/หอผู้ป่วย
+    if(pt!=='ipd')(src.dept||[]).forEach(r=>out.push(mk('o:'+(r.main_dep||r.department||'ไม่ระบุ'),tag('[นอก] ')+(r.department||'ไม่ระบุ'),r))); // แผนกผู้ป่วยนอก (คีย์ใช้รหัสแผนก)
+    if(pt!=='opd')(src.ward||[]).forEach(r=>out.push(mk('i:'+(r.ward||r.ward_name||'ไม่ระบุ'),tag('[ใน] ')+(r.ward_name||'ไม่ระบุ'),r))); // หอผู้ป่วยใน (คีย์ใช้รหัสหอ)
+  }else{ // มุมมองตามสิทธิการรักษา
+    const f=r=>out.push(mk(r.pttype_name||'ไม่ระบุ',r.pttype_name||'ไม่ระบุ',r)); // แถวสิทธิ: คีย์และชื่อใช้ชื่อสิทธิ (OPD กับ IPD ที่ชื่อเดียวกันจะรวมกันตอนดูรวม)
+    if(pt!=='ipd')(src.pt||[]).forEach(f); // สิทธิผู้ป่วยนอก
+    if(pt!=='opd')(src.ipt||[]).forEach(f); // สิทธิผู้ป่วยใน
+  }
+  return out; // คืนค่าแถวมาตรฐานทั้งหมด
 }
-document.addEventListener('click',e=>{const b=e.target.closest?e.target.closest('[data-dpv]'):null;if(b){DPV=b.dataset.dpv;dpRender()}});
+
+function dpAgg(list){ // รวมแถวมาตรฐานที่คีย์เดียวกันให้เป็นแถวเดียว
+  const m={}; // ตัวเก็บผลรวมแยกตามคีย์
+  list.forEach(x=>{ // วนทุกแถวมาตรฐาน
+    const o=m[x.k]||(m[x.k]={k:x.k,n:x.n,mx:-1,inc:0,uc:0,paid:0,an:0}); // หยิบกลุ่มเดิม หรือสร้างกลุ่มใหม่
+    if(x.inc>o.mx){o.mx=x.inc;o.n=x.n;} // เก็บชื่อจากแถวที่รายรับสูงสุดของกลุ่ม (กันชื่อที่พิมพ์เพี้ยน)
+    o.inc+=x.inc; // สะสมรายรับรวม
+    o.uc+=x.uc; // สะสมส่วนที่เบิกตามสิทธิ
+    o.paid+=x.paid; // สะสมส่วนที่ผู้ป่วยชำระเอง
+    o.an+=x.an; // สะสมจำนวนผู้ป่วยจำหน่าย
+  });
+  return Object.values(m); // คืนค่าเป็นอาร์เรย์ของกลุ่ม
+}
+
+function dpRender(){ // ฟังก์ชันวาดเนื้อหาการ์ดทั้งหมด (เรียกซ้ำเมื่อสลับประเภทผู้ป่วยหรือมุมมอง)
+  const box=$('#dpc'); // หากล่องของการ์ดที่สร้างไว้ใน render()
+  if(!box)return; // ถ้ายังไม่มีกล่อง ให้ออกจากฟังก์ชัน
+  const byD=DPV==='dept'; // true = แถวเป็นแผนก/หอผู้ป่วย, false = แถวเป็นสิทธิ
+  const pt=DPT; // ประเภทผู้ป่วยปัจจุบัน (ย่อชื่อ)
+  const rl=byD?(pt==='ipd'?'หอผู้ป่วย':pt==='all'?'แผนก / หอผู้ป่วย':'แผนก'):'สิทธิการรักษา'; // ป้ายชื่อของแถว ใช้ในหัวตาราง
+  const unit=byD?(pt==='ipd'?'หอผู้ป่วย':pt==='all'?'แผนก/หอ':'แผนก'):'สิทธิ'; // หน่วยนับ ใช้ในแถว "อื่นๆ"
+  const showAN=pt==='ipd'; // แสดงคอลัมน์ "รายรับ/AN" เฉพาะมุมมองผู้ป่วยใน
+  const all=dpAgg(dpRows(DPS,byD,pt)).filter(o=>o.inc>0).sort((a,b)=>b.inc-a.inc); // รวมข้อมูล ตัดแถวที่ไม่มีรายรับ เรียงมาก->น้อย
+  const ipdMiss=pt!=='opd'&&!(byD?DPS.ward:DPS.ipt).length; // true = ต้องการข้อมูลผู้ป่วยใน แต่ไม่มีข้อมูลเลย
+
+  const b1='<div class="tg">'+ // เริ่มแถวปุ่มเลือกประเภทผู้ป่วย
+    [['opd','ผู้ป่วยนอก'],['ipd','ผู้ป่วยใน'],['all','รวมทั้งหมด']].map(x=>`<button data-dpt="${x[0]}" class="${pt===x[0]?'on':''}">${x[1]}</button>`).join('')+ // ปุ่มทั้งสาม (ไฮไลต์ปุ่มที่ใช้งาน)
+    '</div>'; // ปิดแถวปุ่มประเภทผู้ป่วย
+  const b2='<div class="tg" style="margin-top:8px">'+ // เริ่มแถวปุ่มสลับมุมมอง
+    `<button data-dpv="dept" class="${byD?'on':''}">${pt==='ipd'?'ดูตามหอผู้ป่วย':pt==='all'?'ดูตามแผนก/หอผู้ป่วย':'ดูตามแผนก'}</button>`+ // ปุ่มมุมมองแรก ชื่อเปลี่ยนตามประเภทผู้ป่วย
+    `<button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button>`+ // ปุ่มดูตามสิทธิการรักษา
+    '<span>หน่วย: บาท · แสดงสูงสุด 12 แถว ที่เหลือรวมเป็น "อื่นๆ"</span></div>'; // ข้อความหน่วยและข้อจำกัด
+  const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
+  const note=(pt!=='opd'&&!ipdMiss)?'<p style="margin:8px 0 0;color:var(--mut);font-size:12px">ผู้ป่วยใน: นับตามผู้ป่วยที่จำหน่ายในช่วงวันที่ที่เลือก (ระดับหอผู้ป่วย/สิทธิ)</p>':''; // หมายเหตุวิธีนับรายรับผู้ป่วยใน
+  if(!all.length){ // กรณีไม่มีข้อมูลรายรับในช่วงที่เลือก
+    box.innerHTML=b1+b2+(warn||'<div class="nd">ไม่มีข้อมูลรายรับในช่วงวันที่ที่เลือก</div>'); // แสดงปุ่มพร้อมข้อความ (สาเหตุผู้ป่วยในถ้าเกี่ยวข้อง)
+    return; // จบการทำงาน
+  }
+
+  const pv={}; // ยอดรายรับช่วงก่อนหน้า แยกตามคีย์แถว
+  dpAgg(dpRows(DPQ,byD,pt)).forEach(o=>{pv[o.k]=o.inc;}); // เก็บยอดช่วงก่อนหน้าของแต่ละแถว
+  const T=sum(all,o=>o.inc); // รายรับรวมช่วงปัจจุบัน
+  const TP=sum(all,o=>pv[o.k]||0); // รายรับรวมช่วงก่อนหน้า (เฉพาะแถวที่มีรายรับตอนนี้ เพื่อเทียบอย่างเป็นธรรม)
+  const UC=sum(all,o=>o.uc); // รวมส่วนที่เบิกตามสิทธิ
+  const PD=sum(all,o=>o.paid); // รวมส่วนที่ผู้ป่วยชำระเอง
+  const AN=sum(all,o=>o.an); // รวมจำนวนผู้ป่วยจำหน่าย
+  const oth=o=>Math.max(o.inc-o.uc-o.paid,0); // ส่วน "อื่นๆ" = รายรับ - เบิกตามสิทธิ - ชำระเอง (ไม่ติดลบ)
+
+  const rows=all.slice(0,12); // 12 แถวแรกที่รายรับสูงสุด
+  const rest=all.slice(12); // แถวที่เหลือ
+  if(rest.length){ // ถ้ามีแถวเกิน 12
+    rows.push({ // เพิ่มแถวรวม "อื่นๆ" เพื่อให้ยอดรวมในตารางครบ
+      k:'__rest', // คีย์พิเศษของแถวรวม
+      n:`อื่นๆ (${rest.length} ${unit})`, // ชื่อแถว บอกจำนวนที่รวม
+      inc:sum(rest,o=>o.inc), // รายรับรวมของกลุ่มที่เหลือ
+      uc:sum(rest,o=>o.uc), // เบิกตามสิทธิรวมของกลุ่มที่เหลือ
+      paid:sum(rest,o=>o.paid), // ชำระเองรวมของกลุ่มที่เหลือ
+      an:sum(rest,o=>o.an) // จำนวนผู้ป่วยจำหน่ายรวมของกลุ่มที่เหลือ
+    });
+    pv.__rest=sum(rest,o=>pv[o.k]||0); // ยอดช่วงก่อนหน้าของกลุ่มที่เหลือ
+  }
+  const mx=Math.max(...rows.map(o=>o.inc),1); // รายรับสูงสุดในตาราง ใช้เป็น 100% ของความยาวแถบ
+
+  const dchg=(v,p)=>{ // ฟังก์ชันสร้างข้อความ % เปลี่ยนแปลงเทียบช่วงก่อน (v=ปัจจุบัน, p=ก่อนหน้า)
+    if(!p)return '<span style="color:var(--mut)">-</span>'; // ไม่มีข้อมูลช่วงก่อน แสดงขีด
+    const up=v>=p; // เพิ่มขึ้นหรือเท่าเดิมหรือไม่
+    const pct=fm(Math.abs((v-p)/p*100),1); // คำนวณ % ความต่าง (ทศนิยม 1 ตำแหน่ง)
+    return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด
+  };
+  const kc=(l,v,s)=>`<div class="k"><i>${l}</i><strong style="font-size:18px;line-height:1.5">${v}</strong><em style="color:var(--mut)">${s}</em></div>`; // สร้างช่องสรุปแบบข้อความ (หัวข้อ, ค่า, คำอธิบาย)
+  const mil=v=>`${fm(v/1e6,2)} ล้านบาท`; // แปลงบาทเป็นล้านบาทพร้อมหน่วย
+  const perAN=o=>o.an?fm(o.inc/o.an):'-'; // รายรับเฉลี่ยต่อผู้ป่วยจำหน่าย 1 ราย (AN)
+
+  const bar=o=>{ // ฟังก์ชันสร้างแถบสัดส่วน 3 ส่วนของหนึ่งแถว
+    const parts=[['uc',o.uc],['paid',o.paid],['oth',oth(o)]]; // ส่วนที่จะวาด (คีย์สี, ยอด)
+    const tot=sum(parts,p=>p[1])||1; // ยอดรวมของทุกส่วน (กันหารศูนย์)
+    const segs=parts.map(p=>{ // วนสร้างทีละส่วน
+      if(p[1]<=0)return ''; // ไม่มียอด ไม่ต้องวาด
+      const tip=esc(`<b>${o.n}</b><div class="tr"><span><i style="background:${DPC[p[0]]}"></i>${DPN[p[0]]}</span><b>${fm(p[1])} บาท<em>${fm(p[1]/tot*100,1)}%</em></b></div>`); // ข้อความ tooltip (ชื่อแถว, ส่วน, ยอด, %)
+      return `<u style="display:block;height:100%;width:${p[1]/tot*100}%;background:${DPC[p[0]]}" data-tip="${tip}"></u>`; // ส่วนสีกว้างตามสัดส่วน
+    }).join(''); // รวมทุกส่วนเป็นข้อความเดียว
+    return `<div style="background:#eaf0f5;border-radius:99px;height:12px;overflow:hidden;min-width:120px"><div style="display:flex;height:100%;width:${o.inc/mx*100}%">${segs}</div></div>`; // รางสีเทา + แถบที่ยาวตามรายรับเทียบแถวสูงสุด
+  };
+
+  const body=rows.map(o=> // สร้างแถวของตารางทีละแถวข้อมูล
+    `<tr><td><b>${esc(o.n)}</b></td>`+ // คอลัมน์ 1: ชื่อแถว (แผนก/หอผู้ป่วย/สิทธิ)
+    `<td style="text-align:left">${bar(o)}</td>`+ // คอลัมน์ 2: แถบสัดส่วน
+    `<td>${fm(o.inc)}</td>`+ // คอลัมน์ 3: รายรับ (บาท)
+    `<td>${fm(o.uc)}</td>`+ // คอลัมน์ 4: เบิกตามสิทธิ (บาท)
+    `<td>${fm(o.paid)}</td>`+ // คอลัมน์ 5: ผู้ป่วยชำระเอง (บาท)
+    (showAN?`<td>${perAN(o)}</td>`:'')+ // คอลัมน์ (เฉพาะผู้ป่วยใน): รายรับต่อ AN
+    `<td>${fm(o.inc/T*100,1)}%</td>`+ // คอลัมน์ถัดไป: % ของรายรับทั้งหมด
+    `<td>${dchg(o.inc,pv[o.k]||0)}</td></tr>` // คอลัมน์สุดท้าย: เทียบช่วงก่อน
+  ).join(''); // รวมทุกแถวเป็นข้อความเดียว
+  const tbl='<div style="overflow-x:auto"><table>'+ // กล่องเลื่อนแนวนอน (กันล้นจอมือถือ) + เริ่มตาราง
+    `<tr><th>${rl}</th>`+ // หัวคอลัมน์: ชื่อแถว
+    '<th style="text-align:left;width:26%">สัดส่วนรายรับ</th>'+ // หัวคอลัมน์: แถบสัดส่วน
+    '<th>รายรับ</th><th>เบิกตามสิทธิ</th><th>ชำระเอง</th>'+ // หัวคอลัมน์ตัวเลขหลัก
+    (showAN?'<th>รายรับ/AN</th>':'')+ // หัวคอลัมน์รายรับต่อ AN (เฉพาะผู้ป่วยใน)
+    '<th>% ทั้งหมด</th><th>เทียบช่วงก่อน</th></tr>'+ // หัวคอลัมน์ที่เหลือ
+    body+ // แถวข้อมูลทั้งหมด
+    `<tr><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>${fm(UC)}</b></td><td><b>${fm(PD)}</b></td>`+ // แถวสรุปรวม: ชื่อ แถบ(ว่าง) รายรับ เบิกตามสิทธิ ชำระเอง
+    (showAN?`<td><b>${AN?fm(T/AN):'-'}</b></td>`:'')+ // รวม: รายรับต่อ AN (เฉพาะผู้ป่วยใน)
+    `<td><b>100%</b></td><td>${dchg(T,TP)}</td></tr>`+ // รวม: 100% และเทียบช่วงก่อน
+    '</table></div>'; // ปิดตารางและกล่องเลื่อน
+
+  box.innerHTML= // ประกอบทั้งการ์ดแล้วใส่ลงในกล่อง
+    '<div class="kp" style="margin-bottom:12px">'+ // เริ่มแถวช่องสรุป 4 ช่อง
+    kpi('รายรับรวม',fm(T/1e6,2),'ล้านบาท',T,TP,0)+ // ช่อง 1: รายรับรวม + % เทียบช่วงก่อน (ฟังก์ชัน kpi เดิมของแดชบอร์ด)
+    kc('เบิกตามสิทธิ',mil(UC),fm(UC/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 2: ยอดและสัดส่วนที่เบิกตามสิทธิ
+    kc('ผู้ป่วยชำระเอง',mil(PD),fm(PD/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 3: ยอดและสัดส่วนที่ผู้ป่วยชำระเอง
+    kc(byD?(pt==='ipd'?'หอผู้ป่วยรายรับสูงสุด':'แผนก/หอรายรับสูงสุด'):'สิทธิรายรับสูงสุด',esc(all[0].n),fm(all[0].inc/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 4: แถวที่รายรับสูงสุด
+    '</div>'+ // ปิดแถวช่องสรุป
+    b1+ // ปุ่มเลือกประเภทผู้ป่วย
+    b2+ // ปุ่มสลับมุมมอง
+    warn+ // ข้อความเตือน (ถ้าไม่พบข้อมูลผู้ป่วยในตอนดูรวม)
+    '<div class="lg" style="flex-wrap:wrap;margin:10px 0 8px">'+ // เริ่มคำอธิบายสี
+    ['uc','paid','oth'].map(k=>`<span><i style="background:${DPC[k]}"></i>${DPN[k]}</span>`).join('')+ // จุดสีพร้อมชื่อของแต่ละส่วน
+    '</div>'+ // ปิดคำอธิบายสี
+    tbl+ // ตารางรายรับ
+    note; // หมายเหตุวิธีนับรายรับผู้ป่วยใน (ถ้าเกี่ยวข้อง)
+}
+
+document.addEventListener('click',e=>{ // ดักการคลิกทั้งหน้า (event delegation) เพราะปุ่มถูกสร้างใหม่ทุกครั้งที่วาดการ์ด
+  const el=e.target&&e.target.closest?e.target:null; // องค์ประกอบที่ถูกคลิก (กันกรณีไม่ใช่ element)
+  if(!el)return; // ไม่ใช่ element ให้ออก
+  const v=el.closest('[data-dpv]'); // หาปุ่มสลับมุมมองที่ถูกคลิก (ถ้ามี)
+  const t=el.closest('[data-dpt]'); // หาปุ่มเลือกประเภทผู้ป่วยที่ถูกคลิก (ถ้ามี)
+  if(v){ // ถ้าคลิกโดนปุ่มสลับมุมมอง
+    DPV=v.dataset.dpv; // เปลี่ยนมุมมองตามค่าในปุ่ม ('dept' หรือ 'pt')
+    dpRender(); // วาดการ์ดใหม่
+  }
+  if(t){ // ถ้าคลิกโดนปุ่มประเภทผู้ป่วย
+    DPT=t.dataset.dpt; // เปลี่ยนประเภทผู้ป่วยตามค่าในปุ่ม ('opd' / 'ipd' / 'all')
+    dpRender(); // วาดการ์ดใหม่
+  }
+});
 
 function render(cur,prev,a,b){
   SHORT=(new Date(b)-new Date(a))/864e5<=13;
@@ -302,9 +469,13 @@ function render(cur,prev,a,b){
    sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
    sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc/1e6,1)+'M',132,{sub:'ล้านบาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v/1e6,2)+' ล้านบาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v/1e6,2)+' ลบ.')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
    sec(9,'คุณภาพบริการ','Quality',`<div class="kp" style="grid-template-columns:1fr">${kpi('อัตรากลับมารักษาซ้ำภายใน 28 วัน',fm(readmit,1),'%',readmit,avg(pd,r=>r.readmit_28days_pct),1,ser(d,r=>r.readmit_28days_pct),'#e9a23b')}</div><p class="nd">ความพึงพอใจผู้ป่วยยังไม่มีข้อมูล — เพิ่มตารางแบบสำรวจเพื่อแสดงส่วนนี้</p>`)+
-   sec('8.1','รายรับแยกตามแผนกและสิทธิการรักษา','Revenue by Department × Patient Right','<div id="dpc"></div>','w12')+
+   // [เพิ่มใหม่] การ์ดรายรับแยกตามแผนก/หอผู้ป่วย/สิทธิ (เป็นกล่องว่าง #dpc แล้ว dpRender() ค่อยเติมเนื้อหา)
+   sec('8.1','รายรับแยกตามแผนก หอผู้ป่วย และสิทธิการรักษา','Revenue by Department, Ward & Patient Right','<div id="dpc"></div>','w12')+
    sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
-  DPD=cur.dept_pttype===undefined?null:cur.dept_pttype;DPP=prev.dept_pttype||[];dpRender();
+  // [เพิ่มใหม่] ส่งข้อมูลแผนก หอผู้ป่วย และสิทธิ (ช่วงปัจจุบัน/ก่อนหน้า) เข้าสู่การ์ด
+  DPS={dept:cur.department||[],pt:cur.pttype||[],ward:cur.ward||[],ipt:cur.ipd_pttype||[]}; // ข้อมูลช่วงปัจจุบัน
+  DPQ={dept:prev.department||[],pt:prev.pttype||[],ward:prev.ward||[],ipt:prev.ipd_pttype||[]}; // ข้อมูลช่วงก่อนหน้า
+  dpRender(); // วาดการ์ดลงหน้าจอ
 }
 
 async function load(){
@@ -313,10 +484,29 @@ async function load(){
   $('#msg').textContent=live?'กำลังโหลดข้อมูล…':'กำลังแสดงข้อมูลตัวอย่าง — แก้ CONFIG ในไฟล์ หรือกด "ตั้งค่า" เพื่อเชื่อมต่อ Supabase';
   try{
     let all;
-    if(live){const r=await Promise.all(TB.map(t=>get(t,pa,b)));all={};TB.forEach((t,i)=>all[t]=r[i]);try{all.dept_pttype=await get('dept_pttype',pa,b)}catch(e){all.dept_pttype=null}$('#msg').textContent='';}
+    if(live){ // โหมดเชื่อมต่อฐานข้อมูลจริง
+      const r=await Promise.all(TB.map(t=>get(t,pa,b))); // ดึงตารางเดิมทั้งหมดพร้อมกัน
+      all={}; // อ็อบเจ็กต์เก็บข้อมูลทุกตาราง
+      TB.forEach((t,i)=>all[t]=r[i]); // จับคู่ชื่อตารางกับข้อมูลที่ดึงมา
+      for(const t of ['ward','ipd_pttype']){ // [เพิ่มใหม่] วนดึงตารางผู้ป่วยในทีละตาราง (แยกจากตารางหลัก)
+        try{all[t]=await get(t,pa,b);} // ดึงจาก hospital_ward_stats / hospital_ipd_pttype_stats
+        catch(e){all[t]=[];} // ถ้าอ่านไม่ได้ ต้องไม่ทำให้ทั้งแดชบอร์ดพัง (การ์ดจะแสดงข้อความเตือนเอง)
+      }
+      $('#msg').textContent=''; // ล้างข้อความสถานะ "กำลังโหลด"
+    }
     else all=demo(pa,b);
     const cut=(o,f)=>{const x={};TB.forEach(t=>x[t]=o[t].filter(f));return x};
-    const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b);cc.dept_pttype=all.dept_pttype?all.dept_pttype.filter(r=>r.record_date>=a&&r.record_date<=b):null;const have=new Set(cc.daily.map(r=>r.record_date)).size;const pv=cut(all,r=>r.record_date>=pa&&r.record_date<=pb);pv.dept_pttype=all.dept_pttype?all.dept_pttype.filter(r=>r.record_date>=pa&&r.record_date<=pb):[];render(cc,pv,a,b);banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have);window.v3sync&&v3sync(b);
+    const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงวันที่ปัจจุบัน
+    const sel=(rows,x,y)=>rows?rows.filter(r=>r.record_date>=x&&r.record_date<=y):[]; // [เพิ่มใหม่] ฟังก์ชันกรองช่วงวันที่ของตารางผู้ป่วยใน (ไม่มีข้อมูล = อาร์เรย์ว่าง)
+    cc.ward=sel(all.ward,a,b); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงปัจจุบัน
+    cc.ipd_pttype=sel(all.ipd_pttype,a,b); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงปัจจุบัน
+    const have=new Set(cc.daily.map(r=>r.record_date)).size; // นับจำนวนวันที่มีข้อมูลจริง
+    const pv=cut(all,r=>r.record_date>=pa&&r.record_date<=pb); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงก่อนหน้า (ไว้เปรียบเทียบ)
+    pv.ward=sel(all.ward,pa,pb); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงก่อนหน้า
+    pv.ipd_pttype=sel(all.ipd_pttype,pa,pb); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงก่อนหน้า
+    render(cc,pv,a,b); // วาดทั้งหน้าจอ (รวมการ์ดใหม่)
+    banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have); // แสดงแถบสรุปช่วงวันที่ (โค้ดเดิม)
+    window.v3sync&&v3sync(b); // ซิงก์วันที่กับส่วนอื่น (โค้ดเดิม)
   }catch(e){$('#msg').textContent=(AUTO?'ไม่สามารถโหลดข้อมูลได้ในขณะนี้ กรุณาลองใหม่ภายหลัง':'โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจ URL, key และสิทธิ์อ่านตาราง (RLS policy)')}
 }
 function logo(){const l=cfg().l;$('#logo').innerHTML=l?`<img src="${l.replace(/"/g,'')}" alt="โลโก้" onerror="this.parentNode.textContent='✚'">`:'✚'}
