@@ -191,6 +191,7 @@ function demo(a,b){
     [['Level 1',1],['Level 2',6],['Level 3',14],['Level 4',9],['Level 5',3]].forEach(([d,n],j)=>D.er_triage.push({record_date:s,triage_level_id:j+1,triage_level_name:d,patient_count:n+R(3)}));
     [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4)}));
   }
+  D.bed_occupancy=D.ward.map(r=>({record_date:r.record_date,ward:r.ward,ward_name:r.ward_name,total_beds:r.bed_count,used_beds:r.bed_used})); // ตัวอย่างตาราง hospital_bed_occupancy_stats
   return D;
 }
 
@@ -270,7 +271,7 @@ const fdt=s=>new Date(s+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',m
 function banner(a,b,pa,pb,n,seven,have){const $r=$('#rb');$r.innerHTML=`<div>${seven?'<span class="pill">7 วันล่าสุด</span>':`<span class="pill">${n} วัน</span>`}<b>${fdt(a)} – ${fdt(b)}</b><span>เปรียบเทียบกับ ${fdt(pa)} – ${fdt(pb)}</span>${have!=null?`<span>มีข้อมูล ${have}/${n} วัน</span>`:''}<span style="margin-left:auto;font-size:12px">ข้อมูลล่าสุด ${fdt(b)}</span></div>`}
 /* ===== การ์ดรายรับแยกตามแผนก/หอผู้ป่วย และสิทธิการรักษา (ผู้ป่วยนอก / ผู้ป่วยใน / รวม) =====
    ผู้ป่วยนอก: hospital_department_stats (ตามแผนก) และ hospital_pttype_stats (ตามสิทธิ)
-   ผู้ป่วยใน : hospital_ward_stats (ตามหอผู้ป่วย) และ hospital_ipd_pttype_stats (ตามสิทธิ)
+   ผู้ป่วยใน : hospital_ward_stats (รายรับตามหอผู้ป่วย), hospital_bed_occupancy_stats (เตียงรายหอ) และ hospital_ipd_pttype_stats (ตามสิทธิ)
    รายรับของแต่ละแถวแบ่งเป็น 3 ส่วน: เบิกตามสิทธิ (uc_money) / ผู้ป่วยชำระเอง (paid_money) / อื่นๆ (ส่วนที่เหลือจาก his_income) */
 
 const DPC={uc:'#0b7a8a',paid:'#e9a23b',oth:'#8aa0b3'}; // สีของแต่ละส่วนในแถบสัดส่วน
@@ -442,9 +443,10 @@ function bedField(r,kind){ // อ่านค่าเตียงจากแ�
   const k=Object.keys(r).find(k=>/bed/i.test(k)&&re.test(k)&&!ex.test(k)&&r[k]!=null&&r[k]!==''&&isFinite(+r[k]));
   return k?+r[k]:null;
 }
-function wardBedHtml(rows){
+function wardBedHtml(rows,err){
   const h='<p style="margin:16px 0 4px;font-weight:600">เตียงแต่ละหอผู้ป่วย</p>';
-  if(!rows||!rows.length)return h+'<div class="nd">ไม่มีข้อมูลหอผู้ป่วยในช่วงที่เลือก</div>';
+  if(err)return h+'<div class="nd">โหลดตาราง <b>hospital_bed_occupancy_stats</b> ไม่ได้ — ตรวจสิทธิ์อ่าน (RLS policy)<br><small style="color:#b42318">'+esc(err)+'</small></div>';
+  if(!rows||!rows.length)return h+'<div class="nd">ไม่มีข้อมูลเตียงรายหอผู้ป่วยในช่วงที่เลือก (hospital_bed_occupancy_stats)</div>';
   const m=new Map();
   rows.forEach(r=>{const k=r.ward||r.ward_name||r.wardname||'ไม่ระบุ';if(!m.has(k))m.set(k,{n:r.ward_name||r.wardname||r.ward||'ไม่ระบุ',rows:[]});m.get(k).rows.push(r)});
   const ws=[...m.values()].map(w=>{
@@ -453,7 +455,7 @@ function wardBedHtml(rows){
     return {n:w.n,tot:bedField(last,'tot'),used:us.length?us.reduce((s,v)=>s+v,0)/us.length:null}; // เตียงใช้งาน = เฉลี่ยต่อวัน
   }).sort((x,y)=>String(x.n).localeCompare(String(y.n),'th'));
   if(!ws.some(w=>w.tot!=null||w.used!=null))
-    return h+'<div class="nd">ตาราง hospital_ward_stats ยังไม่มีคอลัมน์จำนวนเตียง (พบคอลัมน์: '+esc(Object.keys(rows[0]).join(', '))+')</div>';
+    return h+'<div class="nd">ตาราง hospital_bed_occupancy_stats ไม่พบคอลัมน์จำนวนเตียง (พบคอลัมน์: '+esc(Object.keys(rows[0]).join(', '))+')</div>';
   const T=ws.reduce((s,w)=>s+(w.tot||0),0),U=ws.reduce((s,w)=>s+(w.used||0),0);
   const col=p=>p>=90?'#e2563c':p>=75?'#e9a23b':'#2f9e6b';
   const row=(n,tot,used,b)=>{const p=tot?used/tot*100:null;return `<tr${b?' style="font-weight:700;background:#f4f8fb"':''}><td>${esc(n)}</td><td style="text-align:right">${fm(tot)}</td><td style="text-align:right">${fm(used,1)}</td><td style="min-width:110px">${p==null?'-':`<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;background:#eaf0f5;border-radius:99px;height:8px;overflow:hidden"><u style="display:block;height:100%;width:${Math.min(p,100)}%;background:${col(p)}"></u></div><span style="min-width:38px;text-align:right">${fm(p,0)}%</span></div>`}</td></tr>`};
@@ -495,7 +497,7 @@ function render(cur,prev,a,b){
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
-   sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>${wardBedHtml(cur.ward)}`)+
+   sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>${wardBedHtml(cur.bed_occupancy,IPDERR.bed_occupancy)}`)+
    sec(6,'งานอุบัติเหตุฉุกเฉิน','Emergency Department',`<div class="kp" style="grid-template-columns:1fr 1fr">${kpi('ผู้ป่วย ER',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0)}${kpi('เฉลี่ยต่อวัน',fm(er/days,1),'ครั้ง',0,0)}</div><p style="margin:12px 0 2px;font-weight:600">ระดับความเร่งด่วน (Triage)</p>${bars(tri.map((t,i)=>[t[0]+' ('+fm(t[1]/trT*100,0)+'%)',t[1],['#e2563c','#f08a3c','#e9a23b','#2f9e6b','#8aa0b3'][i%5]]))}`)+
    sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
    sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc/1e6,1)+'M',132,{sub:'ล้านบาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v/1e6,2)+' ล้านบาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v/1e6,2)+' ลบ.')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
@@ -520,7 +522,7 @@ async function load(){
       all={}; // อ็อบเจ็กต์เก็บข้อมูลทุกตาราง
       TB.forEach((t,i)=>all[t]=r[i]); // จับคู่ชื่อตารางกับข้อมูลที่ดึงมา
       IPDERR={};
-      for(const t of ['ward','ipd_pttype']){ // [เพิ่มใหม่] วนดึงตารางผู้ป่วยในทีละตาราง (แยกจากตารางหลัก)
+      for(const t of ['ward','ipd_pttype','bed_occupancy']){ // [เพิ่มใหม่] วนดึงตารางผู้ป่วยในทีละตาราง (แยกจากตารางหลัก)
         try{all[t]=await get(t,pa,b);} // ดึงจาก hospital_ward_stats / hospital_ipd_pttype_stats
         catch(e){all[t]=[];IPDERR[t]=e.message;} // ถ้าอ่านไม่ได้ ต้องไม่ทำให้ทั้งแดชบอร์ดพัง (การ์ดจะแสดงข้อความเตือนเอง)
       }
@@ -531,10 +533,12 @@ async function load(){
     const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงวันที่ปัจจุบัน
     const sel=(rows,x,y)=>rows?rows.filter(r=>r.record_date>=x&&r.record_date<=y):[]; // [เพิ่มใหม่] ฟังก์ชันกรองช่วงวันที่ของตารางผู้ป่วยใน (ไม่มีข้อมูล = อาร์เรย์ว่าง)
     cc.ward=sel(all.ward,a,b); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงปัจจุบัน
+    cc.bed_occupancy=sel(all.bed_occupancy,a,b); // ข้อมูลเตียงรายหอ จาก hospital_bed_occupancy_stats
     cc.ipd_pttype=sel(all.ipd_pttype,a,b); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงปัจจุบัน
     const have=new Set(cc.daily.map(r=>r.record_date)).size; // นับจำนวนวันที่มีข้อมูลจริง
     const pv=cut(all,r=>r.record_date>=pa&&r.record_date<=pb); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงก่อนหน้า (ไว้เปรียบเทียบ)
     pv.ward=sel(all.ward,pa,pb); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงก่อนหน้า
+    pv.bed_occupancy=sel(all.bed_occupancy,pa,pb);
     pv.ipd_pttype=sel(all.ipd_pttype,pa,pb); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงก่อนหน้า
     render(cc,pv,a,b); // วาดทั้งหน้าจอ (รวมการ์ดใหม่)
     banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have); // แสดงแถบสรุปช่วงวันที่ (โค้ดเดิม)
