@@ -145,7 +145,7 @@ main .k em{display:block;margin-top:6px}
   <div class="top">
     <div class="brand"><div class="logo" id="logo">✚</div><div><h1>Hospital Yantakhao Management Dashboard</h1><small>แดชบอร์ดบริหารจัดการโรงพยาบาล · ข้อมูลจาก HOSxP ผ่าน Supabase</small></div></div>
     <div class="ctl">
-      <button data-d="7" class="on">7 วันล่าสุด</button><button data-d="30">30 วัน</button><button data-d="90">90 วัน</button><button data-d="0">ปีนี้</button>
+      <button data-d="-1">วันนี้</button><button data-d="7" class="on">7 วันล่าสุด</button><button data-d="30">30 วัน</button><button data-d="90">90 วัน</button><button data-d="0">ปีนี้</button>
       <input type="date" id="from" aria-label="ตั้งแต่วันที่"><input type="date" id="to" aria-label="ถึงวันที่">
       <button id="go">โหลด</button><button id="to3d">3D ▾</button><button id="cfgb">ตั้งค่า</button>
     </div>
@@ -623,7 +623,7 @@ async function load(){
 }
 function logo(){const l=cfg().l;$('#logo').innerHTML=l?`<img src="${l.replace(/"/g,'')}" alt="โลโก้" onerror="this.parentNode.textContent='✚'">`:'✚'}
 async function latestDay(){const c=cfg();if(!c.u||!c.k)return iso(new Date());try{const r=await fetch(`${c.u}/rest/v1/hospital_daily_stats?select=record_date&order=record_date.desc&limit=1`,{headers:{apikey:c.k,Authorization:'Bearer '+c.k}});if(!r.ok)return iso(new Date());const j=await r.json();return j[0]&&/^\d{4}-\d{2}-\d{2}$/.test(j[0].record_date)?j[0].record_date:iso(new Date())}catch(e){return iso(new Date())}}
-async function setRange(n,btn){document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===btn));const t=n&&n<=30?await latestDay():iso(new Date());$('#to').value=t;$('#from').value=n?addD(t,-n+1):new Date().getFullYear()+'-01-01';load()}
+async function setRange(n,btn){document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===btn));const t=n===-1?new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}):(n&&n<=30?await latestDay():iso(new Date()));$('#to').value=t;$('#from').value=n===-1?t:(n?addD(t,-n+1):new Date().getFullYear()+'-01-01');load()} // n=-1 คือปุ่ม "วันนี้" (วันที่ปัจจุบันวันเดียว)
 document.querySelectorAll('[data-d]').forEach(x=>x.onclick=()=>setRange(+x.dataset.d,x));
 $('#to').value=iso(new Date());$('#from').value=addD($('#to').value,-6);
 $('#go').onclick=()=>{document.querySelectorAll('[data-d]').forEach(x=>x.classList.remove('on'));load()};
