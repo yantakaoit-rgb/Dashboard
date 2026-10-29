@@ -264,7 +264,7 @@ const dlegend=(parts,cols,fmtv,dark)=>{const T=parts.reduce((s,p)=>s+p[1],0)||1;
 const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
 
 function chart(keys,series,tgt,note){
-  const W=620,H=220,L=44,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
+  const W=620,H=220,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),L=Math.max(44,String(fr(mx)).length*5.8+10),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
   const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f)}</text>`).join('');
   const area=`<polygon fill="#0b7a8a" opacity=".1" points="${x(0)},${y(0)} ${series[0].v.map((v,i)=>x(i)+','+y(v)).join(' ')} ${x(keys.length-1)},${y(0)}"/>`;
   const tg=tgt==null?'':`<line x1="${L}" x2="${W-12}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#e2563c" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W-14}" y="${y(tgt)-5}" font-size="10" text-anchor="end" fill="#e2563c">เป้าหมาย ${tgt}</text>`;
@@ -290,7 +290,7 @@ function tipOf(k,series,i,o={}){
 const DOWF=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'],DOW=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],lab=k=>k.length>7?(SHORT&&/^\d{4}-\d{2}-\d{2}$/.test(k)?DOW[new Date(k+'T00:00:00').getDay()]+' ':'')+k.slice(8)+'/'+k.slice(5,7):k.length==7?k.slice(5)+'/'+k.slice(2,4):k;
 let SHORT=false;
 function cols(keys,series,stack,dec=0,note){
-  const W=620,H=230,L=44,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
+  const W=620,H=230,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),L=Math.max(44,String(fr(mx,dec)).length*5.8+10),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
   const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f,dec)}</text>`).join('');
   const bars=keys.map((k,i)=>{let acc=0;return series.map((s,j)=>{const v=s.v[i],x=L+i*bw+(stack?bw*.15:bw*.1+j*g),yy=stack?y(acc+v):y(v);acc+=v;return `<rect x="${x}" y="${yy}" width="${stack?bw*.7:g*.92}" height="${Math.max(y(0)-y(v),0)}" rx="2" fill="${s.c}"/>`}).join('')}).join('');
   const hits=keys.map((k,i)=>`<rect class="hit" x="${L+i*bw}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{stack,dec,note})}"/>`).join('');
@@ -564,9 +564,18 @@ const XT=[{k:'opd_daily_count',n:'ผู้ป่วยนอก (OPD)',u:'ค�
 let XD=null,xk=XT[0];
 const xmon=k=>['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+k.slice(5)-1]+' '+String(+k.slice(0,4)+543).slice(2);
 function xbars(ser,lab,d=0){
-  const W=700,H=250,L=46,B=30,T=14,n=lab.length,mx=Math.max(1,...ser.flatMap(x=>x.v))*1.12,cw=(W-L)/Math.max(n,1),bw=Math.min(36,cw*.72/ser.length);let g='';
-  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#e2eaf2"/><text x="${L-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#60758a">${fr(mx*(1-i/4),mx<10?1:0)}</text>`}
-  ser.forEach((x,si)=>x.v.forEach((v,i)=>{const h=(H-T-B)*v/mx,px=L+cw*i+(cw-bw*ser.length)/2+bw*si;g+=`<rect x="${px}" y="${H-B-h}" width="${bw-2}" height="${h}" rx="5" fill="${x.c}"><title>${lab[i]}: ${fm(v,d)}</title></rect>`;if(n<=12&&ser.length==1)g+=`<text x="${px+bw/2}" y="${H-B-h-5}" font-size="11" text-anchor="middle" fill="#0b1f33">${fm(v,d)}</text>`}));
+  const W=700,H=270,B=30,T=16,n=lab.length,single=ser.length===1,top=Math.max(1,...ser.flatMap(x=>x.v));
+  const vt=single?ser[0].v.map(v=>fm(v,d)):[],maxLen=vt.length?Math.max(...vt.map(t=>t.length)):0;
+  const cw0=(W-62)/Math.max(n,1),rot=single&&n<=14&&cw0*.96/(maxLen*.58)<7.5; // ตัวเลขยาวเกินช่อง -> หมุนแนวตั้ง
+  const room=rot?(maxLen*6+14)/(H-T-B):.12,mx=top*(1+Math.max(room,.12));
+  const ticks=[0,1,2,3,4].map(i=>fr(mx*(1-i/4),mx<10?1:0));
+  const L=Math.max(46,Math.max(...ticks.map(t=>t.length))*6.4+12),cw=(W-L)/Math.max(n,1),bw=Math.min(40,cw*.72/ser.length);let g='';
+  ticks.forEach((t,i)=>{const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#e2eaf2"/><text x="${L-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#60758a">${t}</text>`});
+  ser.forEach((x,si)=>x.v.forEach((v,i)=>{const h=(H-T-B)*v/mx,px=L+cw*i+(cw-bw*ser.length)/2+bw*si,y=H-B-h;
+    g+=`<rect x="${px}" y="${y}" width="${bw-2}" height="${h}" rx="5" fill="${x.c}"><title>${lab[i]}: ${fm(v,d)}</title></rect>`;
+    if(single&&n<=14){const cx=L+cw*i+cw/2,t=vt[i];
+      g+=rot?`<text transform="rotate(-90 ${cx+4} ${y-6})" x="${cx+4}" y="${y-6}" font-size="10.5" fill="#0b1f33">${t}</text>`
+            :`<text x="${cx}" y="${y-6}" font-size="${Math.min(11,cw*.96/(t.length*.58)).toFixed(2)}" text-anchor="middle" fill="#0b1f33">${t}</text>`}}));
   const st=Math.ceil(n/14);lab.forEach((l,i)=>{if(i%st==0)g+=`<text x="${L+cw*i+cw/2}" y="${H-10}" font-size="11" text-anchor="middle" fill="#60758a">${l}</text>`});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%"><defs><linearGradient id="xg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>${g}</svg>`;
 }
