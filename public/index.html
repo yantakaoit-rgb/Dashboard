@@ -260,12 +260,12 @@ const dlegend=(parts,cols,fmtv,dark)=>{const T=parts.reduce((s,p)=>s+p[1],0)||1;
 const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
 
 function chart(keys,series,tgt,note){
-  const W=620,H=220,L=44,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),x=i=>L+i*(W-L-12)/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48);
+  const W=620,H=220,L=44,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
   const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f)}</text>`).join('');
   const area=`<polygon fill="#0b7a8a" opacity=".1" points="${x(0)},${y(0)} ${series[0].v.map((v,i)=>x(i)+','+y(v)).join(' ')} ${x(keys.length-1)},${y(0)}"/>`;
   const tg=tgt==null?'':`<line x1="${L}" x2="${W-12}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#e2563c" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W-14}" y="${y(tgt)-5}" font-size="10" text-anchor="end" fill="#e2563c">เป้าหมาย ${tgt}</text>`;
   const ln=series.map(s=>`<polyline fill="none" stroke="${s.c}" stroke-width="2.6" stroke-linejoin="round" points="${s.v.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`+(keys.length>40?'':s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="#fff" stroke="${s.c}" stroke-width="2"/>`).join(''))).join('');
-  const bw=(W-L-12)/Math.max(keys.length-1,1),hits=keys.map((k,i)=>`<rect class="hit" x="${Math.max(x(i)-bw/2,L)}" y="8" width="${keys.length>1?bw:W-L-12}" height="${H-34}" data-tip="${tipOf(k,series,i,{tgt,note})}"/>`).join('');
+  const bw=few?span/keys.length:span/Math.max(keys.length-1,1),hits=keys.map((k,i)=>`<rect class="hit" x="${Math.max(x(i)-bw/2,L)}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{tgt,note})}"/>`).join('');
   const step=keys.length<=8?1:Math.ceil(keys.length/8),tx=keys.map((k,i)=>i%step?'':`<text x="${x(i)}" y="${H-8}" font-size="10" text-anchor="middle" fill="#5d7186">${lab(k)}</text>`).join('');
   return `<div class="lg">${series.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join('')}</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="กราฟแนวโน้ม แตะหรือชี้เพื่อดูรายละเอียด">${grid}${tg}${area}${ln}${hits}${tx}</svg>`;
 }
