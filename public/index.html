@@ -138,6 +138,7 @@ main .k{display:flex;flex-direction:column;min-width:0;overflow:hidden}
 main .k strong{min-width:0;margin:3px 0 0;letter-spacing:-.3px;overflow-wrap:anywhere}
 main .k u{display:block;margin:1px 0 0;font-size:12px}
 main .k em{display:block;margin-top:6px}
+small.pv{display:block;color:var(--mut);font-size:12px;line-height:1.45;margin-top:3px;font-weight:400}small.pv b{color:var(--ink);font-weight:600}.dpw small.pv{white-space:nowrap}
 </style>
 </head>
 <body>
@@ -245,8 +246,11 @@ function demo(a,b){
 
 const sec=(n,t,s,body,cls='')=>`<section class="s ${cls}" id="sec${String(n).replace('.','_')}"><div class="h"><b>${n}</b><h2>${t}</h2><span>${s}</span></div>${body}</section>`;
 const spark=(pts,c,lb)=>{if(pts.length<2)return '';const v=pts.map(e=>e[1]),m=Math.max(...v),n=Math.min(...v),r=m-n||1,w=100/v.length;return `<svg viewBox="0 0 100 26" width="100%" height="26" preserveAspectRatio="none" aria-label="แนวโน้ม ${lb}"><polyline fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke" points="${v.map((x,i)=>(i/(v.length-1)*100).toFixed(1)+','+(24-(x-n)/r*22).toFixed(1)).join(' ')}"/>${pts.map((e,i)=>`<rect class="hit" x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="26" data-tip="${esc(`<b>${fd(e[0])}</b><div class="tr"><span>${lb}</span><b>${fm(e[1],e[1]<100?1:0)}</b></div>`)}"/>`).join('')}</svg>`};
-const delta=(c,p,inv)=>{if(!p)return '<em>&nbsp;</em>';const d=(c-p)/p*100,g=inv?d<0:d>0;return `<em class="${g?'up':'dn'}">${d>=0?'▲':'▼'} ${fm(Math.abs(d),1)}% vs ช่วงก่อน</em>`};
-const kpi=(l,v,u,c,p,inv,sr,col='#0b7a8a')=>`<div class="k"><i>${l}</i><strong>${v}<u>${u}</u></strong>${delta(c,p,inv)}${sr?spark(sr,col,l):''}</div>`;
+let CMP={len:1,pa:'',pb:''}; // ช่วงเปรียบเทียบ (จำนวนวัน + วันที่เริ่ม/สิ้นสุดของช่วงก่อนหน้า) ตั้งค่าใหม่ทุกครั้งที่ค้นหา
+const cmpDate=t=>t?`${t.slice(8)}/${t.slice(5,7)}/${+t.slice(0,4)+543}`:'';
+const cmpTxt=()=>`เทียบ ${CMP.len} วัน · ${cmpDate(CMP.pa)}${CMP.len>1?' – '+cmpDate(CMP.pb):''}`;
+const delta=(c,p,inv,u='')=>{if(!p)return '<em>&nbsp;</em>';const d=(c-p)/p*100,g=inv?d<0:d>0;return `<em class="${g?'up':'dn'}">${d>=0?'▲':'▼'} ${fm(Math.abs(d),1)}% vs ช่วงก่อน</em><small class="pv">ช่วงก่อน <b>${fm(p)}</b> ${u}<br>${cmpTxt()}</small>`};
+const kpi=(l,v,u,c,p,inv,sr,col='#0b7a8a')=>`<div class="k"><i>${l}</i><strong>${v}<u>${u}</u></strong>${delta(c,p,inv,u)}${sr?spark(sr,col,l):''}</div>`;
 const bars=(rows,unit)=>{const m=Math.max(...rows.map(r=>r[1]),1);return rows.length?rows.map(r=>`<div class="bar"><span>${r[0]}</span><div><u style="width:${r[1]/m*100}%;background:${r[2]||'linear-gradient(90deg,#0b7a8a,#14a3a8)'}"></u></div><span>${fm(r[1],unit?1:0)}${unit||''}</span></div>`).join(''):'<div class="nd">ไม่มีข้อมูล</div>'};
 const group=(a,kf,vf)=>{const m={};a.forEach(r=>{const k=kf(r);m[k]=(m[k]||0)+num(vf(r))});return Object.entries(m).sort((x,y)=>y[1]-x[1])};
 const donut=(parts,cols,center,size=132,o={})=>{
@@ -375,7 +379,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
   const b2='<div class="tg" style="margin-top:8px">'+ // เริ่มแถวปุ่มสลับมุมมอง
     `<button data-dpv="dept" class="${byD?'on':''}">${pt==='ipd'?'ดูตามหอผู้ป่วย':pt==='all'?'ดูตามแผนก/หอผู้ป่วย':'ดูตามแผนก'}</button>`+ // ปุ่มมุมมองแรก ชื่อเปลี่ยนตามประเภทผู้ป่วย
     `<button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button>`+ // ปุ่มดูตามสิทธิการรักษา
-    `<span>หน่วย: บาท · แสดงทั้งหมด ${all.length} ${unit}</span></div>`; // ข้อความหน่วยและข้อจำกัด
+    `<span>หน่วย: บาท · แสดงทั้งหมด ${all.length} ${unit} · ${cmpTxt()}</span></div>`; // ข้อความหน่วยและข้อจำกัด
   const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว'+(Object.keys(IPDERR).length?'<br><small style="color:#b42318">สาเหตุที่โหลดไม่ได้: '+Object.values(IPDERR).map(esc).join(' | ')+'</small>':'')+'</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
   const note=(pt!=='opd'&&!ipdMiss)?'<p style="margin:8px 0 0;color:var(--mut);font-size:12px">ผู้ป่วยใน: นับตามผู้ป่วยที่จำหน่ายในช่วงวันที่ที่เลือก (ระดับหอผู้ป่วย/สิทธิ)</p>':''; // หมายเหตุวิธีนับรายรับผู้ป่วยใน
   if(!all.length){ // กรณีไม่มีข้อมูลรายรับในช่วงที่เลือก
@@ -399,7 +403,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     if(!p)return '<span style="color:var(--mut)">-</span>'; // ไม่มีข้อมูลช่วงก่อน แสดงขีด
     const up=v>=p; // เพิ่มขึ้นหรือเท่าเดิมหรือไม่
     const pct=fm(Math.abs((v-p)/p*100),1); // คำนวณ % ความต่าง (ทศนิยม 1 ตำแหน่ง)
-    return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด
+    return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span><small class="pv">ก่อนหน้า ${fm(p)} บาท</small>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด + ยอดช่วงก่อน
   };
   const kc=(l,v,s)=>`<div class="k"><i>${l}</i><strong style="font-size:18px;line-height:1.5">${v}</strong><em style="color:var(--mut)">${s}</em></div>`; // สร้างช่องสรุปแบบข้อความ (หัวข้อ, ค่า, คำอธิบาย)
   const mil=v=>`${fm(v)} บาท`; // แสดงเป็นบาทเต็มจำนวน
@@ -431,7 +435,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     '<th style="text-align:left;width:26%">สัดส่วนรายรับ</th>'+ // หัวคอลัมน์: แถบสัดส่วน
     '<th>รายรับ</th><th>เบิกตามสิทธิ</th><th>ชำระเอง</th>'+ // หัวคอลัมน์ตัวเลขหลัก
     (showAN?'<th>รายรับ/AN</th>':'')+ // หัวคอลัมน์รายรับต่อ AN (เฉพาะผู้ป่วยใน)
-    '<th>% ทั้งหมด</th><th>เทียบช่วงก่อน</th></tr>'+ // หัวคอลัมน์ที่เหลือ
+    '<th>% ทั้งหมด</th><th>เทียบช่วงก่อน ('+CMP.len+' วัน)</th></tr>'+ // หัวคอลัมน์ที่เหลือ
     body+ // แถวข้อมูลทั้งหมด
     `<tr class="tt"><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>${fm(UC)}</b></td><td><b>${fm(PD)}</b></td>`+ // แถวสรุปรวม: ชื่อ แถบ(ว่าง) รายรับ เบิกตามสิทธิ ชำระเอง
     (showAN?`<td><b>${AN?fm(T/AN):'-'}</b></td>`:'')+ // รวม: รายรับต่อ AN (เฉพาะผู้ป่วยใน)
@@ -588,7 +592,7 @@ async function xtra(){
 }
 async function load(){
   const a=$('#from').value,b=$('#to').value;if(!a||!b||a>b){$('#msg').textContent='เลือกช่วงวันที่ให้ถูกต้อง';return}
-  tip.style.display='none';const len=Math.max(1,Math.round((new Date(b)-new Date(a))/864e5)+1),pa=addD(a,-len),pb=addD(a,-1),c=cfg(),live=c.u&&c.k;
+  tip.style.display='none';const len=Math.max(1,Math.round((new Date(b)-new Date(a))/864e5)+1),pa=addD(a,-len),pb=addD(a,-1),c=cfg(),live=c.u&&c.k;CMP={len,pa,pb};
   $('#msg').textContent=live?'กำลังโหลดข้อมูล…':'กำลังแสดงข้อมูลตัวอย่าง — แก้ CONFIG ในไฟล์ หรือกด "ตั้งค่า" เพื่อเชื่อมต่อ Supabase';
   try{
     let all;
