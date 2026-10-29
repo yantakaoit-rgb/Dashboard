@@ -126,6 +126,14 @@ main .tg button{border-radius:999px;padding:6px 18px;transition:.15s}main .tg bu
 #v3 .now{margin:0;color:#e8f1f8}#v3 .now b{color:#fff}@keyframes pls{70%{box-shadow:0 0 0 7px #16a37a00}}
 @media(prefers-reduced-motion:reduce){.nd0{animation:none}}
 .gb{display:flex;height:14px;border-radius:99px;overflow:hidden;background:#e8eef5;margin:6px 0}.gb i{display:block;height:100%}.gl{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin-bottom:4px}.gl b{font-variant-numeric:tabular-nums}
+.dpw{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:16px;margin-top:10px}
+.dpw table{min-width:820px;border-collapse:separate;border-spacing:0}
+.dpw th{position:sticky;top:0;z-index:3;background:#f1f6fa;border-bottom:1px solid var(--line);white-space:nowrap}
+.dpw td{border-bottom:1px solid #edf2f7;padding:11px 10px;white-space:nowrap}
+.dpw tr:nth-child(even) td{background:#fafcfe}.dpw tr:hover td{background:#eef7f8}
+.dpw td:first-child{position:sticky;left:0;background:inherit;z-index:1}.dpw th:first-child{left:0;z-index:4}
+.dpw tr.tt td{position:sticky;bottom:0;z-index:2;background:#e7f3f5;font-weight:700;border-top:2px solid var(--tl);border-bottom:0}
+.rk{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#eef3f8;font-size:12px;font-weight:600;color:var(--mut);margin-right:10px}.rk.t{background:linear-gradient(135deg,var(--teal),#2563eb);color:#fff}
 </style>
 </head>
 <body>
@@ -171,7 +179,8 @@ const TARGET={occ:85,wait:20,consult:15,readmit:10,total:60}; // เป้าห
 const $=s=>document.querySelector(s),TB=['daily','hourly','department','pttype','er_triage','doctor_clinic'];
 const num=v=>+v||0,sum=(a,f)=>a.reduce((s,r)=>s+num(f(r)),0);
 const avg=(a,f)=>{const x=a.map(f).filter(v=>v!==null&&v!==''&&v!==undefined&&isFinite(+v)).map(Number);return x.length?x.reduce((s,v)=>s+v,0)/x.length:null};
-const fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:d});
+const fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2}); // แสดงทศนิยมไม่เกิน 2 ตำแหน่ง (พารามิเตอร์ d ถูกละไว้)
+const fr=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:d}); // ใช้เฉพาะตัวเลขบนแกนกราฟ
 const iso=d=>d.toISOString().slice(0,10),addD=(s,n)=>{const d=new Date(s);d.setDate(d.getDate()+n);return iso(d)};
 let store;try{store=localStorage}catch(e){store={getItem(){},setItem(){}}}
 const cfg=()=>AUTO?{u:CONFIG.url.replace(/\/$/,''),k:CONFIG.key,l:CONFIG.logo}:{u:(store.getItem('sb_u')||'').replace(/\/$/,''),k:store.getItem('sb_k')||'',l:store.getItem('sb_l')||''};
@@ -248,7 +257,7 @@ const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
 
 function chart(keys,series,tgt,note){
   const W=620,H=220,L=44,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),x=i=>L+i*(W-L-12)/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48);
-  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fm(mx*f)}</text>`).join('');
+  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f)}</text>`).join('');
   const area=`<polygon fill="#0b7a8a" opacity=".1" points="${x(0)},${y(0)} ${series[0].v.map((v,i)=>x(i)+','+y(v)).join(' ')} ${x(keys.length-1)},${y(0)}"/>`;
   const tg=tgt==null?'':`<line x1="${L}" x2="${W-12}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#e2563c" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W-14}" y="${y(tgt)-5}" font-size="10" text-anchor="end" fill="#e2563c">เป้าหมาย ${tgt}</text>`;
   const ln=series.map(s=>`<polyline fill="none" stroke="${s.c}" stroke-width="2.6" stroke-linejoin="round" points="${s.v.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`+(keys.length>40?'':s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="#fff" stroke="${s.c}" stroke-width="2"/>`).join(''))).join('');
@@ -274,7 +283,7 @@ const DOWF=['อาทิตย์','จันทร์','อังคาร','�
 let SHORT=false;
 function cols(keys,series,stack,dec=0,note){
   const W=620,H=230,L=44,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
-  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fm(mx*f,dec)}</text>`).join('');
+  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f,dec)}</text>`).join('');
   const bars=keys.map((k,i)=>{let acc=0;return series.map((s,j)=>{const v=s.v[i],x=L+i*bw+(stack?bw*.15:bw*.1+j*g),yy=stack?y(acc+v):y(v);acc+=v;return `<rect x="${x}" y="${yy}" width="${stack?bw*.7:g*.92}" height="${Math.max(y(0)-y(v),0)}" rx="2" fill="${s.c}"/>`}).join('')}).join('');
   const hits=keys.map((k,i)=>`<rect class="hit" x="${L+i*bw}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{stack,dec,note})}"/>`).join('');
   const st=n<=10?1:Math.ceil(n/10),tx=keys.map((k,i)=>i%st?'':`<text x="${L+i*bw+bw/2}" y="${H-8}" font-size="10" text-anchor="middle" fill="#5d7186">${lab(k)}</text>`).join('');
@@ -307,10 +316,10 @@ function banner(a,b,pa,pb,n,seven,have){const $r=$('#rb');$r.innerHTML=`<div>${s
 /* ===== การ์ดรายรับแยกตามแผนก/หอผู้ป่วย และสิทธิการรักษา (ผู้ป่วยนอก / ผู้ป่วยใน / รวม) =====
    ผู้ป่วยนอก: hospital_department_stats (ตามแผนก) และ hospital_pttype_stats (ตามสิทธิ)
    ผู้ป่วยใน : hospital_ward_stats (รายรับตามหอผู้ป่วย), hospital_bed_occupancy_stats (เตียงรายหอ) และ hospital_ipd_pttype_stats (ตามสิทธิ)
-   รายรับของแต่ละแถวแบ่งเป็น 3 ส่วน: เบิกตามสิทธิ (uc_money) / ผู้ป่วยชำระเอง (paid_money) / อื่นๆ (ส่วนที่เหลือจาก his_income) */
+   รายรับของแต่ละแถวแบ่งเป็น 3 ส่วน: เบิกตามสิทธิ (uc_money) / ผู้ป่วยชำระเอง (paid_money) / ยอดที่ไม่ระบุแหล่งจ่าย (ส่วนที่เหลือจาก his_income) */
 
 const DPC={uc:'#0b7a8a',paid:'#e9a23b',oth:'#8aa0b3'}; // สีของแต่ละส่วนในแถบสัดส่วน
-const DPN={uc:'เบิกตามสิทธิ',paid:'ผู้ป่วยชำระเอง',oth:'อื่นๆ (ไม่ระบุ)'}; // ชื่อของแต่ละส่วน ใช้ในคำอธิบายสีและ tooltip
+const DPN={uc:'เบิกตามสิทธิ',paid:'ผู้ป่วยชำระเอง',oth:'ยอดที่ไม่ระบุแหล่งจ่าย'}; // ชื่อของแต่ละส่วน ใช้ในคำอธิบายสีและ tooltip
 let DPV='dept'; // มุมมองปัจจุบัน: 'dept' = ตามแผนก/หอผู้ป่วย, 'pt' = ตามสิทธิการรักษา
 let DPT='opd'; // ประเภทผู้ป่วยปัจจุบัน: 'opd' = ผู้ป่วยนอก, 'ipd' = ผู้ป่วยใน, 'all' = รวมทั้งหมด
 let IPDERR={}; // เก็บข้อความ error จริงตอนโหลดตารางผู้ป่วยใน ไว้แสดงในการ์ด
@@ -362,7 +371,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
   const b2='<div class="tg" style="margin-top:8px">'+ // เริ่มแถวปุ่มสลับมุมมอง
     `<button data-dpv="dept" class="${byD?'on':''}">${pt==='ipd'?'ดูตามหอผู้ป่วย':pt==='all'?'ดูตามแผนก/หอผู้ป่วย':'ดูตามแผนก'}</button>`+ // ปุ่มมุมมองแรก ชื่อเปลี่ยนตามประเภทผู้ป่วย
     `<button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button>`+ // ปุ่มดูตามสิทธิการรักษา
-    '<span>หน่วย: บาท · แสดงสูงสุด 12 แถว ที่เหลือรวมเป็น "อื่นๆ"</span></div>'; // ข้อความหน่วยและข้อจำกัด
+    `<span>หน่วย: บาท · แสดงทั้งหมด ${all.length} ${unit}</span></div>`; // ข้อความหน่วยและข้อจำกัด
   const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว'+(Object.keys(IPDERR).length?'<br><small style="color:#b42318">สาเหตุที่โหลดไม่ได้: '+Object.values(IPDERR).map(esc).join(' | ')+'</small>':'')+'</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
   const note=(pt!=='opd'&&!ipdMiss)?'<p style="margin:8px 0 0;color:var(--mut);font-size:12px">ผู้ป่วยใน: นับตามผู้ป่วยที่จำหน่ายในช่วงวันที่ที่เลือก (ระดับหอผู้ป่วย/สิทธิ)</p>':''; // หมายเหตุวิธีนับรายรับผู้ป่วยใน
   if(!all.length){ // กรณีไม่มีข้อมูลรายรับในช่วงที่เลือก
@@ -379,19 +388,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
   const AN=sum(all,o=>o.an); // รวมจำนวนผู้ป่วยจำหน่าย
   const oth=o=>Math.max(o.inc-o.uc-o.paid,0); // ส่วน "อื่นๆ" = รายรับ - เบิกตามสิทธิ - ชำระเอง (ไม่ติดลบ)
 
-  const rows=all.slice(0,12); // 12 แถวแรกที่รายรับสูงสุด
-  const rest=all.slice(12); // แถวที่เหลือ
-  if(rest.length){ // ถ้ามีแถวเกิน 12
-    rows.push({ // เพิ่มแถวรวม "อื่นๆ" เพื่อให้ยอดรวมในตารางครบ
-      k:'__rest', // คีย์พิเศษของแถวรวม
-      n:`อื่นๆ (${rest.length} ${unit})`, // ชื่อแถว บอกจำนวนที่รวม
-      inc:sum(rest,o=>o.inc), // รายรับรวมของกลุ่มที่เหลือ
-      uc:sum(rest,o=>o.uc), // เบิกตามสิทธิรวมของกลุ่มที่เหลือ
-      paid:sum(rest,o=>o.paid), // ชำระเองรวมของกลุ่มที่เหลือ
-      an:sum(rest,o=>o.an) // จำนวนผู้ป่วยจำหน่ายรวมของกลุ่มที่เหลือ
-    });
-    pv.__rest=sum(rest,o=>pv[o.k]||0); // ยอดช่วงก่อนหน้าของกลุ่มที่เหลือ
-  }
+  const rows=all; // แสดงทุกแผนก/หอผู้ป่วย/สิทธิ ไม่ตัดแถวและไม่รวมเป็น "อื่นๆ"
   const mx=Math.max(...rows.map(o=>o.inc),1); // รายรับสูงสุดในตาราง ใช้เป็น 100% ของความยาวแถบ
 
   const dchg=(v,p)=>{ // ฟังก์ชันสร้างข้อความ % เปลี่ยนแปลงเทียบช่วงก่อน (v=ปัจจุบัน, p=ก่อนหน้า)
@@ -415,8 +412,8 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     return `<div style="background:#eaf0f5;border-radius:99px;height:12px;overflow:hidden;min-width:120px"><div style="display:flex;height:100%;width:${o.inc/mx*100}%">${segs}</div></div>`; // รางสีเทา + แถบที่ยาวตามรายรับเทียบแถวสูงสุด
   };
 
-  const body=rows.map(o=> // สร้างแถวของตารางทีละแถวข้อมูล
-    `<tr><td><b>${esc(o.n)}</b></td>`+ // คอลัมน์ 1: ชื่อแถว (แผนก/หอผู้ป่วย/สิทธิ)
+  const body=rows.map((o,i)=> // สร้างแถวของตารางทีละแถวข้อมูล
+    `<tr><td><span class="rk${i<3?' t':''}">${i+1}</span><b>${esc(o.n)}</b></td>`+ // คอลัมน์ 1: ชื่อแถว (แผนก/หอผู้ป่วย/สิทธิ)
     `<td style="text-align:left">${bar(o)}</td>`+ // คอลัมน์ 2: แถบสัดส่วน
     `<td>${fm(o.inc)}</td>`+ // คอลัมน์ 3: รายรับ (บาท)
     `<td>${fm(o.uc)}</td>`+ // คอลัมน์ 4: เบิกตามสิทธิ (บาท)
@@ -425,14 +422,14 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
     `<td>${fm(o.inc/T*100,1)}%</td>`+ // คอลัมน์ถัดไป: % ของรายรับทั้งหมด
     `<td>${dchg(o.inc,pv[o.k]||0)}</td></tr>` // คอลัมน์สุดท้าย: เทียบช่วงก่อน
   ).join(''); // รวมทุกแถวเป็นข้อความเดียว
-  const tbl='<div style="overflow-x:auto"><table>'+ // กล่องเลื่อนแนวนอน (กันล้นจอมือถือ) + เริ่มตาราง
+  const tbl='<div class="dpw"><table>'+ // กล่องเลื่อนแนวนอน (กันล้นจอมือถือ) + เริ่มตาราง
     `<tr><th>${rl}</th>`+ // หัวคอลัมน์: ชื่อแถว
     '<th style="text-align:left;width:26%">สัดส่วนรายรับ</th>'+ // หัวคอลัมน์: แถบสัดส่วน
     '<th>รายรับ</th><th>เบิกตามสิทธิ</th><th>ชำระเอง</th>'+ // หัวคอลัมน์ตัวเลขหลัก
     (showAN?'<th>รายรับ/AN</th>':'')+ // หัวคอลัมน์รายรับต่อ AN (เฉพาะผู้ป่วยใน)
     '<th>% ทั้งหมด</th><th>เทียบช่วงก่อน</th></tr>'+ // หัวคอลัมน์ที่เหลือ
     body+ // แถวข้อมูลทั้งหมด
-    `<tr><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>${fm(UC)}</b></td><td><b>${fm(PD)}</b></td>`+ // แถวสรุปรวม: ชื่อ แถบ(ว่าง) รายรับ เบิกตามสิทธิ ชำระเอง
+    `<tr class="tt"><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>${fm(UC)}</b></td><td><b>${fm(PD)}</b></td>`+ // แถวสรุปรวม: ชื่อ แถบ(ว่าง) รายรับ เบิกตามสิทธิ ชำระเอง
     (showAN?`<td><b>${AN?fm(T/AN):'-'}</b></td>`:'')+ // รวม: รายรับต่อ AN (เฉพาะผู้ป่วยใน)
     `<td><b>100%</b></td><td>${dchg(T,TP)}</td></tr>`+ // รวม: 100% และเทียบช่วงก่อน
     '</table></div>'; // ปิดตารางและกล่องเลื่อน
@@ -560,7 +557,7 @@ let XD=null,xk=XT[0];
 const xmon=k=>['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+k.slice(5)-1]+' '+String(+k.slice(0,4)+543).slice(2);
 function xbars(ser,lab,d=0){
   const W=700,H=250,L=46,B=30,T=14,n=lab.length,mx=Math.max(1,...ser.flatMap(x=>x.v))*1.12,cw=(W-L)/Math.max(n,1),bw=Math.min(36,cw*.72/ser.length);let g='';
-  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#e2eaf2"/><text x="${L-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#60758a">${fm(mx*(1-i/4),mx<10?1:0)}</text>`}
+  for(let i=0;i<=4;i++){const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#e2eaf2"/><text x="${L-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#60758a">${fr(mx*(1-i/4),mx<10?1:0)}</text>`}
   ser.forEach((x,si)=>x.v.forEach((v,i)=>{const h=(H-T-B)*v/mx,px=L+cw*i+(cw-bw*ser.length)/2+bw*si;g+=`<rect x="${px}" y="${H-B-h}" width="${bw-2}" height="${h}" rx="5" fill="${x.c}"><title>${lab[i]}: ${fm(v,d)}</title></rect>`;if(n<=12&&ser.length==1)g+=`<text x="${px+bw/2}" y="${H-B-h-5}" font-size="11" text-anchor="middle" fill="#0b1f33">${fm(v,d)}</text>`}));
   const st=Math.ceil(n/14);lab.forEach((l,i)=>{if(i%st==0)g+=`<text x="${L+cw*i+cw/2}" y="${H-10}" font-size="11" text-anchor="middle" fill="#60758a">${l}</text>`});
   return `<svg viewBox="0 0 ${W} ${H}" width="100%"><defs><linearGradient id="xg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>${g}</svg>`;
@@ -644,7 +641,7 @@ document.addEventListener('scroll',()=>{tip.style.display='none'},true);
 /* ===== ส่วน 3D (โหลดเมื่อเลื่อนมาถึง) ===== */
 function init3D(){
 const TG={triage:10,doctor:20,consult:15,pharm:15,total:60,occ:85}; // เป้าหมายเวลา (นาที) / % เตียง
-const $=s=>document.querySelector('#v3 '+s),n=v=>+v||0,fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:d});
+const $=s=>document.querySelector('#v3 '+s),n=v=>+v||0,fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2});
 const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
 
 /* ---------- data ---------- */
