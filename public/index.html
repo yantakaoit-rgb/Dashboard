@@ -139,6 +139,7 @@ main .k strong{min-width:0;margin:3px 0 0;letter-spacing:-.3px;overflow-wrap:any
 main .k u{display:block;margin:1px 0 0;font-size:12px}
 main .k em{display:block;margin-top:6px}
 small.pv{display:block;color:var(--mut);font-size:12px;line-height:1.45;margin-top:3px;font-weight:400}small.pv b{color:var(--ink);font-weight:600}.dpw small.pv{white-space:nowrap}
+#sec1 .kp{display:grid;gap:14px;align-items:stretch}#sec1 .k svg{margin-top:auto;width:100%}#sec1 .k{min-height:100%}
 </style>
 </head>
 <body>
@@ -895,6 +896,19 @@ const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.
   while(el.scrollWidth>el.clientWidth+1&&fs>13){fs--;el.style.fontSize=fs+'px'}
  })}
  let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fit)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+ addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* จัดการ์ด KPI ภาพรวมให้แบ่งแถวเท่า ๆ กัน (เช่น 8 ใบ = 4+4, 7 ใบ = 4+3) และขยายเต็มความกว้างอัตโนมัติ */
+(function(){
+ const MIN=200; // ความกว้างขั้นต่ำต่อการ์ด (px)
+ function balance(){document.querySelectorAll('#sec1 .kp').forEach(kp=>{
+  const n=kp.children.length,w=kp.clientWidth;if(!n||!w)return;
+  const maxCols=Math.max(1,Math.floor((w+14)/(MIN+14))),rows=Math.ceil(n/maxCols),cols=Math.ceil(n/rows);
+  const v=`repeat(${cols},minmax(0,1fr))`;if(kp.style.gridTemplateColumns!==v)kp.style.gridTemplateColumns=v})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(balance)};
  new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
  addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
 })();
