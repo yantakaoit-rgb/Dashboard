@@ -2,7 +2,7 @@
 <html lang="th">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Hospital Yantakhao Management Dashboard </title>
 <meta name="robots" content="noindex">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
@@ -140,6 +140,25 @@ main .k u{display:block;margin:1px 0 0;font-size:12px}
 main .k em{display:block;margin-top:6px}
 small.pv{display:block;color:var(--mut);font-size:12px;line-height:1.45;margin-top:3px;font-weight:400}small.pv b{color:var(--ink);font-weight:600}.dpw small.pv{white-space:nowrap}
 #sec1 .kp{display:grid;gap:14px;align-items:stretch}#sec1 .k svg{margin-top:auto;width:100%}#sec1 .k{min-height:100%}
+/* ===== Responsive ทุกอุปกรณ์ ===== */
+html{-webkit-text-size-adjust:100%}body{font-size:clamp(14px,.3vw + 12.8px,17px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{padding-top:max(22px,env(safe-area-inset-top,0px));padding-left:max(clamp(14px,3vw,36px),env(safe-area-inset-left,0px));padding-right:max(clamp(14px,3vw,36px),env(safe-area-inset-right,0px))}
+img,svg{max-width:100%}.s{min-width:0}.tw{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.tw>table{min-width:520px}
+@media(min-width:1700px){main,.top,#snav{max-width:1760px}body{font-size:17px}}
+@media(max-width:1100px){main .gauge{min-width:0}}
+@media(max-width:700px){
+ header{padding-bottom:18px;border-radius:0 0 20px 20px}.top{gap:10px}
+ .ctl{width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.ctl::-webkit-scrollbar{display:none}.ctl>*{flex:none}
+ main{gap:12px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+ .s{padding:14px;border-radius:18px}.h{flex-wrap:wrap;gap:6px 10px}.h span{margin-left:auto}.h h2{font-size:16px}
+ .hero,.dn2{grid-template-columns:1fr}.dn2{justify-content:center}
+ #snav{padding:8px 12px}#snav a{padding:6px 12px}
+ .dpw{max-height:480px}
+}
+@media(max-width:380px){main .k strong{letter-spacing:-.6px}.chips,.tg{gap:4px}}
+@media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input{min-height:40px}}
+@media(max-height:560px) and (orientation:landscape){#v3{min-height:0;height:calc(100svh - 24px)}}
+@supports(height:100svh){#v3{height:min(86svh,760px)}}
 </style>
 </head>
 <body>
@@ -247,6 +266,8 @@ function demo(a,b){
 
 const sec=(n,t,s,body,cls='')=>`<section class="s ${cls}" id="sec${String(n).replace('.','_')}"><div class="h"><b>${n}</b><h2>${t}</h2><span>${s}</span></div>${body}</section>`;
 const spark=(pts,c,lb)=>{if(pts.length<2)return '';const v=pts.map(e=>e[1]),m=Math.max(...v),n=Math.min(...v),r=m-n||1,w=100/v.length;return `<svg viewBox="0 0 100 26" width="100%" height="26" preserveAspectRatio="none" aria-label="แนวโน้ม ${lb}"><polyline fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke" points="${v.map((x,i)=>(i/(v.length-1)*100).toFixed(1)+','+(24-(x-n)/r*22).toFixed(1)).join(' ')}"/>${pts.map((e,i)=>`<rect class="hit" x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="26" data-tip="${esc(`<b>${fd(e[0])}</b><div class="tr"><span>${lb}</span><b>${fm(e[1],e[1]<100?1:0)}</b></div>`)}"/>`).join('')}</svg>`};
+const NARROW=()=>innerWidth<640; // จอแคบ (มือถือ)
+let LAST=null; // อาร์กิวเมนต์ render ล่าสุด ไว้วาดใหม่เมื่อขนาดจอข้ามจุดเปลี่ยน
 let CMP={len:1,pa:'',pb:''}; // ช่วงเปรียบเทียบ (จำนวนวัน + วันที่เริ่ม/สิ้นสุดของช่วงก่อนหน้า) ตั้งค่าใหม่ทุกครั้งที่ค้นหา
 const cmpDate=t=>t?`${t.slice(8)}/${t.slice(5,7)}/${+t.slice(0,4)+543}`:'';
 const cmpTxt=()=>`เทียบ ${CMP.len} วัน · ${cmpDate(CMP.pa)}${CMP.len>1?' – '+cmpDate(CMP.pb):''}`;
@@ -265,7 +286,7 @@ const dlegend=(parts,cols,fmtv,dark)=>{const T=parts.reduce((s,p)=>s+p[1],0)||1;
 const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
 
 function chart(keys,series,tgt,note){
-  const W=620,H=220,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),L=Math.max(44,String(fr(mx)).length*5.8+10),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
+  const W=NARROW()?340:620,H=220,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),L=Math.max(44,String(fr(mx)).length*5.8+10),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
   const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f)}</text>`).join('');
   const area=`<polygon fill="#0b7a8a" opacity=".1" points="${x(0)},${y(0)} ${series[0].v.map((v,i)=>x(i)+','+y(v)).join(' ')} ${x(keys.length-1)},${y(0)}"/>`;
   const tg=tgt==null?'':`<line x1="${L}" x2="${W-12}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#e2563c" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W-14}" y="${y(tgt)-5}" font-size="10" text-anchor="end" fill="#e2563c">เป้าหมาย ${tgt}</text>`;
@@ -291,7 +312,7 @@ function tipOf(k,series,i,o={}){
 const DOWF=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'],DOW=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],lab=k=>k.length>7?(SHORT&&/^\d{4}-\d{2}-\d{2}$/.test(k)?DOW[new Date(k+'T00:00:00').getDay()]+' ':'')+k.slice(8)+'/'+k.slice(5,7):k.length==7?k.slice(5)+'/'+k.slice(2,4):k;
 let SHORT=false;
 function cols(keys,series,stack,dec=0,note){
-  const W=620,H=230,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),L=Math.max(44,String(fr(mx,dec)).length*5.8+10),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
+  const W=NARROW()?340:620,H=230,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),L=Math.max(44,String(fr(mx,dec)).length*5.8+10),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
   const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f,dec)}</text>`).join('');
   const bars=keys.map((k,i)=>{let acc=0;return series.map((s,j)=>{const v=s.v[i],x=L+i*bw+(stack?bw*.15:bw*.1+j*g),yy=stack?y(acc+v):y(v);acc+=v;return `<rect x="${x}" y="${yy}" width="${stack?bw*.7:g*.92}" height="${Math.max(y(0)-y(v),0)}" rx="2" fill="${s.c}"/>`}).join('')}).join('');
   const hits=keys.map((k,i)=>`<rect class="hit" x="${L+i*bw}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{stack,dec,note})}"/>`).join('');
@@ -565,7 +586,7 @@ const XT=[{k:'opd_daily_count',n:'ผู้ป่วยนอก (OPD)',u:'ค�
 let XD=null,xk=XT[0];
 const xmon=k=>['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+k.slice(5)-1]+' '+String(+k.slice(0,4)+543).slice(2);
 function xbars(ser,lab,d=0){
-  const W=700,H=270,B=30,T=16,n=lab.length,single=ser.length===1,top=Math.max(1,...ser.flatMap(x=>x.v));
+  const W=NARROW()?360:700,H=270,B=30,T=16,n=lab.length,single=ser.length===1,top=Math.max(1,...ser.flatMap(x=>x.v));
   const vt=single?ser[0].v.map(v=>fm(v,d)):[],maxLen=vt.length?Math.max(...vt.map(t=>t.length)):0;
   const cw0=(W-62)/Math.max(n,1),rot=single&&n<=14&&cw0*.96/(maxLen*.58)<7.5; // ตัวเลขยาวเกินช่อง -> หมุนแนวตั้ง
   const room=rot?(maxLen*6+14)/(H-T-B):.12,mx=top*(1+Math.max(room,.12));
@@ -629,7 +650,7 @@ async function load(){
     pv.ward=sel(all.ward,pa,pb); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงก่อนหน้า
     pv.bed_occupancy=sel(all.bed_occupancy,pa,pb);
     pv.ipd_pttype=sel(all.ipd_pttype,pa,pb); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงก่อนหน้า
-    render(cc,pv,a,b); // วาดทั้งหน้าจอ (รวมการ์ดใหม่)
+    LAST=[cc,pv,a,b];render(cc,pv,a,b); // วาดทั้งหน้าจอ (รวมการ์ดใหม่)
  xtra(); // ส่วนเพิ่ม: รายงานรายเดือน / KPI / รับ–จำหน่ายรายวอร์ด
     banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have); // แสดงแถบสรุปช่วงวันที่ (โค้ดเดิม)
     window.v3sync&&v3sync(b); // ซิงก์วันที่กับส่วนอื่น (โค้ดเดิม)
@@ -904,13 +925,25 @@ const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.
 /* จัดการ์ด KPI ภาพรวมให้แบ่งแถวเท่า ๆ กัน (เช่น 8 ใบ = 4+4, 7 ใบ = 4+3) และขยายเต็มความกว้างอัตโนมัติ */
 (function(){
  const MIN=200; // ความกว้างขั้นต่ำต่อการ์ด (px)
- function balance(){document.querySelectorAll('#sec1 .kp').forEach(kp=>{
+ function balance(){const MIN=innerWidth<560?150:200;document.querySelectorAll('#sec1 .kp').forEach(kp=>{
   const n=kp.children.length,w=kp.clientWidth;if(!n||!w)return;
   const maxCols=Math.max(1,Math.floor((w+14)/(MIN+14))),rows=Math.ceil(n/maxCols),cols=Math.ceil(n/rows);
   const v=`repeat(${cols},minmax(0,1fr))`;if(kp.style.gridTemplateColumns!==v)kp.style.gridTemplateColumns=v})}
  let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(balance)};
  new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
  addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* ตอบสนองทุกอุปกรณ์: ห่อตารางให้เลื่อนแนวนอน + วาดกราฟใหม่เมื่อจอข้ามจุดเปลี่ยน (แคบ/กว้าง) */
+(function(){
+ function wrap(){document.querySelectorAll('main table').forEach(t=>{const p=t.parentElement;
+  if(!p||p.classList.contains('tw')||p.classList.contains('dpw')||getComputedStyle(p).overflowX==='auto')return;
+  const w=document.createElement('div');w.className='tw';t.replaceWith(w);w.append(t)})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(wrap)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});go();
+ let nar=innerWidth<640,t=0;
+ addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{const n=innerWidth<640;if(n!==nar){nar=n;if(typeof LAST!=='undefined'&&LAST&&typeof render==='function'){render(...LAST);if(typeof xtra==='function')xtra()}}},200)});
 })();
 </script>
 </body>
