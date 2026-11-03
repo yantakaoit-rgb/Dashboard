@@ -536,8 +536,9 @@ function render(cur,prev,a,b){
   const erR=cur.hourly.filter(r=>r.patient_type==='ER'),erP=prev.hourly.filter(r=>r.patient_type==='ER');
   const opd=sum(d,r=>r.opd_daily_count),adm=sum(d,r=>r.ipd_new_admit_daily),dis=sum(d,r=>r.ipd_discharged_daily),er=sum(erR,r=>r.service_count);
   const BO=bedStats(cur.bed_occupancy),BOp=bedStats(prev.bed_occupancy),hasB=BO.T>0; // เตียง/ใช้งานจาก hospital_bed_occupancy_stats (ถ้าไม่มีใช้ daily เดิม)
-  const tot=hasB?BO.T:(avg(d,r=>r.ipd_total_beds)||0),used=hasB?BO.U:(avg(d,r=>r.ipd_current_beds)||0),occ=tot?used/tot*100:0;
-  const pt=BOp.T>0?BOp.T:(avg(pd,r=>r.ipd_total_beds)||0),pocc=pt?(BOp.T>0?BOp.U:(avg(pd,r=>r.ipd_current_beds)||0))/pt*100:0;
+  const lastBeds=rs=>{const r=(rs||[]).filter(x=>+x.ipd_total_beds>0).reduce((m,x)=>!m||String(x.record_date)>String(m.record_date)?x:m,null);return r?+r.ipd_total_beds:0}; // เตียงทั้งหมด = ค่าล่าสุดของ ipd_total_beds ในช่วงที่เลือก
+  const tot=lastBeds(d)||(hasB?BO.T:0),used=hasB?BO.U:(avg(d,r=>r.ipd_current_beds)||0),occ=tot?used/tot*100:0;
+  const pt=lastBeds(pd)||(BOp.T>0?BOp.T:0),pocc=pt?(BOp.T>0?BOp.U:(avg(pd,r=>r.ipd_current_beds)||0))/pt*100:0;
   const wait=avg(d,r=>r.avg_wait_for_doctor),consult=avg(d,r=>r.avg_doctor_consult_time),los=avg(d,r=>r.ipd_avg_length_of_stay);
   const iO=sum(d,r=>r.opd_his_income),iI=sum(d,r=>r.ipd_his_discharge_income),iE=sum(d,r=>r.er_his_income),inc=iO+iI;
   const pinc=sum(pd,r=>r.opd_his_income)+sum(pd,r=>r.ipd_his_discharge_income);
