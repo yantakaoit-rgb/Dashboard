@@ -271,7 +271,8 @@ let LAST=null; // อาร์กิวเมนต์ render ล่าสุด
 let CMP={len:1,pa:'',pb:''}; // ช่วงเปรียบเทียบ (จำนวนวัน + วันที่เริ่ม/สิ้นสุดของช่วงก่อนหน้า) ตั้งค่าใหม่ทุกครั้งที่ค้นหา
 const cmpDate=t=>t?`${t.slice(8)}/${t.slice(5,7)}/${+t.slice(0,4)+543}`:'';
 const cmpTxt=()=>`เทียบ ${CMP.len} วัน · ${cmpDate(CMP.pa)}${CMP.len>1?' – '+cmpDate(CMP.pb):''}`;
-const delta=(c,p,inv,u='')=>{if(!p)return '<em>&nbsp;</em>';const d=(c-p)/p*100,g=inv?d<0:d>0;return `<em class="${g?'up':'dn'}">${d>=0?'▲':'▼'} ${fm(Math.abs(d),1)}% vs ช่วงก่อน</em><small class="pv">ช่วงก่อน <b>${fm(p)}</b> ${u}<br>${cmpTxt()}</small>`};
+const NOCMP='<em style="color:var(--mut);font-weight:500">ไม่มีช่วงเปรียบเทียบ</em>';
+const delta=(c,p,inv,u='')=>{if(!p)return NOCMP+`<small class="pv">${cmpTxt()}</small>`;const d=(c-p)/p*100,g=inv?d<0:d>0;return `<em class="${g?'up':'dn'}">${d>=0?'▲':'▼'} ${fm(Math.abs(d),1)}% vs ช่วงก่อน</em><small class="pv">ช่วงก่อน <b>${fm(p)}</b> ${u}<br>${cmpTxt()}</small>`};
 const kpi=(l,v,u,c,p,inv,sr,col='#0b7a8a')=>`<div class="k"><i>${l}</i><strong>${v}<u>${u}</u></strong>${delta(c,p,inv,u)}${sr?spark(sr,col,l):''}</div>`;
 const bars=(rows,unit)=>{const m=Math.max(...rows.map(r=>r[1]),1);return rows.length?rows.map(r=>`<div class="bar"><span>${r[0]}</span><div><u style="width:${r[1]/m*100}%;background:${r[2]||'linear-gradient(90deg,#0b7a8a,#14a3a8)'}"></u></div><span>${fm(r[1],unit?1:0)}${unit||''}</span></div>`).join(''):'<div class="nd">ไม่มีข้อมูล</div>'};
 const group=(a,kf,vf)=>{const m={};a.forEach(r=>{const k=kf(r);m[k]=(m[k]||0)+num(vf(r))});return Object.entries(m).sort((x,y)=>y[1]-x[1])};
@@ -422,7 +423,7 @@ function dpRender(){ // ฟังก์ชันวาดเนื้อหา�
   const mx=Math.max(...rows.map(o=>o.inc),1); // รายรับสูงสุดในตาราง ใช้เป็น 100% ของความยาวแถบ
 
   const dchg=(v,p)=>{ // ฟังก์ชันสร้างข้อความ % เปลี่ยนแปลงเทียบช่วงก่อน (v=ปัจจุบัน, p=ก่อนหน้า)
-    if(!p)return '<span style="color:var(--mut)">-</span>'; // ไม่มีข้อมูลช่วงก่อน แสดงขีด
+    if(!p)return '<span style="color:var(--mut);font-size:12px">ไม่มีช่วงเปรียบเทียบ</span>'; // ไม่มีข้อมูลช่วงก่อนของแผนก/สิทธิเดียวกัน
     const up=v>=p; // เพิ่มขึ้นหรือเท่าเดิมหรือไม่
     const pct=fm(Math.abs((v-p)/p*100),1); // คำนวณ % ความต่าง (ทศนิยม 1 ตำแหน่ง)
     return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span><small class="pv">ก่อนหน้า ${fm(p)} บาท</small>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด + ยอดช่วงก่อน
