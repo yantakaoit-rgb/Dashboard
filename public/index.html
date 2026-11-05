@@ -815,6 +815,16 @@ function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
     const T=p.P[p.i],t=new THREE.Vector3(T[0]+p.j,0,T[1]),v=t.clone().sub(p.g.position),d=v.length();
     if(d<.2){p.w=T[2]*(.6+Math.random()*.8);p.i++;if(p.i>=p.P.length){SC.remove(p.g);pats.splice(k,1)}}
     else{p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));p.g.position.y=Math.abs(Math.sin(performance.now()/160+k))*.07}}}
+
+/* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
+const WKEY='v3walk',WTTL=6e5;let warmed=false;
+function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),f:p.g.children[0].material===pmF?1:0}))}))}catch(e){}}
+function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats))return false;
+  dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
+  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const g=new THREE.Group(),b=new THREE.Mesh(bodyG,q.f?pmF:pm),h=new THREE.Mesh(headG,q.f?pmF:pm);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(q.x,0,q.z);SC.add(g);pats.push({g,P:q.P,i:q.i,w:q.w,j:q.j,sp:q.sp})});
+  return pats.length>0}catch(e){return false}}
+function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<900;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
+restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
 const HOME={th:.35,ph:.88,rad:56,t:[0,0,1]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t),auto=true,ath=0;
 function cam(){CAM.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));CAM.lookAt(tgt)}
@@ -868,7 +878,7 @@ function build(D){
   
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:tri==null?9:Math.min(8,1.5+tri/3),q:doc==null?9:Math.min(8,1+doc/6),room:Math.min(9,2+(con||10)/3),ph:pha==null?9:Math.min(8,1.5+pha/4)}; // ไม่มีเวลา = ให้คนเดินไปยืนรอที่จุดบริการนานขึ้น แทนตัวสีเหลือง
-  spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));
+  spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));warmW();
   $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
