@@ -159,6 +159,13 @@ img,svg{max-width:100%}.s{min-width:0}.tw{overflow-x:auto;max-width:100%;-webkit
 @media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input{min-height:40px}}
 @media(max-height:560px) and (orientation:landscape){#v3{min-height:0;height:calc(100svh - 24px)}}
 @supports(height:100svh){#v3{height:min(86svh,760px)}}
+/* ===== ส่วนหัวคงที่ตอนเลื่อน ===== */
+header{position:sticky;top:0;z-index:60;transition:padding .2s ease,box-shadow .2s ease}
+header .logo,header h1,header .brand small{transition:all .2s ease}
+header.stuck{padding-top:max(8px,env(safe-area-inset-top,0px));padding-bottom:8px;border-radius:0 0 18px 18px;box-shadow:0 10px 28px -12px #04202e99}
+header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-size:18px;border-radius:10px}header.stuck h1{font-size:15px}header.stuck .brand small{display:none}
+#snav{top:var(--hh,0px);z-index:50}html{scroll-padding-top:calc(var(--hh,0px) + 56px)}.s{scroll-margin-top:calc(var(--hh,0px) + 64px)}
+@media(max-width:700px){header.stuck .brand{display:none}header.stuck{padding-left:12px;padding-right:12px}}
 </style>
 </head>
 <body>
@@ -946,6 +953,15 @@ const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.
  new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});go();
  let nar=innerWidth<640,t=0;
  addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{const n=innerWidth<640;if(n!==nar){nar=n;if(typeof LAST!=='undefined'&&LAST&&typeof render==='function'){render(...LAST);if(typeof xtra==='function')xtra()}}},200)});
+})();
+</script>
+<script>
+/* ส่วนหัวคงที่: ย่อขนาดเมื่อเลื่อนลง + แจ้งความสูงให้แถบเมนูลัดเกาะต่อใต้ส่วนหัว */
+(function(){const h=document.querySelector('header'),r=document.documentElement;if(!h)return;
+ const set=()=>r.style.setProperty('--hh',h.offsetHeight+'px');
+ if(window.ResizeObserver)new ResizeObserver(set).observe(h);addEventListener('resize',set);
+ const on=()=>{const y=scrollY;if(y>80)h.classList.add('stuck');else if(y<20)h.classList.remove('stuck')};
+ addEventListener('scroll',on,{passive:true});on();set();
 })();
 </script>
 </body>
