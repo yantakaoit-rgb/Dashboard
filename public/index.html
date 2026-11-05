@@ -742,13 +742,17 @@ box(5,.05,13,0xf5e9c8,18,.045,6);box(26,.05,5,0xf5e9c8,1.5,.045,-3.5);
 box(50,.04,.5,0x2fd08a,-14,.06,-7.2,null,{transparent:true,opacity:.4,emissive:0x2fd08a,emissiveIntensity:.4});box(3.2,.05,3.2,0x2fd08a,-40.2,.07,-12,null,{transparent:true,opacity:.5});
 /* เก้าอี้นั่งรอ 16 ตัว (ตำแหน่ง 1) */
 const CHS=[];[7,10].forEach(z=>[-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5].forEach(x=>{box(.9,.12,.9,0x3f9fd0,x,.5,z);box(.9,.7,.12,0x3f9fd0,x,.95,z-.45);box(.16,.5,.16,0x8a97a3,x,.25,z);CHS.push([x,z])}));
+/* เก้าอี้ตำแหน่ง 2 และ 3 (แบบเดียวกับตำแหน่ง 1 แต่หมุนตามทิศที่หัน) */
+const CH2=[],CH3=[],chairAt=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;SC.add(g);box(.9,.12,.9,0x3f9fd0,0,.5,0,g);box(.9,.7,.12,0x3f9fd0,0,.95,-.45,g);box(.16,.5,.16,0x8a97a3,0,.25,0,g)};
+[16.6,19.4].forEach(x=>[0,3,6,9,12].forEach(z=>{chairAt(x,z,Math.PI/2);CH2.push([x,z])}));
+[-5,-2].forEach(z=>[-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5,13.5].forEach(x=>{chairAt(x,z,Math.PI);CH3.push([x,z])}));
 /* ป้ายเขียว */
 const signs=[];
 function paintSign(m){const{c,t,t1,t2}=m.userData,x=c.getContext('2d'),W=c.width,H=c.height;x.fillStyle='#1d6b34';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font=`700 ${Math.round(H*.40)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t1,W/2,H*.52);x.fillRect(W*.18,H*.6,W*.64,3);x.font=`500 ${Math.round(H*.24)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t2,W/2,H*.88);t.needsUpdate=true}
 function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;SC.add(m);signs.push(m);paintSign(m);
   if(posts){const dx=Math.cos(ry||0)*w/2,dz=-Math.sin(ry||0)*w/2;[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,y,6),MT(0x8a97a3));p.position.set(x+dx*s,y/2,z+dz*s);SC.add(p)})}return m}
-sign(7,2,'ห้องบัตร','Registration',-30,6.2,20.2,0,1);
-sign(8,2,'ซักประวัติ','History talking',0,6.8,21.6,0,1);
+sign(7,2,'ห้องบัตร','Registration',-30,6.4,12.2,0,1);
+sign(8,2,'ซักประวัติ','History talking',0,6.8,12.6,0,1);
 sign(7,2,'พื้นที่นั่งรอ','Waiting Area',0,5.8,3.2,0,1);
 sign(10,2,'ห้องตรวจ','Examination Rooms',41.8,6.6,5,-Math.PI/2,0);
 sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,0);
@@ -790,7 +794,7 @@ XR.forEach((x,k)=>{const o={id:'ex'+(k+1),kind:'room',no:k+1,name:'ห้อง�
 {const a=label(3.4,1.15);a.position.set(-41,2.2,14);paint(a,'ทางเข้า','Entrance','#27c4cf');SC.add(a);const b=label(3.4,1.15);b.position.set(-40,2.2,-12);paint(b,'ทางออก','Exit','#27c4cf');SC.add(b)}
 const TP={};
 function tplate(k,x,y,z){const l=label(5.4,1.8);l.position.set(x,y,z);SC.add(l);TP[k]=l}
-tplate('reg',-30,4.2,20.2);tplate('desk',0,5.4,21.6);tplate('room',40.4,5.2,5);tplate('ph',11,4.8,-15.6);tplate('exit',-38.6,4.3,-12);
+tplate('reg',-30,4.4,12.2);tplate('desk',0,5.4,12.6);tplate('room',40.4,5.2,5);tplate('ph',11,4.8,-15.6);tplate('exit',-38.6,4.3,-12);
 function paintT(sp,txt,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,24,496,122,30):x.rect(8,24,496,122);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle=col;x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(txt,256,102);sp.userData.t.needsUpdate=true}
 const selR=new THREE.Mesh(new THREE.RingGeometry(2.4,2.7,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.85}));selR.rotation.x=-Math.PI/2;selR.position.y=.12;selR.visible=false;SC.add(selR);
 /* คิวผู้ป่วย (1 รูป = unit ราย) */
@@ -812,12 +816,12 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
   else if(o.kind==='room')P=[[-13.2,9.5,0],[-13.2,.5,0],[o.x,.5,0],[o.x,-5.8,1],[o.x,-9,2],[o.x,-5.8,0],[o.x,.5,0]];
   else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
   mk(P,pmF,j)}
-let cr=0,sp10=0;
-function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],zr=XR[rcn++%6],[cx,cz]=CHS[cr++%CHS.length],special=(sp10++%10)===9;
-  // ทางเข้า → ห้องบัตร → ตำแหน่ง 1 (เก้าอี้) → ซักประวัติ → ตำแหน่ง 2 (รอ ~2 วินาที) → ห้องตรวจ → ตำแหน่ง 3 → ห้องยา → ทางออกซ้ายบน
+let cr=0,sp10=0,c2=0,c3=0;
+function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],zr=XR[rcn++%6],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CH2[c2++%CH2.length],[x3,z3]=CH3[c3++%CH3.length],special=(sp10++%10)===9;
+  // ทางเข้า → ห้องบัตร → ตำแหน่ง 1 (เก้าอี้) → ซักประวัติ → ตำแหน่ง 2 (นั่งเก้าอี้รอ ~2 วินาที) → ห้องตรวจ → ตำแหน่ง 3 (นั่งเก้าอี้) → ห้องยา → ทางออกซ้ายบน
   // ทุก 10 ตัวมี 1 ตัวที่ไปห้องยาก่อน → กลับมาห้องเก็บเงิน → กลับไปห้องยา แล้วจึงไปทางออก
   const phX=11+q(),caX=-5+q(),sy=-10.9,
-  P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg],[cx,cz,WT.desk,1],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1],[18+(Math.random()-.5)*2.4,6+(Math.random()-.5)*9,2],[RX-3.8,zr,0],[RX-.4,zr,WT.room],[RX-3.8,zr,0],[-8+Math.random()*21,-3.5+(Math.random()-.5)*2,1.5]];
+  P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg],[cx,cz,WT.desk,1],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1],[x2,z2,2,1],[RX-3.8,zr,0],[RX-.4,zr,WT.room],[RX-3.8,zr,0],[x3,z3,2,1]];
   if(special)P.push([phX,sy,WT.ph],[caX,sy,3],[phX,sy,2]);else P.push([phX,sy,WT.ph]);
   P.push([11,-7.2,0],[-37,-7.2,0],[-41.5,-12,0]);
   const g=new THREE.Group(),b=new THREE.Mesh(bodyG,pm),h=new THREE.Mesh(headG,pm);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
@@ -837,7 +841,7 @@ function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');i
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<900;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
-const HOME={th:.35,ph:.88,rad:76,t:[0,0,5]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t),auto=true,ath=0;
+const HOME={th:.3,ph:.9,rad:92,t:[2,0,5]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t),auto=true,ath=0;
 function cam(){CAM.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));CAM.lookAt(tgt)}
 let drag=null,moved=0;const pts=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY];moved=0});
