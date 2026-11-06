@@ -837,14 +837,17 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
   else if(o.kind==='room')P=[[-13.2,9.5,0],[-13.2,.5,0],[o.x,.5,0],[o.x,-5.8,1],[o.x,-9,2],[o.x,-5.8,0],[o.x,.5,0]];
   else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
   mk(P,pmF,j)}
-let cr=0,sp10=0,c2=0,c3=0,simT=0,pn=0;const GATE={}; // GATE = เวลาที่ปล่อยคนถัดไปได้ของแต่ละจุด (เดินทีละตัว ห่างกัน ~2 วินาที)
-function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],ri=rcn++%6,zr=XR[ri],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CHR[ri*4+(dc&3)],[xp,zp]=CHP[c2++%CHP.length],[xp2,zp2]=CHP[(c2+3)%CHP.length],[xc,zc]=CHC[c3++%CHC.length];
-  // ทางเข้า → ห้องบัตร → ตำแหน่ง 1 (เก้าอี้) → ซักประวัติ → นั่งเก้าอี้หน้าห้องตรวจรอ ~2 วินาที → ห้องตรวจ → นั่งเก้าอี้หน้าห้องยา → ห้องยา → ทางออกซ้ายบน
-  // ทุกตัว: ออกห้องตรวจ → นั่งเก้าอี้ห้องยารอ 2 วิ → เคาน์เตอร์ห้องยา → นั่งเก้าอี้ห้องเก็บเงินรอ 2 วิ → เดินไปหน้าเคาน์เตอร์ห้องเก็บเงิน → นั่งเก้าอี้ห้องยารอ 2 วิ → เคาน์เตอร์ห้องยา (รับยา) → ทางออก  (ปล่อยทีละตัว ห่างกัน ~2 วินาที)
-  const phX=11+q(),caX=-5+q(),sy=-10.9,
-  P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg,0,null,0],[cx,cz,WT.desk,1,null,0],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1,null,0],[x2,z2,2,1,null,Math.PI/2],[RX-3.8,zr,0],[RX-.4,zr,WT.room,0,null,Math.PI/2],[RX-3.8,zr,0],[xp,zp,2,1,'ph1',Math.PI]];
-  P.push([phX,sy,2,0,null,Math.PI],[xc,zc,2,1,'ca',Math.PI],[caX,sy,3,0,'ca2',Math.PI],[xp2,zp2,2,1,'ph2',Math.PI],[phX,sy,WT.ph,0,null,Math.PI]);
-  P.push([11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]);
+let simT=0,pn=0;
+/* ระบบคิว: GQ = คิวเรียกตัวต่อไปของแต่ละแผนก (เรียงตามลำดับมาถึง FIFO · เดินทีละตัว ห่างกัน ≥2 วินาที) · SO = จำนวนคนที่ใช้จุดบริการอยู่ · CAP = ช่องบริการสูงสุด (ห้องตรวจ/โต๊ะซักประวัติ = 1) · OC = จำนวนคนนั่งในเก้าอี้แต่ละตัว */
+const GQ={},SO={},OC={},CAP={reg:2,ph:3,ca:2};
+function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,ri=rcn++%6,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
+  /* รูปแบบจุดหยุด T = [x,z,รอ(วิ),นั่ง?,ประตูคิว,ทิศหน้า,จองจุดบริการ,คืนจุดบริการ,รายการเก้าอี้(เลือกตัวว่างอัตโนมัติ),เริ่ม,จำนวน]
+     ทางเข้า → ห้องบัตร → เก้าอี้รอซักประวัติ → โต๊ะซักประวัติ → เก้าอี้หน้าห้องตรวจ → ห้องตรวจ → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา → เก้าอี้ห้องเก็บเงิน → เคาน์เตอร์ห้องเก็บเงิน → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา(รับยา) → ทางออก
+     ทุกแผนก: เรียกจากเก้าอี้ทีละคนตามคิว เดินทีละตัว และต้องมีช่องบริการว่างก่อน */
+  const P=[[-42.2,14,0],[-40.5,14,.01,0,'rg'],[-34+Math.random()*8,14.4,WT.reg,0,null,0,'reg','reg'],[0,0,WT.desk,1,'tri',0,null,null,'CHS'],[0,0,0],[0,0,3,1,null,0],
+    [0,0,2,1,'rm'+ri,Math.PI/2,null,null,'CHR',ri*4,4],[RX-3.8,zr,0,0,null,null,'r'+ri],[RX-.4,zr,WT.room,0,null,Math.PI/2,null,'r'+ri],[RX-3.8,zr,0],
+    [0,0,2,1,'ph1',Math.PI,null,null,'CHP'],[phX,sy,2,0,null,Math.PI,'ph','ph'],[0,0,2,1,'ca',Math.PI,null,null,'CHC'],[caX,sy,3,0,'ca2',Math.PI,'ca','ca'],
+    [0,0,2,1,'ph2',Math.PI,null,null,'CHP'],[phX,sy,WT.ph,0,null,Math.PI,'ph','ph'],[11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]];
   const kind=(pn++%20)===9?'c':(Math.random()<.5?'m':'f'),sd=(Math.random()*1e5)|0;mkWalker(P,j,kind,SHIRT[sd%SHIRT.length],sd)}
 /* สร้างตัวละครเดินหนึ่งตัวจากเส้นทาง P (ใช้ทั้งตอนเกิดใหม่และตอนกู้คืนสถานะ) */
 function mkWalker(P,j,kind,shirt,sd){const g=human(shirt,kind,sd);g.position.set(P[0][0],0,P[0][1]);SC.add(g);const p={g,P,i:1,w:0,j,sp:3+Math.random()*.8,kind,shirt,seed:sd,ph0:Math.random()*6};pats.push(p);return p}
@@ -853,14 +856,24 @@ function pose(p,mv){const u=p.g.userData;if(!u.legs)return;
   if(p.sit){u.legs.forEach(l=>{l.th.rotation.x=-1.5;l.sh.rotation.x=1.5});u.arms.forEach(a=>a.rotation.x=-.55);return}
   if(mv){const ph=simT*p.sp*2.7+p.ph0,a=Math.sin(ph)*.65;u.legs[0].th.rotation.x=-a;u.legs[1].th.rotation.x=a;u.legs[0].sh.rotation.x=Math.max(0,Math.sin(ph+1.6))*.8;u.legs[1].sh.rotation.x=Math.max(0,-Math.sin(ph+1.6))*.8;u.arms[0].rotation.x=a*.75;u.arms[1].rotation.x=-a*.75;p.g.position.y=Math.abs(Math.cos(ph))*.03*(u.s||1)}
   else{u.legs.forEach(l=>{l.th.rotation.x=0;l.sh.rotation.x=0});u.arms.forEach(a=>a.rotation.x=0);p.g.position.y=0}}
+function pickChair(p,T){const L=T[8]==='CHS'?CHS:T[8]==='CHP'?CHP:T[8]==='CHC'?CHC:CHR,a=T[9]||0,n=T[10]||L.length,oc=OC[T[8]]||(OC[T[8]]=L.map(()=>0));let b=a;for(let i=a;i<a+n;i++)if(oc[i]<oc[b])b=i; // เลือกเก้าอี้ว่างตัวแรก (เรียงจากหน้าไปหลัง)
+  oc[b]++;p.cl=T[8];p.ci=b;T[0]=L[b][0];T[1]=L[b][1];T.r=1}
+function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefined)p.tk=g.n++;
+  if(p.tk!==g.s||simT<g.t||(g.w&&g.w.mv&&p.gk!=='ex'))return false; // ถึงคิวของตัวเอง + ห่างจากตัวก่อน ≥2 วินาที + ตัวก่อนเดินถึงที่หมายแล้ว
+  if(p.gk==='tri'){let k=-1;for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
+    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,3,1,null,0,null,'d'+k]}
+  else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
+  g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
+function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
 function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];
-    if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk){const g=GATE[p.gk];if(g&&(simT<g.t||(g.w&&g.w.mv&&p.gk!=='ex'))){p.w=.15;pose(p,false);continue}GATE[p.gk]={t:simT+2,w:p};p.gk=null;p.mv=true}if(p.sit)sitP(p,0)}pose(p,false);continue}
-    const T=p.P[p.i],t=new THREE.Vector3(T[0]+(T[3]?0:p.j),0,T[1]),v=t.clone().sub(p.g.position);v.y=0;const d=v.length();
-    if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk&&p.w<=0)p.w=.01;if(T[5]!==undefined)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;SC.remove(p.g);pats.splice(k,1)}}
+    if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk&&!tryGo(p)){p.w=.15;pose(p,false);continue}leave(p)}pose(p,false);continue}
+    const T=p.P[p.i];if(T[8]&&!T.r)pickChair(p,T);
+    const t=new THREE.Vector3(T[0]+(T[3]?0:p.j),0,T[1]),v=t.clone().sub(p.g.position);v.y=0;const d=v.length();
+    if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
     else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk6',WTTL=6e5;let warmed=false;
+const WKEY='v3walk7',WTTL=6e5;let warmed=false;
 function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
