@@ -817,23 +817,23 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
   else if(o.kind==='room')P=[[-13.2,9.5,0],[-13.2,.5,0],[o.x,.5,0],[o.x,-5.8,1],[o.x,-9,2],[o.x,-5.8,0],[o.x,.5,0]];
   else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
   mk(P,pmF,j)}
-let cr=0,sp10=0,c2=0,c3=0;
-function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],ri=rcn++%6,zr=XR[ri],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CHR[ri*4+(dc&3)],[xp,zp]=CHP[c2++%CHP.length],[xc,zc]=CHC[c3++%CHC.length],special=(sp10++%5)===4;
+let cr=0,sp10=0,c2=0,c3=0,simT=0;const GATE={}; // GATE = เวลาที่ปล่อยคนถัดไปได้ของแต่ละจุด (เดินทีละตัว ห่างกัน ~2 วินาที)
+function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],ri=rcn++%6,zr=XR[ri],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CHR[ri*4+(dc&3)],[xp,zp]=CHP[c2++%CHP.length],[xp2,zp2]=CHP[(c2+3)%CHP.length],[xc,zc]=CHC[c3++%CHC.length],special=(sp10++%5)===4;
   // ทางเข้า → ห้องบัตร → ตำแหน่ง 1 (เก้าอี้) → ซักประวัติ → นั่งเก้าอี้หน้าห้องตรวจรอ ~2 วินาที → ห้องตรวจ → นั่งเก้าอี้หน้าห้องยา → ห้องยา → ทางออกซ้ายบน
-  // ทุก 5 ตัวมี 1 ตัวที่ไปห้องยาก่อน → กลับมาห้องเก็บเงิน → กลับไปห้องยา แล้วจึงไปทางออก
+  // ออกห้องตรวจ → นั่งเก้าอี้หน้าห้องยา → (ถูกเรียกทีละคน ห่างกัน ~2 วินาที) เดินไปห้องยา → [ทุก 5 ตัวมี 1 ตัว: นั่งเก้าอี้ห้องเก็บเงิน → ชำระเงิน → นั่งเก้าอี้ห้องยา → รับยา] → ออกทางออก
   const phX=11+q(),caX=-5+q(),sy=-10.9,
-  P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg],[cx,cz,WT.desk,1],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1],[x2,z2,2,1],[RX-3.8,zr,0],[RX-.4,zr,WT.room],[RX-3.8,zr,0],[xp,zp,2,1]];
-  if(special)P.push([phX,sy,WT.ph],[xc,zc,2,1],[caX,sy,3],[phX,sy,2]);else P.push([phX,sy,WT.ph]);
-  P.push([11,-7.2,0],[-37,-7.2,0],[-41.5,-12,0]);
+  P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg],[cx,cz,WT.desk,1],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1],[x2,z2,2,1],[RX-3.8,zr,0],[RX-.4,zr,WT.room],[RX-3.8,zr,0],[xp,zp,2,1,'ph1']];
+  if(special)P.push([phX,sy,2],[xc,zc,2,1,'ca'],[caX,sy,3],[xp2,zp2,2,1,'ph2'],[phX,sy,WT.ph]);else P.push([phX,sy,WT.ph]);
+  P.push([11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]);
   const g=new THREE.Group(),b=new THREE.Mesh(bodyG,pm),h=new THREE.Mesh(headG,pm);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
 function sitP(p,on){const b=p.g.children[0],h=p.g.children[1];p.g.position.y=on?.2:0;b.scale.y=on?.6:1;b.position.y=on?.38:.5;h.position.y=on?.85:1.12;p.sit=on?1:0} // นั่ง = ตัวเตี้ยลงและยกขึ้นเท่าเก้าอี้
-function step(dt){spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
-  for(let k=pats.length-1;k>=0;k--){const p=pats[k];if(p.w>0){p.w-=dt;if(p.w<=0&&p.sit)sitP(p,0);continue}
+function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
+  for(let k=pats.length-1;k>=0;k--){const p=pats[k];if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk){const nt=GATE[p.gk]||0;if(simT<nt){p.w=nt-simT+.01;continue}GATE[p.gk]=simT+2;p.gk=null}if(p.sit)sitP(p,0)}continue}
     const T=p.P[p.i],t=new THREE.Vector3(T[0]+(T[3]?0:p.j),0,T[1]),v=t.clone().sub(p.g.position);v.y=0;const d=v.length();
-    if(d<.2){p.w=T[2]*(.6+Math.random()*.8);if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){SC.remove(p.g);pats.splice(k,1)}}
+    if(d<.2){p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk&&p.w<=0)p.w=.01;if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){SC.remove(p.g);pats.splice(k,1)}}
     else{p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));p.g.position.y=Math.abs(Math.sin(performance.now()/160+k))*.07}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk3',WTTL=6e5;let warmed=false;
+const WKEY='v3walk4',WTTL=6e5;let warmed=false;
 function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),f:p.g.children[0].material===pmF?1:0,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
@@ -896,7 +896,7 @@ function build(D){
   
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
   WT={reg:2,desk:tri==null?9:Math.min(8,1.5+tri/3),q:doc==null?9:Math.min(8,1+doc/6),room:Math.min(9,2+(con||10)/3),ph:pha==null?9:Math.min(8,1.5+pha/4)}; // ไม่มีเวลา = ให้คนเดินไปยืนรอที่จุดบริการนานขึ้น แทนตัวสีเหลือง
-  spawnEvery=Math.min(3,Math.max(.4,.5+120/Math.max(M.opd,40)*.6));warmW();
+  spawnEvery=Math.min(3,Math.max(2.1,.5+120/Math.max(M.opd,40)*.6)); /* ไม่ให้คนมาถึงห้องยาเร็วกว่าอัตราเรียกทีละคน (~2 วินาที) จะได้ไม่แออัดที่เก้าอี้ */warmW();
   $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
