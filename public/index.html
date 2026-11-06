@@ -765,7 +765,7 @@ function person(c,x,z,par,hc){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,M
 function label(sx,sy){const c=document.createElement('canvas');c.width=512;c.height=170;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(sx,sy,1);s.renderOrder=9;s.userData={c,t};return s}
 function paint(sp,l1,l2,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,8,496,154,26):x.rect(8,8,496,154);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle='#fff';x.font='700 56px "IBM Plex Sans Thai",sans-serif';x.fillText(l1,256,72);x.fillStyle=col;x.font='700 50px "IBM Plex Sans Thai",sans-serif';x.fillText(l2,256,138);sp.userData.t.needsUpdate=true}
 /* รายการจุดบริการ 13 จุด */
-const ITEMS=[],pick=[],XD=[-9,-4.5,0,4.5,9],XR=[-9,-3.8,1.4,6.6,11.8,17],ZD=17,RX=35,CASHP=.1; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
+const ITEMS=[],pick=[],XD=[-9,-4.5,0,4.5,9],XR=[-9,-3.8,1.4,6.6,11.8,17],ZD=17,RX=35,CASHP=.2; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
 function reg(o,pw,ph,pd,ly,lw,lh){const g=new THREE.Group();g.position.set(o.x,0,o.z);SC.add(g);o.g=g;o.i=ITEMS.length;
   const pk=new THREE.Mesh(new THREE.BoxGeometry(pw,ph,pd),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pk.position.y=ph/2;pk.userData.i=o.i;g.add(pk);pick.push(pk);
   const lb=label(lw,lh);lb.position.y=ly;g.add(lb);o.lb=lb;ITEMS.push(o);return g}
@@ -818,9 +818,9 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
   else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
   mk(P,pmF,j)}
 let cr=0,sp10=0,c2=0,c3=0;
-function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],ri=rcn++%6,zr=XR[ri],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CHR[ri*4+(dc&3)],[xp,zp]=CHP[c2++%CHP.length],[xc,zc]=CHC[c3++%CHC.length],special=(sp10++%10)===9;
+function spawn(){if(pats.length>=60)return;const j=(Math.random()-.5)*.5,q=()=>(Math.random()-.5)*.9,xd=XD[dc++%5],ri=rcn++%6,zr=XR[ri],[cx,cz]=CHS[cr++%CHS.length],[x2,z2]=CHR[ri*4+(dc&3)],[xp,zp]=CHP[c2++%CHP.length],[xc,zc]=CHC[c3++%CHC.length],special=(sp10++%5)===4;
   // ทางเข้า → ห้องบัตร → ตำแหน่ง 1 (เก้าอี้) → ซักประวัติ → นั่งเก้าอี้หน้าห้องตรวจรอ ~2 วินาที → ห้องตรวจ → นั่งเก้าอี้หน้าห้องยา → ห้องยา → ทางออกซ้ายบน
-  // ทุก 10 ตัวมี 1 ตัวที่ไปห้องยาก่อน → กลับมาห้องเก็บเงิน → กลับไปห้องยา แล้วจึงไปทางออก
+  // ทุก 5 ตัวมี 1 ตัวที่ไปห้องยาก่อน → กลับมาห้องเก็บเงิน → กลับไปห้องยา แล้วจึงไปทางออก
   const phX=11+q(),caX=-5+q(),sy=-10.9,
   P=[[-41.5,14,0],[-34+Math.random()*8,14.4,WT.reg],[cx,cz,WT.desk,1],[xd,ZD-3.8,0],[xd,ZD-1.3,3,1],[x2,z2,2,1],[RX-3.8,zr,0],[RX-.4,zr,WT.room],[RX-3.8,zr,0],[xp,zp,2,1]];
   if(special)P.push([phX,sy,WT.ph],[xc,zc,2,1],[caX,sy,3],[phX,sy,2]);else P.push([phX,sy,WT.ph]);
