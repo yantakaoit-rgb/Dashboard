@@ -61,7 +61,7 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #tip i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px}#tip em{font-style:normal;font-size:10.5px;opacity:.65;margin-left:6px;font-weight:400}
 #tip .tt{border-top:1px solid #ffffff30;padding-top:5px}#tip small{display:block;margin-top:6px;opacity:.6;font-size:11px}
 
-#v3{--ink:#0a1626;--panel:#0f2236ee;--line:#ffffff1f;--tx:#e8f1f8;--mut:#8da4b8;position:relative;height:min(86vh,760px);min-height:480px;border-radius:12px;overflow:hidden;background:#0a1626;color:#e8f1f8}
+#v3{--ink:#0a1626;--panel:#0f2236ee;--line:#ffffff1f;--tx:#e8f1f8;--mut:#8da4b8;position:relative;height:min(94vh,1200px);min-height:480px;border-radius:12px;overflow:hidden;background:#0a1626;color:#e8f1f8}
 #v3 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
 #v3.tbh #vtop,#v3.tbh #vlist,#v3.tbh #vdet,#v3.tbh #vhint,#v3.tbh #vzi,#v3.tbh #vzo,#v3.tbh #vzr{display:none}
 #vtg{position:absolute!important;right:14px!important;bottom:14px!important;z-index:99!important;font:inherit;font-size:15px!important;font-weight:700!important;padding:11px 18px!important;border-radius:999px!important;border:2px solid #fff!important;background:#0b7a8a!important;color:#fff!important;cursor:pointer;box-shadow:0 4px 16px #000a!important;opacity:1!important}#vtg:hover{background:#0e97a9!important}
@@ -158,7 +158,7 @@ img,svg{max-width:100%}.s{min-width:0}.tw{overflow-x:auto;max-width:100%;-webkit
 @media(max-width:380px){main .k strong{letter-spacing:-.6px}.chips,.tg{gap:4px}}
 @media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input{min-height:40px}}
 @media(max-height:560px) and (orientation:landscape){#v3{min-height:0;height:calc(100svh - 24px)}}
-@supports(height:100svh){#v3{height:min(86svh,760px)}}
+@supports(height:100svh){#v3{height:min(94svh,1200px)}}
 /* ===== ส่วนหัวคงที่ตอนเลื่อน ===== */
 header{position:sticky;top:0;z-index:60;transition:padding .2s ease,box-shadow .2s ease}
 header .logo,header h1,header .brand small{transition:all .2s ease}
@@ -182,7 +182,7 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <div id="msg"></div>
 <div class="rb" id="rb" aria-live="polite"></div>
 <main id="app"></main>
-<div style="max-width:1480px;margin:0 auto;padding:0 clamp(14px,3vw,36px) 36px"><section class="s" id="s3d" style="padding:18px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
+<div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
 <div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
@@ -842,17 +842,18 @@ function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');i
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<900;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
-const HOME={th:.32,ph:.96,rad:88,t:[0,0,4]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t); // มุมกล้องเริ่มต้นคงที่ ไม่หมุนอัตโนมัติ
+const HOME={th:.28,ph:.8,rad:66,t:[0,0,3]};let camTouched=false; // camTouched = ผู้ใช้ซูม/หมุนเองแล้ว (ไม่ปรับระยะกล้องอัตโนมัติอีก)
+let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t); // มุมกล้องเริ่มต้นคงที่ ไม่หมุนอัตโนมัติ
 function cam(){CAM.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));CAM.lookAt(tgt)}
 let drag=null,moved=0;const pts=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY];moved=0});
 cv.addEventListener('pointermove',e=>{
-  if(pts.size===2&&pts.has(e.pointerId)){const o=[...pts.entries()].find(a=>a[0]!==e.pointerId)[1],p=pts.get(e.pointerId),d0=Math.hypot(p[0]-o[0],p[1]-o[1]);pts.set(e.pointerId,[e.clientX,e.clientY]);rad=Math.min(95,Math.max(16,rad*d0/Math.hypot(e.clientX-o[0],e.clientY-o[1])));moved=9;return}
+  if(pts.size===2&&pts.has(e.pointerId)){const o=[...pts.entries()].find(a=>a[0]!==e.pointerId)[1],p=pts.get(e.pointerId),d0=Math.hypot(p[0]-o[0],p[1]-o[1]);pts.set(e.pointerId,[e.clientX,e.clientY]);camTouched=true;rad=Math.min(150,Math.max(16,rad*d0/Math.hypot(e.clientX-o[0],e.clientY-o[1])));moved=9;return}
   if(pts.has(e.pointerId))pts.set(e.pointerId,[e.clientX,e.clientY]);
-  if(drag&&pts.size===1){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){th-=dx*.006;ph=Math.min(1.5,Math.max(.12,ph-dy*.005))}drag=[e.clientX,e.clientY]}
+  if(drag&&pts.size===1){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){camTouched=true;th-=dx*.006;ph=Math.min(1.5,Math.max(.12,ph-dy*.005))}drag=[e.clientX,e.clientY]}
   else hover(e)});
 cv.addEventListener('pointerup',e=>{pts.delete(e.pointerId);if(moved<6&&pts.size===0)clickAt(e);drag=null});
-cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();rad=Math.min(95,Math.max(16,rad*(1+e.deltaY*.001)))},{passive:false});
+cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();camTouched=true;rad=Math.min(150,Math.max(16,rad*(1+e.deltaY*.001)))},{passive:false});
 const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
 function hit(e){const b=cv.getBoundingClientRect();mv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height)*2+1);rc.setFromCamera(mv,CAM);const h=rc.intersectObjects(pick)[0];return h?h.object.userData.i:null}
 function hover(e){cv.style.cursor=hit(e)!=null?'pointer':'grab'}
@@ -904,11 +905,11 @@ function build(D){
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
-$('#vgo').onclick=load;$('#vzi').onclick=()=>{rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{rad=Math.min(95,rad*1.18)};
-$('#vzr').onclick=()=>{rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
+$('#vgo').onclick=load;$('#vzi').onclick=()=>{camTouched=true;rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{camTouched=true;rad=Math.min(150,rad*1.18)};
+$('#vzr').onclick=()=>{camTouched=false;resize();rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
 let lastSync=null;window.v3sync=d=>{if(d&&d!==lastSync){lastSync=d;$('#vday').value=d;load()}};
 document.fonts.ready.then(()=>{if(M)build({...window._D})});
-function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix()}if(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
+function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix();if(!camTouched)HOME.rad=rad=Math.max(56,Math.min(150,128/(w/h)))} // ระยะกล้องพอดีกับความกว้างกรอบ ฉากเต็มกรอบif(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
 const clock=new THREE.Clock();
 (function tick(){requestAnimationFrame(tick);if(!vis)return;const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
   cam();
