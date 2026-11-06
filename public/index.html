@@ -184,9 +184,9 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <main id="app"></main>
 <div style="max-width:1480px;margin:0 auto;padding:0 clamp(14px,3vw,36px) 36px"><section class="s" id="s3d" style="padding:18px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
-<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button><button id="vrot">หมุนอัตโนมัติ</button></div></div>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
-<div class="p" id="vhint">ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
+<div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
@@ -734,8 +734,8 @@ const fc=document.createElement('canvas');fc.width=fc.height=64;{const x=fc.getC
 const ftex=new THREE.CanvasTexture(fc);ftex.wrapS=ftex.wrapT=THREE.RepeatWrapping;ftex.repeat.set(42,21);
 const fl=new THREE.Mesh(new THREE.PlaneGeometry(84,42),new THREE.MeshStandardMaterial({map:ftex,roughness:.9}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,5);fl.receiveShadow=true;SC.add(fl);
 box(86,.6,44,0x13283b,0,-.31,5);
-box(84,7,.5,0xeaf0f4,0,3.5,-16.25);box(.5,4,42,0xeaf0f4,-42.25,2,5);box(.5,4,42,0xeaf0f4,42.25,2,5);
-box(.3,4,12,0xc8a06a,-41.9,2,14);box(84,.2,.3,0x1d6b34,0,1.1,-15.95);
+
+
 /* พื้นโซน (ผังใหม่ ขยายพื้นที่): บัตรซ้ายหน้า · ซักประวัติกลางหน้า · ตำแหน่ง 1 เก้าอี้กลาง · ตำแหน่ง 2 ข้างเก้าอี้ขวา · ตำแหน่ง 3 หน้าห้องเก็บเงิน/ห้องยา · ห้องตรวจขวา · ทางออกซ้ายบน */
 box(22,.05,9,0xdceaf0,-31,.04,16);box(28,.05,8,0xe3e8f3,0,.04,17);box(28,.05,8,0xd9ebdf,0,.04,8.5);box(10,.05,36,0xe8f2e4,35,.04,4);box(36,.05,9,0xf0e8dc,3,.04,-11.5);
 box(10,.05,6,0xf5e9c8,11,.045,-2.4);box(10,.05,6,0xf5e9c8,-5,.045,-2.4);
@@ -750,14 +750,14 @@ const CHR=[],CHP=[],CHC=[]; // เก้าอี้รอหน้าห้อ�
 /* ป้ายเขียว */
 const signs=[];
 function paintSign(m){const{c,t,t1,t2}=m.userData,x=c.getContext('2d'),W=c.width,H=c.height;x.fillStyle='#1d6b34';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font=`700 ${Math.round(H*.40)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t1,W/2,H*.52);x.fillRect(W*.18,H*.6,W*.64,3);x.font=`500 ${Math.round(H*.24)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t2,W/2,H*.88);t.needsUpdate=true}
-function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t,side:THREE.DoubleSide}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;SC.add(m);signs.push(m);paintSign(m);
+function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;SC.add(m);const m2=new THREE.Mesh(m.geometry,m.material);m2.position.set(x,y,z);m2.rotation.y=(ry||0)+Math.PI;SC.add(m2);signs.push(m);paintSign(m);
   if(posts){const dx=Math.cos(ry||0)*w/2,dz=-Math.sin(ry||0)*w/2;[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,y,6),MT(0x8a97a3));p.position.set(x+dx*s,y/2,z+dz*s);SC.add(p)})}return m}
 sign(7,2,'ห้องบัตร','Registration',-30,6.4,12.2,0,1);
 sign(8,2,'ซักประวัติ','History talking',0,6.8,12.6,0,1);
 sign(7,2,'พื้นที่นั่งรอ','Waiting Area',0,5.8,3.2,0,1);
-sign(10,2,'ห้องตรวจ','Examination Rooms',41.8,6.6,5,-Math.PI/2,0);
-sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,0);
-sign(7,2,'ห้องเก็บเงิน','Cashier',-5,6.4,-15.9,0,0);
+sign(10,2,'ห้องตรวจ','Examination Rooms',41.8,6.6,5,-Math.PI/2,1);
+sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,1);
+sign(7,2,'ห้องเก็บเงิน','Cashier',-5,6.4,-15.9,0,1);
 /* ฟิกเกอร์คน */
 const bodyG=new THREE.CylinderGeometry(.22,.28,.8,10),headG=new THREE.SphereGeometry(.22,12,10);
 function person(c,x,z,par,hc){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,MT(c)),h=new THREE.Mesh(headG,MT(hc||0xf2c9a0));b.position.y=.5;h.position.y=1.12;b.castShadow=true;g.add(b,h);g.position.set(x,0,z);(par||SC).add(g);return g}
@@ -842,14 +842,14 @@ function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');i
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<900;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
-const HOME={th:.3,ph:.9,rad:92,t:[2,0,5]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t),auto=true,ath=0;
+const HOME={th:.32,ph:.96,rad:88,t:[0,0,4]};let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t); // มุมกล้องเริ่มต้นคงที่ ไม่หมุนอัตโนมัติ
 function cam(){CAM.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));CAM.lookAt(tgt)}
 let drag=null,moved=0;const pts=new Map();
 cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY];moved=0});
 cv.addEventListener('pointermove',e=>{
   if(pts.size===2&&pts.has(e.pointerId)){const o=[...pts.entries()].find(a=>a[0]!==e.pointerId)[1],p=pts.get(e.pointerId),d0=Math.hypot(p[0]-o[0],p[1]-o[1]);pts.set(e.pointerId,[e.clientX,e.clientY]);rad=Math.min(95,Math.max(16,rad*d0/Math.hypot(e.clientX-o[0],e.clientY-o[1])));moved=9;return}
   if(pts.has(e.pointerId))pts.set(e.pointerId,[e.clientX,e.clientY]);
-  if(drag&&pts.size===1){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){auto=false;th=Math.min(1.4,Math.max(-1.4,th-dx*.006));ph=Math.min(1.45,Math.max(.25,ph-dy*.005))}drag=[e.clientX,e.clientY]}
+  if(drag&&pts.size===1){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){th-=dx*.006;ph=Math.min(1.5,Math.max(.12,ph-dy*.005))}drag=[e.clientX,e.clientY]}
   else hover(e)});
 cv.addEventListener('pointerup',e=>{pts.delete(e.pointerId);if(moved<6&&pts.size===0)clickAt(e);drag=null});
 cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();rad=Math.min(95,Math.max(16,rad*(1+e.deltaY*.001)))},{passive:false});
@@ -877,7 +877,7 @@ function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_dai
     if(o.kind==='cash'){const c=Math.round(net*CASHP);return{cnt:c,big:'-',st:'na',u:'ยังไม่มีเวลาในระบบ',rows:[['ผู้ใช้บริการชำระเงิน (ประมาณ)',fm(c)+' ราย'],['สัดส่วน',fm(CASHP*100)+'% ของผู้ป่วยนอก'],['เวลารอ','ยังไม่มีข้อมูลในระบบ']]}}
     return{cnt:net,tm:pha,big:pha==null?'-':fm(pha,1),st:pha==null?'na':stt(pha,TG.pharm),u:'นาที (รอรับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
   return{opd,adm,dis,net,info,per5:net/5,per6:net/6}}
-function select(i){sel=i;auto=false;const o=ITEMS[i];
+function select(i){sel=i;const o=ITEMS[i];
   document.querySelectorAll('#vlist button').forEach((b,k)=>b.classList.toggle('on',k===i));
   $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${o.big}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
   tgt.set(o.x*.7,0,o.z*.6+1);selR.visible=true;selR.position.x=o.x;selR.position.z=o.z;selR.scale.setScalar(o.kind==='desk'?.75:o.kind==='room'?.9:1.4)}
@@ -899,19 +899,19 @@ function build(D){
   $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
-  $('#vhint').textContent=`ลากเพื่อหมุน · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
+  $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง':'';
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
-$('#vgo').onclick=load;$('#vrot').onclick=()=>{auto=!auto};$('#vzi').onclick=()=>{rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{rad=Math.min(95,rad*1.18)};
-$('#vzr').onclick=()=>{rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);auto=true;sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
+$('#vgo').onclick=load;$('#vzi').onclick=()=>{rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{rad=Math.min(95,rad*1.18)};
+$('#vzr').onclick=()=>{rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
 let lastSync=null;window.v3sync=d=>{if(d&&d!==lastSync){lastSync=d;$('#vday').value=d;load()}};
 document.fonts.ready.then(()=>{if(M)build({...window._D})});
 function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix()}if(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
 const clock=new THREE.Clock();
 (function tick(){requestAnimationFrame(tick);if(!vis)return;const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
-  if(auto){ath+=dt*.15;th=HOME.th+Math.sin(ath)*.6}cam();
+  cam();
   selR.rotation.z=t*.8;if(sel!=null)selR.material.opacity=.6+Math.sin(t*4)*.25;
   if(M)step(dt);R.render(SC,CAM)})();
 const _lb=loadData;loadData=async d=>{const r=await _lb(d);window._D=r;return r};
