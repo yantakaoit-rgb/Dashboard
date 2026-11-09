@@ -69,7 +69,7 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #v3 .p{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px)}
 #vtop{top:10px;left:10px;right:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
 #vkc{display:flex;gap:8px;flex-wrap:wrap}#vkc div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#vkc i{font-style:normal;color:var(--mut);font-size:11px;display:block}#vkc b{font-size:16px}
-#vtop .c3{display:flex;gap:6px;align-items:center}#vtop input,#vtop button,#vz button{font:inherit;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#ffffff12;color:#e8f1f8;color-scheme:dark;cursor:pointer}
+#vtop .c3{display:flex;gap:6px;align-items:center}#vtop input,#vtop select,#vtop button,#vz button{font:inherit;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#ffffff12;color:#e8f1f8;color-scheme:dark;cursor:pointer}
 #vlist{left:10px;top:68px;width:190px;padding:6px;max-height:calc(100% - 130px);overflow:auto}
 #vlist{transition:opacity .35s,transform .35s}#vlist.hid{opacity:0;transform:translateX(-14px);pointer-events:none}
 #vlist button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;font:inherit;font-size:13px;color:#e8f1f8;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer}
@@ -156,7 +156,7 @@ img,svg{max-width:100%}.s{min-width:0}.tw{overflow-x:auto;max-width:100%;-webkit
  .dpw{max-height:480px}
 }
 @media(max-width:380px){main .k strong{letter-spacing:-.6px}.chips,.tg{gap:4px}}
-@media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input{min-height:40px}}
+@media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input,#vtop select{min-height:40px}}
 @media(max-height:560px) and (orientation:landscape){#v3{min-height:0;height:calc(100svh - 24px)}}
 @supports(height:100svh){#v3{height:min(94svh,1200px)}}
 /* ===== ส่วนหัวคงที่ตอนเลื่อน ===== */
@@ -166,6 +166,7 @@ header.stuck{padding-top:max(8px,env(safe-area-inset-top,0px));padding-bottom:8p
 header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-size:18px;border-radius:10px}header.stuck h1{font-size:15px}header.stuck .brand small{display:none}
 #snav{top:var(--hh,0px);z-index:50}html{scroll-padding-top:calc(var(--hh,0px) + 56px)}.s{scroll-margin-top:calc(var(--hh,0px) + 64px)}
 @media(max-width:700px){header.stuck .brand{display:none}header.stuck{padding-left:12px;padding-right:12px}}
+#vtop select option{background:#12263a;color:#e8f1f8}
 </style>
 </head>
 <body>
@@ -184,7 +185,7 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <main id="app"></main>
 <div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
-<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vgo">โหลด</button></div></div>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><select id="vhr" aria-label="เวลา (ชั่วโมง) ของข้อมูล 3D"><option value="">เวลาปัจจุบัน</option><option value="00">00:00</option><option value="01">01:00</option><option value="02">02:00</option><option value="03">03:00</option><option value="04">04:00</option><option value="05">05:00</option><option value="06">06:00</option><option value="07">07:00</option><option value="08">08:00</option><option value="09">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select><button id="vgo">โหลด</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
@@ -925,13 +926,13 @@ function select(i){sel=i;const o=ITEMS[i];
   tgt.set(o.x*.7,0,o.z*.6+1);selR.visible=true;selR.position.x=o.x;selR.position.z=o.z;selR.scale.setScalar(o.kind==='desk'?.75:o.kind==='room'?.9:1.4)}
 /* จำนวนคนในฉาก = service_count ของแถว OPD ที่ time_hour ตรงกับชั่วโมงปัจจุบัน (เวลาไทย) จากตาราง hospital_hourly_stats
    */
-function hourOPD(D){const hh=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),
+function hourOPD(D){const pick=document.querySelector('#vhr')?document.querySelector('#vhr').value:'',hh=pick||new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),
   rows=(D.oh||[]).map(r=>({h:String(r.time_hour||'').slice(0,2),c:n(r.service_count)}));
-  let r=rows.find(x=>x.h===hh);if(!r){const later=rows.some(x=>x.h>hh),p=rows.filter(x=>x.h<hh).sort((a,b)=>a.h<b.h?1:-1)[0];r=later||!p?{h:hh,c:0}:{h:p.h,c:p.c,fb:1}}return r} // ชั่วโมงที่ไม่มีแถวแต่มีข้อมูลชั่วโมงหลังจากนั้น = 0 ราย · ถ้ายังไม่มีข้อมูลชั่วโมงนี้เลย (ข้อมูลยังไม่เข้า) ใช้ชั่วโมงล่าสุด
+  let r=rows.find(x=>x.h===hh);if(!r){const later=pick||rows.some(x=>x.h>hh),p=rows.filter(x=>x.h<hh).sort((a,b)=>a.h<b.h?1:-1)[0];r=later||!p?{h:hh,c:0}:{h:p.h,c:p.c,fb:1}}if(pick)r.sel=1;return r} // ชั่วโมงที่ไม่มีแถวแต่มีข้อมูลชั่วโมงหลังจากนั้น = 0 ราย · ถ้ายังไม่มีข้อมูลชั่วโมงนี้เลย (ข้อมูลยังไม่เข้า) ใช้ชั่วโมงล่าสุด
 function build(D){
   M=derive(D);const m=model(D);M.m=m;
   const hrO=hourOPD(D);M.hr=hrO;targetPop=Math.max(0,Math.min(60,Math.round(hrO.c)));
-  (m.info[0].rows||(m.info[0].rows=[])).push(['OPD ชั่วโมง '+hrO.h+':00'+(hrO.fb?' (ล่าสุด)':''),fm(hrO.c)+' ราย → แสดง '+fm(targetPop)+' ตัว']);
+  (m.info[0].rows||(m.info[0].rows=[])).push(['OPD ชั่วโมง '+hrO.h+':00'+(hrO.sel?' (เลือกเอง)':hrO.fb?' (ล่าสุด)':''),fm(hrO.c)+' ราย → แสดง '+fm(targetPop)+' ตัว']);
   ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);o.lbl=o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที');o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
     (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
   signs.forEach(paintSign);
@@ -949,11 +950,13 @@ function build(D){
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
   $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
-  $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย → ในฉาก '+fm(targetPop)+' ตัว';
+  $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.sel?' (เลือกเอง)':M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย → ในฉาก '+fm(targetPop)+' ตัว';
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
-$('#vgo').onclick=load;$('#vzi').onclick=()=>{camTouched=true;rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{camTouched=true;rad=Math.min(150,rad*1.18)};
+$('#vgo').onclick=load;
+$('#vhr').onchange=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})}; // เลือกชั่วโมงใหม่ → เริ่มฉากใหม่ตามจำนวนคนของชั่วโมงนั้น
+$('#vzi').onclick=()=>{camTouched=true;rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{camTouched=true;rad=Math.min(150,rad*1.18)};
 $('#vzr').onclick=()=>{camTouched=false;resize();rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
 let lastSync=null;window.v3sync=d=>{if(d&&d!==lastSync){lastSync=d;$('#vday').value=d;load()}};
 document.fonts.ready.then(()=>{if(M)build({...window._D})});
