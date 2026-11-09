@@ -697,12 +697,13 @@ const sb=async p=>{const c=cfg(),r=await fetch(c.u+'/rest/v1/'+p,{headers:{apike
 async function loadData(day){
   if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||new Date().toISOString().slice(0,10),demo:1,er:48+R(10),
     d:{opd_daily_count:260+R(40),ipd_current_beds:62,ipd_total_beds:80,ipd_new_admit_daily:18,ipd_discharged_daily:16,ipd_avg_length_of_stay:3.8,readmit_28days_pct:7.2,avg_wait_reg_to_triage:9,avg_wait_for_doctor:26,avg_doctor_consult_time:12,avg_wait_for_pharmacy:17,avg_total_process_time:58},
+    oh:Array.from({length:24},(_,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(h<7||h>20?R(3):12+R(20))})),
     st:[[1,150],[2,22],[3,9],[4,14],[5,31],[6,3],[7,0]].map(a=>({stage_order:a[0],patient_count:a[1]})),
     tr:[[1,2],[2,9],[3,22],[4,15],[5,5]].map(a=>({triage_level_id:a[0],triage_level_name:'Level '+a[0],patient_count:a[1]}))}}
   {const r=await sb('hospital_daily_stats?select=record_date'+(day?'&record_date=lte.'+day:'')+'&order=record_date.desc&limit=1');day=r[0]&&r[0].record_date}
   if(!day)throw new Error('ยังไม่มีข้อมูลในตาราง');
-  const [d,st,tr,hr]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`),sb(`hospital_service_stage_stats?record_date=eq.${day}`),sb(`hospital_er_triage_stats?record_date=eq.${day}`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`)]);
-  return{day,d:d[0]||{},st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0)};
+  const [d,st,tr,hr,oh]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`),sb(`hospital_service_stage_stats?record_date=eq.${day}`),sb(`hospital_er_triage_stats?record_date=eq.${day}`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`)]);
+  return{day,d:d[0]||{},st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:oh||[]};
 }
 function derive(D){
   const d=D.d,sg=o=>n((D.st.find(r=>+r.stage_order===o)||{}).patient_count),opd=n(d.opd_daily_count);
@@ -829,7 +830,7 @@ function drawQueues(){while(qG.children.length)qG.remove(qG.children[0]);
   ITEMS.forEach(o=>{const f=Math.min(8,Math.ceil((o.cnt||0)/unit));for(let k=0;k<f;k++){const[x,z]=qpos(o,k);person(o.kind==='room'?0x3f9fd0:o.kind==='ph'?0x2fb27a:o.kind==='cash'?0xf5a623:0x27c4cf,x,z,qG,o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0,k*31+Math.round(x*7+z*13)+o.id.length*17)}})}
 /* ผู้ป่วยเดินในโรงพยาบาล */
 const pats=[],pm=new THREE.MeshStandardMaterial({color:0x27c4cf,roughness:.5,emissive:0x0a5a62,emissiveIntensity:.4});
-let M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,WT={reg:2,desk:3,q:2,room:4,ph:3};
+let M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,targetPop=20,WT={reg:2,desk:3,q:2,room:4,ph:3};
 const pmF=new THREE.MeshStandardMaterial({color:0xf5b441,roughness:.5,emissive:0x8a5a00,emissiveIntensity:.5});let flowT=0;
 function mk(P,m,j){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,m),h=new THREE.Mesh(headG,m);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
 function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;let P;
@@ -865,7 +866,7 @@ function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefi
   else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
   g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
 function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
-function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
+function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(pats.length<targetPop)spawn()} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];
     if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk&&!tryGo(p)){p.w=.15;pose(p,false);continue}leave(p)}pose(p,false);continue}
     const T=p.P[p.i];if(T[8]&&!T.r)pickChair(p,T);
@@ -873,13 +874,13 @@ function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;spawn()}
     if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
     else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk7',WTTL=6e5;let warmed=false;
+const WKEY='v3walk8',WTTL=6e5;let warmed=false;
 function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
   o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.s)sitP(w,1)});
   return pats.length>0}catch(e){return false}}
-function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<900;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
+function warmW(){if(warmed)return;warmed=true;if(pats.length)return;for(let i=0;i<3000;i++)step(.1)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
 const HOME={th:.28,ph:.8,rad:66,t:[0,0,3]};let camTouched=false; // camTouched = ผู้ใช้ซูม/หมุนเองแล้ว (ไม่ปรับระยะกล้องอัตโนมัติอีก)
@@ -922,8 +923,15 @@ function select(i){sel=i;const o=ITEMS[i];
   document.querySelectorAll('#vlist button').forEach((b,k)=>b.classList.toggle('on',k===i));
   $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${o.big}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
   tgt.set(o.x*.7,0,o.z*.6+1);selR.visible=true;selR.position.x=o.x;selR.position.z=o.z;selR.scale.setScalar(o.kind==='desk'?.75:o.kind==='room'?.9:1.4)}
+/* จำนวนคนในฉาก = service_count ของแถว OPD ที่ time_hour ตรงกับชั่วโมงปัจจุบัน (เวลาไทย) จากตาราง hospital_hourly_stats
+   */
+function hourOPD(D){const hh=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),
+  rows=(D.oh||[]).map(r=>({h:String(r.time_hour||'').slice(0,2),c:n(r.service_count)}));
+  let r=rows.find(x=>x.h===hh);if(!r){const later=rows.some(x=>x.h>hh),p=rows.filter(x=>x.h<hh).sort((a,b)=>a.h<b.h?1:-1)[0];r=later||!p?{h:hh,c:0}:{h:p.h,c:p.c,fb:1}}return r} // ชั่วโมงที่ไม่มีแถวแต่มีข้อมูลชั่วโมงหลังจากนั้น = 0 ราย · ถ้ายังไม่มีข้อมูลชั่วโมงนี้เลย (ข้อมูลยังไม่เข้า) ใช้ชั่วโมงล่าสุด
 function build(D){
   M=derive(D);const m=model(D);M.m=m;
+  const hrO=hourOPD(D);M.hr=hrO;targetPop=Math.max(0,Math.min(60,Math.round(hrO.c)));
+  (m.info[0].rows||(m.info[0].rows=[])).push(['OPD ชั่วโมง '+hrO.h+':00'+(hrO.fb?' (ล่าสุด)':''),fm(hrO.c)+' ราย → แสดง '+fm(targetPop)+' ตัว']);
   ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);o.lbl=o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที');o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
     (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
   signs.forEach(paintSign);
@@ -941,7 +949,7 @@ function build(D){
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
   $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
-  $('#vday').value=D.day;$('#vmsg').textContent=D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง':'';
+  $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย → ในฉาก '+fm(targetPop)+' ตัว';
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
