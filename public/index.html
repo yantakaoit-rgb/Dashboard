@@ -748,7 +748,7 @@ const CHS=[];[7,10].forEach(z=>[-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5].forEach(x
 /* เก้าอี้ฝั่งห้องตรวจ/ห้องยา/ห้องเก็บเงิน (แบบเดียวกับตำแหน่ง 1 แต่หมุนตามทิศที่หัน) */
 const chairAt=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;SC.add(g);box(.9,.12,.9,0x3f9fd0,0,.5,0,g);box(.9,.7,.12,0x3f9fd0,0,.95,-.45,g);box(.16,.5,.16,0x8a97a3,0,.25,0,g)};
 const CHR=[],CHP=[],CHC=[]; // เก้าอี้รอหน้าห้องตรวจ (ห้องละ 2 ตัว) · หน้าห้องยา · หน้าห้องเก็บเงิน
-[-9,-3.8,1.4,6.6,11.8,17].forEach(zr=>[28.8,26.4].forEach(cx=>[-1.1,1.1].forEach(d=>{chairAt(cx,zr+d,Math.PI/2);CHR.push([cx,zr+d])}))); // ห้องละ 4 ตัว (2 แถว x 2) ถอยห่างจากประตูห้อง
+[17,11.8,6.6,1.4,-3.8,-9].forEach(zr=>[28.8,26.4].forEach(cx=>[-1.1,1.1].forEach(d=>{chairAt(cx,zr+d,Math.PI/2);CHR.push([cx,zr+d])}))); // ห้องละ 4 ตัว (2 แถว x 2) ถอยห่างจากประตูห้อง
 [[11,CHP],[-5,CHC]].forEach(([c0,arr])=>[-3.6,-1.2,1.2,3.6].forEach(z=>[-3,-1,1,3].forEach(dx=>{chairAt(c0+dx,z,Math.PI);arr.push([c0+dx,z])})));
 /* ป้ายเขียว */
 const signs=[];
@@ -788,7 +788,7 @@ function person(c,x,z,par,ry,seed){const g=human(c,kindOf(seed|0),seed);g.positi
 function label(sx,sy){const c=document.createElement('canvas');c.width=512;c.height=170;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(sx,sy,1);s.renderOrder=9;s.userData={c,t};return s}
 function paint(sp,l1,l2,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,8,496,154,26):x.rect(8,8,496,154);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle='#fff';x.font='700 56px "IBM Plex Sans Thai",sans-serif';x.fillText(l1,256,72);x.fillStyle=col;x.font='700 50px "IBM Plex Sans Thai",sans-serif';x.fillText(l2,256,138);sp.userData.t.needsUpdate=true}
 /* รายการจุดบริการ 13 จุด */
-const ITEMS=[],pick=[],XD=[-13.5,-9,-4.5,0,4.5,9,13.5],XR=[-9,-3.8,1.4,6.6,11.8,17],ZD=17,RX=35,CASHP=1; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
+const ITEMS=[],pick=[],XD=[-13.5,-9,-4.5,0,4.5,9,13.5],XR=[17,11.8,6.6,1.4,-3.8,-9],ZD=17,RX=35,CASHP=1; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
 function reg(o,pw,ph,pd,ly,lw,lh){const g=new THREE.Group();g.position.set(o.x,0,o.z);SC.add(g);o.g=g;o.i=ITEMS.length;
   const pk=new THREE.Mesh(new THREE.BoxGeometry(pw,ph,pd),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pk.position.y=ph/2;pk.userData.i=o.i;g.add(pk);pick.push(pk);
   const lb=label(lw,lh);lb.position.y=ly;g.add(lb);o.lb=lb;ITEMS.push(o);return g}
@@ -878,7 +878,7 @@ function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats
     if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
     else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk10',WTTL=6e5;let warmed=false;
+const WKEY='v3walk11',WTTL=6e5;let warmed=false;
 function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
