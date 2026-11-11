@@ -3,7 +3,7 @@
 // คีย์ความลับอ่านจาก `env` ที่แต่ละแพลตฟอร์มส่งเข้ามา — ไม่อยู่ในโค้ด
 
 const PREFIX = '/api/sb';
-const TABLE_RE = /^hospital_[a-z_]+_stats$/; // อนุญาตเฉพาะตารางสถิติ
+const TABLE_RE = /^hospital_[a-z_]+_(stats|log)$/; // อนุญาตเฉพาะตารางสถิติ
 
 const reply = (status, body, extra = {}) =>
   new Response(body, {
