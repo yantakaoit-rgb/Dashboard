@@ -816,7 +816,7 @@ function aggLog(rows,pick){const hrs=Array(24).fill(0),unm={};
   if(!pick&&!hrs[+hh]){const later=hrs.slice(+hh+1).some(c=>c),p=(()=>{for(let i=+hh-1;i>=0;i--)if(hrs[i])return i;return -1})();if(!later&&p>=0){hh=String(p).padStart(2,'0');fb=1}}
   const byKey={},rh=rows.filter(r=>r._h===hh&&r._k);
   rows.forEach(r=>{if(!r._k)return;const b=byKey[r._k]||(byKey[r._k]={h:[],d:0});b.d++;if(r._h===hh)b.h.push(r)});
-  const pool=rh.filter(r=>/^ex\d$/.test(r._k));
+  const pool=rh.filter(r=>/^(ex|hx)\d$/.test(r._k));
   return{hrs,hh,fb,sel:!!pick,byKey,unm,total:rows.length,rowsH:rows.filter(r=>r._h===hh),pool:pool.length?pool:rh}}
 const QTX={};
 function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false})}
@@ -899,7 +899,7 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
 let simT=0,pn=0;
 /* ระบบคิว: GQ = คิวเรียกตัวต่อไปของแต่ละแผนก (เรียงตามลำดับมาถึง FIFO · เดินทีละตัว ห่างกัน ≥2 วินาที) · SO = จำนวนคนที่ใช้จุดบริการอยู่ · CAP = ช่องบริการสูงสุด (ห้องตรวจ/โต๊ะซักประวัติ = 1) · OC = จำนวนคนนั่งในเก้าอี้แต่ละตัว */
 const GQ={},SO={},OC={},CAP={reg:2,ph:3,ca:2};
-function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.5,row=LG&&LG.pool.length?LG.pool[lgc++%LG.pool.length]:null,ri=row&&/^ex\d$/.test(row._k||"")?+row._k.slice(2)-1:rcn++%6,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
+function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.5,row=LG&&LG.pool.length?LG.pool[lgc++%LG.pool.length]:null,isH=!!row&&/^hx\d$/.test(row._k||""),dk=isH?+row._k.slice(2)-1:null,ri=row&&/^ex\d$/.test(row._k||"")?+row._k.slice(2)-1:rcn++%6,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
   /* รูปแบบจุดหยุด T = [x,z,รอ(วิ),นั่ง?,ประตูคิว,ทิศหน้า,จองจุดบริการ,คืนจุดบริการ,รายการเก้าอี้(เลือกตัวว่างอัตโนมัติ),เริ่ม,จำนวน]
      ทางเข้า → ห้องบัตร → เก้าอี้รอซักประวัติ → โต๊ะซักประวัติ → เก้าอี้หน้าห้องตรวจ → ห้องตรวจ → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา → เก้าอี้ห้องเก็บเงิน → เคาน์เตอร์ห้องเก็บเงิน → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา(รับยา) → ทางออก
      ทุกแผนก: เรียกจากเก้าอี้ทีละคนตามคิว เดินทีละตัว และต้องมีช่องบริการว่างก่อน */
@@ -907,7 +907,12 @@ function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.
     [0,0,W2.ec,1,'rm'+ri,Math.PI/2,null,null,'CHR',ri*4,4],[RX-3.8,zr,0,0,null,null,'r'+ri],[RX-.4,zr,W2.room,0,null,Math.PI/2,null,'r'+ri],[RX-3.8,zr,0],
     [0,0,W2.pc,1,'ph1',Math.PI,null,null,'CHP'],[phX,sy,W2.pc1,0,null,Math.PI,'ph','ph'],[0,0,W2.cc,1,'ca',Math.PI,null,null,'CHC'],[caX,sy,W2.cash,0,'ca2',Math.PI,'ca','ca'],
     [0,0,W2.pc2,1,'ph2',Math.PI,null,null,'CHP'],[phX,sy,W2.rec,0,null,Math.PI,'ph','ph'],[11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]];
-  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);addTag(w.g,w.q)}}
+  let P2=P;
+  if(row){const out=[[-13.2,9.5,0],[-13.2,-7.2,0],[-37,-7.2,0],[-41.5,-12,0]];
+    if(isH)P2=P.slice(0,6).concat(out); // แถว station_name = ซักประวัติ N → เดินไปโต๊ะ N แล้วออก
+    else P2=P.slice(0,3).concat(P.slice(6)); // แถว station_name = ห้องตรวจ N → เดินไปห้อง N ตรงๆ
+    P2[2][2]=6;if(isH)P2[3][2]=6;else P2[3][2]=6} // เลขคิวถูกเรียกแล้ว: นั่งรอสั้นๆ แล้วเดินไปทันที
+  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P2,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);w.dk=dk;addTag(w.g,w.q)}}
 /* สร้างตัวละครเดินหนึ่งตัวจากเส้นทาง P (ใช้ทั้งตอนเกิดใหม่และตอนกู้คืนสถานะ) */
 function mkWalker(P,j,kind,shirt,sd){const g=human(shirt,kind,sd);g.position.set(P[0][0],0,P[0][1]);SC.add(g);const p={g,P,i:1,w:0,j,sp:3+Math.random()*.8,kind,shirt,seed:sd,ph0:Math.random()*6};pats.push(p);return p}
 function sitP(p,on){p.sit=on?1:0;p.g.position.y=on?Math.max(0,.62-.7*(p.g.userData.s||1)):0} // นั่ง: ยกตัวเด็กให้ถึงเบาะ
@@ -919,8 +924,8 @@ function pickChair(p,T){const L=T[8]==='CHS'?CHS:T[8]==='CHP'?CHP:T[8]==='CHC'?C
   oc[b]++;p.cl=T[8];p.ci=b;T[0]=L[b][0];T[1]=L[b][1];T.r=1}
 function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefined)p.tk=g.n++;
   if(p.tk!==g.s||simT<g.t||(g.w&&g.w.mv&&p.gk!=='ex'))return false; // ถึงคิวของตัวเอง + ห่างจากตัวก่อน ≥2 วินาที + ตัวก่อนเดินถึงที่หมายแล้ว
-  if(p.gk==='tri'){let k=-1;for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
-    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,3,1,null,0,null,'d'+k]}
+  if(p.gk==='tri'){let k=-1;if(p.dk!=null&&p.dk>=0&&p.dk<XD.length){if(!SO['d'+p.dk])k=p.dk}else for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
+    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,p.dk!=null?W2.tri||3:3,1,null,0,null,'d'+k]}
   else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
   g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
 function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
@@ -932,11 +937,11 @@ function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats
     if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
     else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk10',WTTL=6e5;let warmed=false;
-function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,q:p.q||null,s:p.sit?1:0}))}))}catch(e){}}
+const WKEY='v3walk11',WTTL=6e5;let warmed=false;
+function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,q:p.q||null,dk:p.dk==null?null:p.dk,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
-  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.q){w.q=q.q;addTag(w.g,q.q)}if(q.s)sitP(w,1)});
+  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.dk!=null)w.dk=q.dk;if(q.q){w.q=q.q;addTag(w.g,q.q)}if(q.s)sitP(w,1)});
   return pats.length>0}catch(e){return false}}
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
