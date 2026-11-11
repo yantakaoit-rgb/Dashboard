@@ -819,8 +819,9 @@ function aggLog(rows,pick){const hrs=Array(24).fill(0),unm={};
   const pool=rh.filter(r=>/^ex\d$/.test(r._k));
   return{hrs,hh,fb,sel:!!pick,byKey,unm,total:rows.length,rowsH:rows.filter(r=>r._h===hh),pool:pool.length?pool:rh}}
 const QTX={};
-function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true})}
-  const s=new THREE.Sprite(m);s.scale.set(1.5,.56,1);s.position.set(0,2.15,0);return s} // ป้ายเลขคิวลอยเหนือหัว
+function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false})}
+  const s=new THREE.Sprite(m);s.scale.set(3.3,1.24,1);s.renderOrder=8;return s}
+function addTag(g,text){const t=qtag(String(text)),k=g.userData.s||1;t.scale.multiplyScalar(1/k);t.position.set(0,1.7+.85/k,0);g.add(t)} // ป้ายเลขคิวลอยเหนือหัว ขนาดคงที่ไม่ขึ้นกับตัวเล็ก/ใหญ่
 async function loadQ(day){const c=cfg(),out=[],f=`queue_call_log?select=called_at,station_id,station_name,queue_no&called_at=gte.${day}T00:00:00%2B07:00&called_at=lt.${addD(day,1)}T00:00:00%2B07:00&order=called_at.asc`;
   for(let o=0;o<60000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
     if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error('queue_call_log HTTP '+r.status+(m?' — '+m:''))}
@@ -879,7 +880,7 @@ function drawCrowd(){while(qG.children.length)qG.remove(qG.children[0]);if(!LG)r
   const mx=Math.max(1,...ITEMS.map(o=>(LG.byKey[o.id]||{h:[]}).h.length));unit=Math.max(1,Math.ceil(mx/10)); // 1 ตัวที่ยืนรอ = unit ครั้งที่เรียก
   ITEMS.forEach(o=>{const rs=(LG.byKey[o.id]||{h:[]}).h,f=Math.min(10,Math.ceil(rs.length/unit));
     for(let k=0;k<f;k++){const r=rs[rs.length-1-k],[x,z]=qpos(o,k),q=r.queue_no,g=human(SHIRT[hsh(q)%SHIRT.length],kindQ(q),hsh(q));
-      g.position.set(x,0,z);g.rotation.y=o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0;g.add(qtag(String(q)));qG.add(g)}})}
+      g.position.set(x,0,z);g.rotation.y=o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0;addTag(g,q);qG.add(g)}})}
 function renderQ(){const q=$('#vq');if(!LG){q.style.display='none';return}q.style.display='';const mx=Math.max(1,...LG.hrs),last=LG.rowsH.slice(-5).reverse();
   q.innerHTML=`<div class="qh"><b>คิวที่เรียก ${LG.hh}:00 น.</b><span>${fm(LG.rowsH.length)} ครั้ง · ทั้งวัน ${fm(LG.total)}</span></div><div class="qb">${LG.hrs.map((c,h)=>{const s=String(h).padStart(2,'0');return `<i data-h="${s}" class="${s===LG.hh?'on':''}" style="height:${Math.max(c?8:2,c/mx*100)}%" title="${s}:00 · ${c} ครั้ง"></i>`}).join('')}</div><div class="qa"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div><div class="ql">${last.length?last.map(r=>`<div><span>${hmOf(r.called_at)} · ${r.station_name||r.station_id}</span><b>${r.queue_no}</b></div>`).join(''):'<div><span>ไม่มีการเรียกคิวในชั่วโมงนี้</span></div>'}</div><div class="lg2"><span><i style="background:#2fd08a"></i>เบาบาง</span><span><i style="background:#f5b441"></i>ปานกลาง</span><span><i style="background:#ff5d4a"></i>หนาแน่น</span></div>`;
   q.querySelectorAll('.qb i').forEach(e=>e.onclick=()=>{$('#vhr').value=e.dataset.h;resetScene()})}
@@ -906,7 +907,7 @@ function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.
     [0,0,W2.ec,1,'rm'+ri,Math.PI/2,null,null,'CHR',ri*4,4],[RX-3.8,zr,0,0,null,null,'r'+ri],[RX-.4,zr,W2.room,0,null,Math.PI/2,null,'r'+ri],[RX-3.8,zr,0],
     [0,0,W2.pc,1,'ph1',Math.PI,null,null,'CHP'],[phX,sy,W2.pc1,0,null,Math.PI,'ph','ph'],[0,0,W2.cc,1,'ca',Math.PI,null,null,'CHC'],[caX,sy,W2.cash,0,'ca2',Math.PI,'ca','ca'],
     [0,0,W2.pc2,1,'ph2',Math.PI,null,null,'CHP'],[phX,sy,W2.rec,0,null,Math.PI,'ph','ph'],[11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]];
-  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);w.g.add(qtag(w.q))}}
+  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);addTag(w.g,w.q)}}
 /* สร้างตัวละครเดินหนึ่งตัวจากเส้นทาง P (ใช้ทั้งตอนเกิดใหม่และตอนกู้คืนสถานะ) */
 function mkWalker(P,j,kind,shirt,sd){const g=human(shirt,kind,sd);g.position.set(P[0][0],0,P[0][1]);SC.add(g);const p={g,P,i:1,w:0,j,sp:3+Math.random()*.8,kind,shirt,seed:sd,ph0:Math.random()*6};pats.push(p);return p}
 function sitP(p,on){p.sit=on?1:0;p.g.position.y=on?Math.max(0,.62-.7*(p.g.userData.s||1)):0} // นั่ง: ยกตัวเด็กให้ถึงเบาะ
@@ -935,7 +936,7 @@ const WKEY='v3walk10',WTTL=6e5;let warmed=false;
 function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,q:p.q||null,s:p.sit?1:0}))}))}catch(e){}}
 function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
-  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.q){w.q=q.q;w.g.add(qtag(q.q))}if(q.s)sitP(w,1)});
+  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.q){w.q=q.q;addTag(w.g,q.q)}if(q.s)sitP(w,1)});
   return pats.length>0}catch(e){return false}}
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
