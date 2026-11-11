@@ -776,7 +776,7 @@ const kindOf=n=>{n=Math.abs(n|0);return n%20===7?'c':(n%2?'m':'f')}; // เด�
 function person(c,x,z,par,ry,seed){const g=human(c,kindOf(seed|0),seed);g.position.set(x,0,z);g.rotation.y=ry||0;(par||SC).add(g);return g}
 
 /* ===== queue_call_log: called_at, station_id, station_name, queue_no ===== */
-const QLOG_TABLE='queue_call_log'; // ชื่อตาราง/วิวที่อ่านคิว (ถ้าตัวกลาง /api/sb อนุญาตเฉพาะบางชื่อ ให้สร้างวิวชื่อที่อนุญาตแล้วใส่ที่นี่ เช่น 'hospital_queue_call_log')
+const QLOG_TABLE='hospital_queue_call_log'; // ชื่อตาราง/วิวที่อ่านคิว (ถ้าตัวกลาง /api/sb อนุญาตเฉพาะบางชื่อ ให้สร้างวิวชื่อที่อนุญาตแล้วใส่ที่นี่ เช่น 'hospital_queue_call_log')
 const QSID={}; // กำหนดเองได้: station_id → รหัสจุด เช่น {1:'reg',11:'hx1',21:'ex1',31:'ph',32:'cash'} (ถ้าไม่กำหนดจะแยกจาก station_name)
 const hsh=s=>{s=String(s==null?'':s);let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
 const kindQ=q=>{const h=hsh(q);return h%20===7?'c':(h%2?'m':'f')}; // เลขคิวเดิม = ตัวการ์ตูนหน้าตาเดิมเสมอ
