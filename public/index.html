@@ -79,15 +79,6 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vdet table{width:100%;margin-top:10px;border-collapse:collapse}#vdet td{padding:5px 0;border-bottom:1px solid var(--line);text-align:left}#vdet td:last-child{text-align:right;font-weight:600}
 #vhint{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;color:var(--mut);font-size:12px;white-space:nowrap}
 #vmsg{left:50%;top:62px;transform:translateX(-50%);padding:4px 12px;color:#f5b441;font-size:12.5px}#vmsg:empty{display:none}
-#vq{right:10px;bottom:10px;width:270px;padding:10px 12px;font-size:12px}
-#vq .qh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}#vq .qh b{font-size:12.5px}#vq .qh span{color:var(--mut)}
-#vq .qb{display:flex;align-items:flex-end;gap:2px;height:46px}#vq .qb i{flex:1;background:#27c4cf66;border-radius:2px 2px 0 0;cursor:pointer;min-height:2px}#vq .qb i.on{background:#f5b441}#vq .qb i:hover{background:#27c4cf}
-#vq .qa{display:flex;justify-content:space-between;color:var(--mut);font-size:10px;margin:2px 0 6px}
-#vq .ql{display:grid;gap:2px;color:#cfe0ee}#vq .ql div{display:flex;justify-content:space-between;gap:8px}#vq .ql b{color:#fff}
-#vq .lg2{display:flex;gap:10px;flex-wrap:wrap;color:var(--mut);font-size:10.5px;margin-top:6px}#vq .lg2 i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
-#vdet{max-height:calc(100% - 290px)}
-#v3.tbh #vq{display:none!important}
-@media(max-width:900px){#vq{display:none!important}}
 #vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
 @media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto!important;top:70px}}
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
@@ -193,12 +184,11 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <div id="msg"></div>
 <div class="rb" id="rb" aria-live="polite"></div>
 <main id="app"></main>
-<div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span id="v3sub">ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
+<div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
 <div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><select id="vhr" aria-label="เวลา (ชั่วโมง) ของข้อมูล 3D"><option value="">เวลาปัจจุบัน</option><option value="00">00:00</option><option value="01">01:00</option><option value="02">02:00</option><option value="03">03:00</option><option value="04">04:00</option><option value="05">05:00</option><option value="06">06:00</option><option value="07">07:00</option><option value="08">08:00</option><option value="09">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select><button id="rtbtn" title="โหมดเวลาจริง: นั่งรอตามเวลาจริงทุกห้อง">⏱ เวลาจริง</button><button id="vgo">โหลด</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
-<div class="p" id="vq" style="display:none"></div>
 <button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
@@ -707,15 +697,15 @@ const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
 /* ---------- data ---------- */
 const sb=async p=>{const c=cfg(),r=await fetch(c.u+'/rest/v1/'+p,{headers:{apikey:c.k,Authorization:'Bearer '+c.k}});if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(e){}throw new Error(p.split('?')[0]+' HTTP '+r.status+(m?' — '+m:''))}return san(await r.json())};
 async function loadData(day){
-  if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||new Date().toISOString().slice(0,10),demo:1,q:demoQ(day||new Date().toISOString().slice(0,10)),er:48+R(10),
+  if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||new Date().toISOString().slice(0,10),demo:1,er:48+R(10),
     d:{opd_daily_count:260+R(40),ipd_current_beds:62,ipd_total_beds:80,ipd_new_admit_daily:18,ipd_discharged_daily:16,ipd_avg_length_of_stay:3.8,readmit_28days_pct:7.2,avg_wait_reg_to_triage:9,avg_wait_for_doctor:26,avg_doctor_consult_time:12,avg_wait_for_pharmacy:17,avg_total_process_time:58},
     oh:Array.from({length:24},(_,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(h<7||h>20?R(3):12+R(20))})),
     st:[[1,150],[2,22],[3,9],[4,14],[5,31],[6,3],[7,0]].map(a=>({stage_order:a[0],patient_count:a[1]})),
     tr:[[1,2],[2,9],[3,22],[4,15],[5,5]].map(a=>({triage_level_id:a[0],triage_level_name:'Level '+a[0],patient_count:a[1]}))}}
   {const r=await sb('hospital_daily_stats?select=record_date'+(day?'&record_date=lte.'+day:'')+'&order=record_date.desc&limit=1');day=r[0]&&r[0].record_date}
   if(!day)throw new Error('ยังไม่มีข้อมูลในตาราง');
-  let qerr=null;const [d,st,tr,hr,oh,q,stn]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`),sb(`hospital_service_stage_stats?record_date=eq.${day}`),sb(`hospital_er_triage_stats?record_date=eq.${day}`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`),loadQ(day).catch(e=>{qerr=e.message;return null}),loadStn().catch(()=>null)]);
-  return{day,d:d[0]||{},st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:oh||[],q,qerr,stn};
+  const [d,st,tr,hr,oh]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`),sb(`hospital_service_stage_stats?record_date=eq.${day}`),sb(`hospital_er_triage_stats?record_date=eq.${day}`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`)]);
+  return{day,d:d[0]||{},st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:oh||[]};
 }
 function derive(D){
   const d=D.d,sg=o=>n((D.st.find(r=>+r.stage_order===o)||{}).patient_count),opd=n(d.opd_daily_count);
@@ -733,7 +723,7 @@ function derive(D){
   return{S,opd,occ,tot,er:D.er};
 }
 
-/* ---------- 3D scene: ห้องโรงพยาบาลจำลอง (ห้องบัตร → ซักประวัติ 5 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง) ---------- */
+/* ---------- 3D scene: ห้องโรงพยาบาลจำลอง (ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง) ---------- */
 const COL={ok:0x2fd08a,warn:0xf5b441,bad:0xff5d4a,na:0x8da4b8},CSS={ok:'#2fd08a',warn:'#f5b441',bad:'#ff5d4a',na:'#8da4b8'},STT={ok:'ปกติ',warn:'เฝ้าระวัง',bad:'เกินเป้าหมาย',na:'ยังไม่มีเวลาในระบบ'};
 const V=document.querySelector('#v3'),cv=$('#vc'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;
 const SC=new THREE.Scene();SC.background=new THREE.Color(0x0a1626);SC.fog=new THREE.Fog(0x0a1626,110,240);
@@ -741,16 +731,36 @@ const CAM=new THREE.PerspectiveCamera(42,1,.1,300);
 SC.add(new THREE.HemisphereLight(0xffffff,0x6d7f90,.95));
 const sun=new THREE.DirectionalLight(0xffffff,.75);sun.position.set(-18,42,26);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-54,right:54,top:40,bottom:-40,near:1,far:160});SC.add(sun);
 const MC={},MT=(c,o)=>o?new THREE.MeshStandardMaterial({color:c,roughness:.7,...o}):(MC[c]||(MC[c]=new THREE.MeshStandardMaterial({color:c,roughness:.7})));
-const box=(w,h,d,c,x,y,z,par,o)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),MT(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(par||RG).add(m);return m};
-/* ===== ผังฉากแบบไดนามิก: จำนวนโต๊ะซักประวัติ / ห้องตรวจ อ่านจากฐานข้อมูล (station_name) แล้ว buildScene() สร้างฉากใหม่ตามจำนวน ===== */
-const MAXD=12,MAXR=12;let ND=7,NR=6,DS=1,ZMIN=-16; // ND = โต๊ะซักประวัติ (ค่าเริ่มต้น 7) · NR = ห้องตรวจ (ค่าเริ่มต้น 6) · DS = สเกลความลึกฉาก
-let RG=null,HPAD=[];const XD=[],XR=[],CHS=[],CHR=[],CHP=[],CHC=[],signs=[],ITEMS=[],pick=[],TP={},ZD=17,RX=35,CASHP=1;
+const box=(w,h,d,c,x,y,z,par,o)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),MT(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(par||SC).add(m);return m};
+/* พื้น / ผนัง */
 const fc=document.createElement('canvas');fc.width=fc.height=64;{const x=fc.getContext('2d');x.fillStyle='#d6dfe5';x.fillRect(0,0,64,64);x.strokeStyle='#bccad4';x.lineWidth=2;x.strokeRect(0,0,64,64)}
-const ftex=new THREE.CanvasTexture(fc);ftex.wrapS=ftex.wrapT=THREE.RepeatWrapping;
-const chairAt=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;RG.add(g);box(.9,.12,.9,0x3f9fd0,0,.5,0,g);box(.9,.7,.12,0x3f9fd0,0,.95,-.45,g);box(.16,.5,.16,0x8a97a3,0,.25,0,g)};
+const ftex=new THREE.CanvasTexture(fc);ftex.wrapS=ftex.wrapT=THREE.RepeatWrapping;ftex.repeat.set(42,21);
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(84,42),new THREE.MeshStandardMaterial({map:ftex,roughness:.9}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,5);fl.receiveShadow=true;SC.add(fl);
+box(86,.6,44,0x13283b,0,-.31,5);
+
+
+/* พื้นโซน (ผังใหม่ ขยายพื้นที่): บัตรซ้ายหน้า · ซักประวัติกลางหน้า · ตำแหน่ง 1 เก้าอี้กลาง · ตำแหน่ง 2 ข้างเก้าอี้ขวา · ตำแหน่ง 3 หน้าห้องเก็บเงิน/ห้องยา · ห้องตรวจขวา · ทางออกซ้ายบน */
+box(22,.05,9,0xdceaf0,-31,.04,16);box(36,.05,8,0xe3e8f3,0,.04,17);box(36,.05,8,0xd9ebdf,0,.04,8.5);box(17,.05,36,0xe8f2e4,31.5,.04,4);box(36,.05,9,0xf0e8dc,3,.04,-11.5);
+box(10,.05,10,0xf5e9c8,11,.045,0);box(10,.05,10,0xf5e9c8,-5,.045,0);
+box(50,.04,.5,0x2fd08a,-14,.06,-7.2,null,{transparent:true,opacity:.4,emissive:0x2fd08a,emissiveIntensity:.4});box(3.2,.05,3.2,0x2fd08a,-40.2,.07,-12,null,{transparent:true,opacity:.5});
+/* เก้าอี้นั่งรอ 16 ตัว (ตำแหน่ง 1) */
+const CHS=[];[7,10].forEach(z=>[-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5].forEach(x=>{box(.9,.12,.9,0x3f9fd0,x,.5,z);box(.9,.7,.12,0x3f9fd0,x,.95,z-.45);box(.16,.5,.16,0x8a97a3,x,.25,z);CHS.push([x,z])}));
+/* เก้าอี้ฝั่งห้องตรวจ/ห้องยา/ห้องเก็บเงิน (แบบเดียวกับตำแหน่ง 1 แต่หมุนตามทิศที่หัน) */
+const chairAt=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;SC.add(g);box(.9,.12,.9,0x3f9fd0,0,.5,0,g);box(.9,.7,.12,0x3f9fd0,0,.95,-.45,g);box(.16,.5,.16,0x8a97a3,0,.25,0,g)};
+const CHR=[],CHP=[],CHC=[]; // เก้าอี้รอหน้าห้องตรวจ (ห้องละ 2 ตัว) · หน้าห้องยา · หน้าห้องเก็บเงิน
+[-9,-3.8,1.4,6.6,11.8,17].forEach(zr=>[28.8,26.4].forEach(cx=>[-1.1,1.1].forEach(d=>{chairAt(cx,zr+d,Math.PI/2);CHR.push([cx,zr+d])}))); // ห้องละ 4 ตัว (2 แถว x 2) ถอยห่างจากประตูห้อง
+[[11,CHP],[-5,CHC]].forEach(([c0,arr])=>[-3.6,-1.2,1.2,3.6].forEach(z=>[-3,-1,1,3].forEach(dx=>{chairAt(c0+dx,z,Math.PI);arr.push([c0+dx,z])})));
+/* ป้ายเขียว */
+const signs=[];
 function paintSign(m){const{c,t,t1,t2}=m.userData,x=c.getContext('2d'),W=c.width,H=c.height;x.fillStyle='#1d6b34';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font=`700 ${Math.round(H*.40)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t1,W/2,H*.52);x.fillRect(W*.18,H*.6,W*.64,3);x.font=`500 ${Math.round(H*.24)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t2,W/2,H*.88);t.needsUpdate=true}
-function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;RG.add(m);const m2=new THREE.Mesh(m.geometry,m.material);m2.position.set(x,y,z);m2.rotation.y=(ry||0)+Math.PI;RG.add(m2);signs.push(m);paintSign(m);
-  if(posts){const dx=Math.cos(ry||0)*w/2,dz=-Math.sin(ry||0)*w/2;[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,y,6),MT(0x8a97a3));p.position.set(x+dx*s,y/2,z+dz*s);RG.add(p)})}return m}
+function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;SC.add(m);const m2=new THREE.Mesh(m.geometry,m.material);m2.position.set(x,y,z);m2.rotation.y=(ry||0)+Math.PI;SC.add(m2);signs.push(m);paintSign(m);
+  if(posts){const dx=Math.cos(ry||0)*w/2,dz=-Math.sin(ry||0)*w/2;[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,y,6),MT(0x8a97a3));p.position.set(x+dx*s,y/2,z+dz*s);SC.add(p)})}return m}
+sign(7,2,'ห้องบัตร','Registration',-30,6.4,12.2,0,1);
+sign(8,2,'ซักประวัติ','History talking',0,6.8,12.6,0,1);
+sign(7,2,'พื้นที่นั่งรอ','Waiting Area',0,5.8,3.2,0,1);
+sign(10,2,'ห้องตรวจ','Examination Rooms',41.8,6.6,5,-Math.PI/2,1);
+sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,1);
+sign(7,2,'ห้องเก็บเงิน','Cashier',-5,6.4,-15.9,0,1);
 /* ฟิกเกอร์คน */
 const bodyG=new THREE.CylinderGeometry(.22,.28,.8,10),headG=new THREE.SphereGeometry(.22,12,10);
 const HM={};const MTc=c=>HM[c]||(HM[c]=MT(c));
@@ -774,111 +784,27 @@ function human(shirt,kind,seed){
   const sc=c?.6:f?.88:.94;g.scale.setScalar(sc);g.userData={legs,arms,s:sc};return g}
 const kindOf=n=>{n=Math.abs(n|0);return n%20===7?'c':(n%2?'m':'f')}; // เด็ก 1 ใน 20 = 5% (คนยืนรอคิวกำหนดตามตำแหน่ง)
 function person(c,x,z,par,ry,seed){const g=human(c,kindOf(seed|0),seed);g.position.set(x,0,z);g.rotation.y=ry||0;(par||SC).add(g);return g}
-
-/* ===== queue_call_log: called_at, station_id, station_name, queue_no ===== */
-const QLOG_TABLE='hospital_queue_call_log'; // ชื่อตาราง/วิวที่อ่านคิว (ถ้าตัวกลาง /api/sb อนุญาตเฉพาะบางชื่อ ให้สร้างวิวชื่อที่อนุญาตแล้วใส่ที่นี่ เช่น 'hospital_queue_call_log')
-const QSID={}; // กำหนดเองได้: station_id → รหัสจุด เช่น {1:'reg',11:'hx1',21:'ex1',31:'ph',32:'cash'} (ถ้าไม่กำหนดจะแยกจาก station_name)
-const hsh=s=>{s=String(s==null?'':s);let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
-const kindQ=q=>{const h=hsh(q);return h%20===7?'c':(h%2?'m':'f')}; // เลขคิวเดิม = ตัวการ์ตูนหน้าตาเดิมเสมอ
-function hmOf(s){s=String(s||'');const m=s.match(/(?:T|\s)(\d\d):(\d\d)/);if(!m)return '';if(/(Z|[+-]\d\d(:?\d\d)?)$/.test(s)){const d=new Date(s);if(!isNaN(d))return new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)}return m[1]+':'+m[2]}
-const hourOf=s=>hmOf(s).slice(0,2);
-const UNM={ex:{},hx:{}},RANKED={ex:false,hx:false},RE_CASH=/เก็บเงิน|การเงิน|cashier|cash/i,RE_PH=/จ่ายยา|ห้องยา|รับยา|เภสัช|pharm|drug/i,RE_EX=/ห้องตรวจ|exam|room/i,RE_HX=/ซักประวัติ|คัดกรอง|triage|history|screen/i,RE_REG=/บัตร|ลงทะเบียน|regist|card/i;
-const stSk=r=>r.station_id!=null&&r.station_id!==''?String(r.station_id):String(r.station_name||'');
-function stNum(kind,r){const mx=kind==='ex'?MAXR:MAXD,n=(String(r.station_name||'').match(/\d+/)||[])[0];if(!RANKED[kind]&&n!=null&&+n>0&&+n<=mx)return +n;return UNM[kind][stSk(r)]||1}
-function stKey(r){const nm=String(r.station_name||'');if(QSID[r.station_id])return QSID[r.station_id];
-  if(RE_CASH.test(nm))return 'cash';if(RE_PH.test(nm))return 'ph';
-  if(RE_EX.test(nm))return 'ex'+stNum('ex',r);
-  if(RE_HX.test(nm))return 'hx'+stNum('hx',r);
-  if(RE_REG.test(nm))return 'reg';
-  return null}
-/* นับจำนวนโต๊ะซักประวัติ/ห้องตรวจที่มีอยู่จริงในฐานข้อมูลจากรายชื่อสถานี (station_id + station_name) */
-function learnStations(rows){const R={ex:new Map(),hx:new Map()};
-  rows.forEach(r=>{const nm=String(r.station_name||''),q=QSID[r.station_id],m=q&&/^(ex|hx)(\d+)$/.exec(q);let kind=null,n=(nm.match(/\d+/)||[])[0];n=n!=null&&+n>0?+n:null;
-    if(m){kind=m[1];n=+m[2]}else if(q)return;else if(RE_CASH.test(nm)||RE_PH.test(nm))return;else if(RE_EX.test(nm))kind='ex';else if(RE_HX.test(nm))kind='hx';
-    if(!kind)return;const sk=stSk(r);if(!R[kind].has(sk))R[kind].set(sk,n)});
-  const out={};
-  ['ex','hx'].forEach(k=>{const e=[...R[k].entries()],mx=k==='ex'?MAXR:MAXD,ok=e.length>0&&e.every(x=>x[1]!=null&&x[1]<=mx);RANKED[k]=!ok;UNM[k]={};
-    if(!ok){e.sort((a,b)=>(a[1]==null?1e9:a[1])-(b[1]==null?1e9:b[1])||(+a[0]-+b[0])||String(a[0]).localeCompare(String(b[0])));e.forEach((x,i)=>UNM[k][x[0]]=Math.min(i+1,mx))}
-    out[k]=e.length?(ok?Math.min(Math.max(...e.map(x=>x[1])),mx):Math.min(e.length,mx)):0});
-  return out}
-const STN_CFG={table:'',id:'station_id',name:'station_name',days:14}; // ถ้ามีตารางสถานีโดยเฉพาะ ใส่ชื่อตารางที่ table (เช่น 'stations') ไม่เช่นนั้นระบบสรุปรายชื่อสถานีจาก queue_call_log ย้อนหลัง days วัน
-let STNC=null,STNt=0;
-async function loadStn(){if(STNC&&Date.now()-STNt<6e5)return STNC;const c=cfg(),seen=new Map(),
-    f=STN_CFG.table?`${STN_CFG.table}?select=station_id:${STN_CFG.id},station_name:${STN_CFG.name}`:`${QLOG_TABLE}?select=station_id,station_name&called_at=gte.${addD(iso(new Date()),-STN_CFG.days)}T00:00:00%2B07:00&order=called_at.desc`;
-  for(let o=0;o<5000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
-    if(!r.ok)throw new Error('station list HTTP '+r.status);const j=san(await r.json());j.forEach(x=>seen.set(stSk(x)+'|'+x.station_name,x));if(j.length<1000)break}
-  STNt=Date.now();return STNC=[...seen.values()]}
-function aggLog(rows,pick){const hrs=Array(24).fill(0),unm={};
-  rows.forEach(r=>{r._k=stKey(r);r._h=hourOf(r.called_at);const hi=+r._h;if(r._h!==''&&hi>=0&&hi<24)hrs[hi]++;if(!r._k){const u=String(r.station_name||r.station_id);unm[u]=(unm[u]||0)+1}});
-  let hh=pick||new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),fb=0;
-  if(!pick&&!hrs[+hh]){const later=hrs.slice(+hh+1).some(c=>c),p=(()=>{for(let i=+hh-1;i>=0;i--)if(hrs[i])return i;return -1})();if(!later&&p>=0){hh=String(p).padStart(2,'0');fb=1}}
-  const byKey={},rh=rows.filter(r=>r._h===hh&&r._k);
-  rows.forEach(r=>{if(!r._k)return;const b=byKey[r._k]||(byKey[r._k]={h:[],d:0});b.d++;if(r._h===hh)b.h.push(r)});
-  const pool=rh.filter(r=>/^(ex|hx)\d+$/.test(r._k));
-  return{hrs,hh,fb,sel:!!pick,byKey,unm,total:rows.length,rowsH:rows.filter(r=>r._h===hh),pool:pool.length?pool:rh}}
-const QTX={};
-function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false})}
-  const s=new THREE.Sprite(m);s.scale.set(3.3,1.24,1);s.renderOrder=8;return s}
-function addTag(g,text){const t=qtag(String(text)),k=g.userData.s||1;t.scale.multiplyScalar(1/k);t.position.set(0,1.7+.85/k,0);g.add(t)} // ป้ายเลขคิวลอยเหนือหัว ขนาดคงที่ไม่ขึ้นกับตัวเล็ก/ใหญ่
-async function loadQ(day){const c=cfg(),out=[],f=`${QLOG_TABLE}?select=called_at,station_id,station_name,queue_no&called_at=gte.${day}T00:00:00%2B07:00&called_at=lt.${addD(day,1)}T00:00:00%2B07:00&order=called_at.asc`;
-  for(let o=0;o<60000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
-    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error(QLOG_TABLE+' HTTP '+r.status+(m?' — '+m:''))}
-    const j=san(await r.json());out.push(...j);if(j.length<1000)break}
-  return out}
-function demoQ(day){const R=x=>Math.floor(Math.random()*x),nm=['ห้องบัตร',...Array.from({length:7},(_,i)=>'ซักประวัติ '+(i+1)),...Array.from({length:6},(_,i)=>'ห้องตรวจ '+(i+1)),'จ่ายยา','ห้องเก็บเงิน'],out=[];let q=0;
-  for(let h=7;h<=20;h++){const c=h===9||h===10?34+R(12):h>=12&&h<=13?10+R(8):16+R(14);for(let i=0;i<c;i++){const x=R(100),ix=x<8?0:x<28?1+R(7):x<86?8+R(6):x<93?14:15;q++;out.push({called_at:`${day}T${String(h).padStart(2,'0')}:${String(R(60)).padStart(2,'0')}:00+07:00`,station_id:ix+1,station_name:nm[ix],queue_no:'A'+String(q).padStart(3,'0')})}}
-  return out.sort((a,b)=>a.called_at<b.called_at?-1:1)}
 /* ป้ายลอยเหนือจุดบริการ */
 function label(sx,sy){const c=document.createElement('canvas');c.width=512;c.height=170;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(sx,sy,1);s.renderOrder=9;s.userData={c,t};return s}
 function paint(sp,l1,l2,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,8,496,154,26):x.rect(8,8,496,154);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle='#fff';x.font='700 56px "IBM Plex Sans Thai",sans-serif';x.fillText(l1,256,72);x.fillStyle=col;x.font='700 50px "IBM Plex Sans Thai",sans-serif';x.fillText(l2,256,138);sp.userData.t.needsUpdate=true}
 /* รายการจุดบริการ 13 จุด */
-/* ITEMS/XD/XR ประกาศไว้ด้านบน */ // XR (ประกาศไว้ด้านบน) = ตำแหน่ง z ห้องตรวจ 1→6 เรียงจากหน้าไปหลัง · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
-function reg(o,pw,ph,pd,ly,lw,lh){const g=new THREE.Group();g.position.set(o.x,0,o.z);RG.add(g);o.g=g;o.i=ITEMS.length;
+const ITEMS=[],pick=[],XD=[-13.5,-9,-4.5,0,4.5,9,13.5],XR=[-9,-3.8,1.4,6.6,11.8,17],ZD=17,RX=35,CASHP=1; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
+function reg(o,pw,ph,pd,ly,lw,lh){const g=new THREE.Group();g.position.set(o.x,0,o.z);SC.add(g);o.g=g;o.i=ITEMS.length;
   const pk=new THREE.Mesh(new THREE.BoxGeometry(pw,ph,pd),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pk.position.y=ph/2;pk.userData.i=o.i;g.add(pk);pick.push(pk);
   const lb=label(lw,lh);lb.position.y=ly;g.add(lb);o.lb=lb;ITEMS.push(o);return g}
 const statMat=()=>new THREE.MeshStandardMaterial({color:0x2fd08a,emissive:0x2fd08a,emissiveIntensity:.6,roughness:.4});
-function tplate(k,x,y,z){const l=label(5.4,1.8);l.position.set(x,y,z);RG.add(l);TP[k]=l}
-function buildScene(){
-  if(RG){SC.remove(RG);RG.traverse(o=>{if(o.isMesh&&o.geometry)o.geometry.dispose();const m=o.material;if(m&&m.map){m.map.dispose();m.dispose()}})}
-  RG=new THREE.Group();SC.add(RG);
-  [XD,XR,CHS,CHR,CHP,CHC,signs,ITEMS,pick].forEach(a=>a.length=0);for(const k in TP)delete TP[k];
-  const nd=ND,nr=NR,sp=Math.min(4.5,Math.max(3.3,34/Math.max(1,nd-1)));
-  for(let i=0;i<nd;i++)XD.push(+((i-(nd-1)/2)*sp).toFixed(2)); // โต๊ะซักประวัติเรียงกลางฉาก
-  for(let i=0;i<nr;i++)XR.push(+(17-5.2*i).toFixed(2)); // ห้องตรวจ 1 อยู่ z=17 (ตำแหน่งเดิมของห้อง 6) ถอยไปทีละ 5.2
-  const zb=XR[nr-1]-4.5,zmin=Math.min(-16,zb-2),zmax=26,dep=zmax-zmin,zc=(zmax+zmin)/2;ZMIN=zmin;DS=Math.max(1,dep/42);
-  /* พื้น / ผนัง (ขยายตามจำนวนโต๊ะ/ห้อง) */
-  ftex.repeat.set(42,dep/2);
-  const fl=new THREE.Mesh(new THREE.PlaneGeometry(84,dep),new THREE.MeshStandardMaterial({map:ftex,roughness:.9}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,zc);fl.receiveShadow=true;RG.add(fl);
-  box(86,.6,dep+2,0x13283b,0,-.31,zc);
-  const dw=Math.max(28,(nd-1)*sp+9),rz=22-zb,rc=(22+zb)/2;
-  box(22,.05,9,0xdceaf0,-31,.04,16);box(dw,.05,8,0xe3e8f3,0,.04,17);box(dw,.05,8,0xd9ebdf,0,.04,8.5);box(17,.05,rz,0xe8f2e4,31.5,.04,rc);box(36,.05,9,0xf0e8dc,3,.04,-11.5);
-  box(10,.05,10,0xf5e9c8,11,.045,0);box(10,.05,10,0xf5e9c8,-5,.045,0);
-  box(50,.04,.5,0x2fd08a,-14,.06,-7.2,null,{transparent:true,opacity:.4,emissive:0x2fd08a,emissiveIntensity:.4});box(3.2,.05,3.2,0x2fd08a,-40.2,.07,-12,null,{transparent:true,opacity:.5});
-  /* เก้าอี้นั่งรอ 16 ตัว (หน้าโต๊ะซักประวัติ) */
-  [7,10].forEach(z=>[-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5].forEach(x=>{box(.9,.12,.9,0x3f9fd0,x,.5,z);box(.9,.7,.12,0x3f9fd0,x,.95,z-.45);box(.16,.5,.16,0x8a97a3,x,.25,z);CHS.push([x,z])}));
-  XR.forEach(zr=>[28.8,26.4].forEach(cx=>[-1.1,1.1].forEach(d=>{chairAt(cx,zr+d,Math.PI/2);CHR.push([cx,zr+d])}))); // ห้องละ 4 ตัว
-  [[11,CHP],[-5,CHC]].forEach(([c0,arr])=>[-3.6,-1.2,1.2,3.6].forEach(z=>[-3,-1,1,3].forEach(dx=>{chairAt(c0+dx,z,Math.PI);arr.push([c0+dx,z])})));
-  /* ป้ายเขียว */
-  const zm=(XR[0]+XR[nr-1])/2;
-  sign(7,2,'ห้องบัตร','Registration',-30,6.4,12.2,0,1);
-  sign(8,2,'ซักประวัติ','History talking · '+nd+' โต๊ะ',0,6.8,12.6,0,1);
-  sign(7,2,'พื้นที่นั่งรอ','Waiting Area',0,5.8,3.2,0,1);
-  sign(10,2,'ห้องตรวจ','Examination Rooms · '+nr+' ห้อง',41.8,6.6,zm,-Math.PI/2,1);
-  sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,1);
-  sign(7,2,'ห้องเก็บเงิน','Cashier',-5,6.4,-15.9,0,1);
-  /* จุดบริการ */
 /* 0 ห้องบัตร */
 {const o={id:'reg',kind:'reg',name:'ห้องบัตร',en:'Registration',x:-30,z:17},g=reg(o,3.6,3,10.5,4.9,6,2);g.rotation.y=Math.PI/2;
   box(1.4,1.5,10,0x5b3a29,0,.75,0,g);box(1.9,.14,10.4,0xf4f4f0,0,1.57,0,g);box(.1,.9,10,0x111820,.5,2.1,0,g,{transparent:true,opacity:.55});
   
   o.stat=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,10.4),statMat());o.stat.position.set(.95,1.4,0);g.add(o.stat);
-  [[-40,10],[-40,7.5]].forEach(([x,z])=>{const k=new THREE.Group();k.position.set(x,0,z);RG.add(k);box(.9,2.6,.9,0xf6f2e6,0,1.3,0,k);box(.06,.8,.7,0x2fb2a0,-.46,2.0,0,k,{emissive:0x2fb2a0,emissiveIntensity:.8});box(1.1,.15,1.1,0x1d6b34,0,.08,0,k)})}
-/* โต๊ะซักประวัติ 1..ND */
+  [[-40,10],[-40,7.5]].forEach(([x,z])=>{const k=new THREE.Group();k.position.set(x,0,z);SC.add(k);box(.9,2.6,.9,0xf6f2e6,0,1.3,0,k);box(.06,.8,.7,0x2fb2a0,-.46,2.0,0,k,{emissive:0x2fb2a0,emissiveIntensity:.8});box(1.1,.15,1.1,0x1d6b34,0,.08,0,k)})}
+/* 1-7 โต๊ะซักประวัติ */
 XD.forEach((x,k)=>{const o={id:'hx'+(k+1),kind:'desk',no:k+1,name:'ซักประวัติ '+(k+1),en:'History talking · โต๊ะ '+(k+1),x,z:ZD},g=reg(o,3,3,3.4,3.7,3.5,1.18);
   box(2.8,1.05,1.3,0xf3f1ea,0,.52,0,g);box(1.1,.85,.5,0xf4b6cb,0,1.5,-.15,g);box(2.8,.06,.06,0xffe45c,0,1.08,.66,g);
   box(.9,.12,.9,0x3f9fd0,0,.55,-1.3,g);box(.9,.9,.12,0x3f9fd0,0,1.05,-1.8,g);
   o.stat=new THREE.Mesh(new THREE.BoxGeometry(2.8,.12,.18),statMat());o.stat.position.set(0,.05,.9);g.add(o.stat)});
-/* ห้องตรวจ 1..NR */
+/* 6-11 ห้องตรวจ */
 XR.forEach((x,k)=>{const o={id:'ex'+(k+1),kind:'room',no:k+1,name:'ห้องตรวจ '+(k+1),en:'Examination room '+(k+1),x:RX,z:x},g=reg(o,4.2,3.2,4.2,4.2,4.2,1.4);g.rotation.y=-Math.PI/2;
   box(4.2,.1,4,0xe9f0f4,0,.05,0,g);box(4.2,3,.15,0xf7f9fb,0,1.5,-2,g);box(.15,3,4,0xf7f9fb,-2.1,1.5,0,g);box(.15,3,4,0xf7f9fb,2.1,1.5,0,g);
   box(1.2,3,.15,0xf7f9fb,-1.5,1.5,2,g);box(1.2,3,.15,0xf7f9fb,1.5,1.5,2,g);
@@ -889,14 +815,11 @@ XR.forEach((x,k)=>{const o={id:'ex'+(k+1),kind:'room',no:k+1,name:'ห้อง�
   box(1.8,1.2,8,o.c[0],0,.6,0,g);box(1.2,3.6,8,o.c[1],2.1,1.8,0,g);box(.15,1.5,2.2,o.c[2],-.95,1.9,0,g,{emissive:o.c[2],emissiveIntensity:.45});
   o.stat=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,8),statMat());o.stat.position.set(-.95,1.3,0);g.add(o.stat)});
 /* ทางเข้า-ออก */
-{const a=label(3.4,1.15);a.position.set(-41,2.2,14);paint(a,'ทางเข้า','Entrance','#27c4cf');RG.add(a);const b=label(3.4,1.15);b.position.set(-40,2.2,-12);paint(b,'ทางออก','Exit','#27c4cf');RG.add(b)}
-  /* วงความหนาแน่นใต้จุดบริการ (สีตามจำนวนครั้งที่เรียกคิวในชั่วโมงที่เลือก) */
-  HPAD=ITEMS.map(o=>{const r=o.kind==='reg'?4.4:o.kind==='room'?2.9:o.kind==='desk'?2.4:3,m=new THREE.Mesh(new THREE.CircleGeometry(r,40),new THREE.MeshBasicMaterial({color:0x2fd08a,transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(o.x,.13,o.z);RG.add(m);return m});
-  tplate('reg',-30,4.4,12.2);tplate('desk',0,5.4,12.6);tplate('room',40.4,5.2,zm);tplate('ph',11,4.8,-15.6);tplate('exit',-38.6,4.3,-12);
-}
-const IT=id=>ITEMS.find(o=>o.id===id)||{st:'ok'};
+{const a=label(3.4,1.15);a.position.set(-41,2.2,14);paint(a,'ทางเข้า','Entrance','#27c4cf');SC.add(a);const b=label(3.4,1.15);b.position.set(-40,2.2,-12);paint(b,'ทางออก','Exit','#27c4cf');SC.add(b)}
+const TP={};
+function tplate(k,x,y,z){const l=label(5.4,1.8);l.position.set(x,y,z);SC.add(l);TP[k]=l}
+tplate('reg',-30,4.4,12.2);tplate('desk',0,5.4,12.6);tplate('room',40.4,5.2,5);tplate('ph',11,4.8,-15.6);tplate('exit',-38.6,4.3,-12);
 function paintT(sp,txt,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,24,496,122,30):x.rect(8,24,496,122);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle=col;x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(txt,256,102);sp.userData.t.needsUpdate=true}
-buildScene();
 const selR=new THREE.Mesh(new THREE.RingGeometry(2.4,2.7,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.85}));selR.rotation.x=-Math.PI/2;selR.position.y=.12;selR.visible=false;SC.add(selR);
 /* คิวผู้ป่วย (1 รูป = unit ราย) */
 const qG=new THREE.Group();SC.add(qG);let unit=1;
@@ -905,19 +828,13 @@ function qpos(o,k){const c=k%2,r=Math.floor(k/2);
   if(o.kind==='room')return[o.x-11.8-r*.85,o.z+(c?.55:-.55)];
   if(o.kind==='ph'||o.kind==='cash')return[o.x+(c?.8:-.8),o.z+2.4+r*.85];
   return[-35+k*1.2,14.5]}
-function drawCrowd(){while(qG.children.length)qG.remove(qG.children[0]);if(!LG)return;
-  const mx=Math.max(1,...ITEMS.map(o=>(LG.byKey[o.id]||{h:[]}).h.length));unit=Math.max(1,Math.ceil(mx/10)); // 1 ตัวที่ยืนรอ = unit ครั้งที่เรียก
-  ITEMS.forEach(o=>{const rs=(LG.byKey[o.id]||{h:[]}).h,f=Math.min(10,Math.ceil(rs.length/unit));
-    for(let k=0;k<f;k++){const r=rs[rs.length-1-k],[x,z]=qpos(o,k),q=r.queue_no,g=human(SHIRT[hsh(q)%SHIRT.length],kindQ(q),hsh(q));
-      g.position.set(x,0,z);g.rotation.y=o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0;addTag(g,q);qG.add(g)}})}
-function renderQ(){const q=$('#vq');if(!LG){q.style.display='none';return}q.style.display='';const mx=Math.max(1,...LG.hrs),last=LG.rowsH.slice(-5).reverse();
-  q.innerHTML=`<div class="qh"><b>คิวที่เรียก ${LG.hh}:00 น.</b><span>${fm(LG.rowsH.length)} ครั้ง · ทั้งวัน ${fm(LG.total)}</span></div><div class="qb">${LG.hrs.map((c,h)=>{const s=String(h).padStart(2,'0');return `<i data-h="${s}" class="${s===LG.hh?'on':''}" style="height:${Math.max(c?8:2,c/mx*100)}%" title="${s}:00 · ${c} ครั้ง"></i>`}).join('')}</div><div class="qa"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div><div class="ql">${last.length?last.map(r=>`<div><span>${hmOf(r.called_at)} · ${r.station_name||r.station_id}</span><b>${r.queue_no}</b></div>`).join(''):'<div><span>ไม่มีการเรียกคิวในชั่วโมงนี้</span></div>'}</div><div class="lg2"><span><i style="background:#2fd08a"></i>เบาบาง</span><span><i style="background:#f5b441"></i>ปานกลาง</span><span><i style="background:#ff5d4a"></i>หนาแน่น</span></div>`;
-  q.querySelectorAll('.qb i').forEach(e=>e.onclick=()=>{$('#vhr').value=e.dataset.h;resetScene()})}
+function drawQueues(){while(qG.children.length)qG.remove(qG.children[0]);
+  ITEMS.forEach(o=>{const f=Math.min(8,Math.ceil((o.cnt||0)/unit));for(let k=0;k<f;k++){const[x,z]=qpos(o,k);person(o.kind==='room'?0x3f9fd0:o.kind==='ph'?0x2fb27a:o.kind==='cash'?0xf5a623:0x27c4cf,x,z,qG,o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0,k*31+Math.round(x*7+z*13)+o.id.length*17)}})}
 /* ผู้ป่วยเดินในโรงพยาบาล */
 const pats=[],pm=new THREE.MeshStandardMaterial({color:0x27c4cf,roughness:.5,emissive:0x0a5a62,emissiveIntensity:.4});
 let RT=(()=>{try{return localStorage.getItem('v3rt')!=='0'}catch(e){return true}})(); // โหมดเวลาจริง (เปิดเป็นค่าเริ่มต้น)
 let baseEvery=6,W2={reg:2,c1:3,tri:3,ec:2,room:4,pc:2,pc1:2,cc:2,cash:3,pc2:2,rec:3}; // W2 = เวลานั่งรอ/รับบริการของแต่ละจุด (วินาที)
-let LG=null,lgc=0,M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,targetPop=20,WT={reg:2,desk:3,q:2,room:4,ph:3};
+let M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,targetPop=20,WT={reg:2,desk:3,q:2,room:4,ph:3};
 const pmF=new THREE.MeshStandardMaterial({color:0xf5b441,roughness:.5,emissive:0x8a5a00,emissiveIntensity:.5});let flowT=0;
 function mk(P,m,j){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,m),h=new THREE.Mesh(headG,m);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
 function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;let P;
@@ -928,7 +845,7 @@ function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;le
 let simT=0,pn=0;
 /* ระบบคิว: GQ = คิวเรียกตัวต่อไปของแต่ละแผนก (เรียงตามลำดับมาถึง FIFO · เดินทีละตัว ห่างกัน ≥2 วินาที) · SO = จำนวนคนที่ใช้จุดบริการอยู่ · CAP = ช่องบริการสูงสุด (ห้องตรวจ/โต๊ะซักประวัติ = 1) · OC = จำนวนคนนั่งในเก้าอี้แต่ละตัว */
 const GQ={},SO={},OC={},CAP={reg:2,ph:3,ca:2};
-function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.5,row=LG&&LG.pool.length?LG.pool[lgc++%LG.pool.length]:null,isH=!!row&&/^hx\d+$/.test(row._k||""),dk=isH?Math.min(+row._k.slice(2),ND)-1:null,ri=row&&/^ex\d+$/.test(row._k||"")?Math.min(+row._k.slice(2),NR)-1:rcn++%NR,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
+function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.5,ri=rcn++%6,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
   /* รูปแบบจุดหยุด T = [x,z,รอ(วิ),นั่ง?,ประตูคิว,ทิศหน้า,จองจุดบริการ,คืนจุดบริการ,รายการเก้าอี้(เลือกตัวว่างอัตโนมัติ),เริ่ม,จำนวน]
      ทางเข้า → ห้องบัตร → เก้าอี้รอซักประวัติ → โต๊ะซักประวัติ → เก้าอี้หน้าห้องตรวจ → ห้องตรวจ → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา → เก้าอี้ห้องเก็บเงิน → เคาน์เตอร์ห้องเก็บเงิน → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา(รับยา) → ทางออก
      ทุกแผนก: เรียกจากเก้าอี้ทีละคนตามคิว เดินทีละตัว และต้องมีช่องบริการว่างก่อน */
@@ -936,12 +853,7 @@ function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.
     [0,0,W2.ec,1,'rm'+ri,Math.PI/2,null,null,'CHR',ri*4,4],[RX-3.8,zr,0,0,null,null,'r'+ri],[RX-.4,zr,W2.room,0,null,Math.PI/2,null,'r'+ri],[RX-3.8,zr,0],
     [0,0,W2.pc,1,'ph1',Math.PI,null,null,'CHP'],[phX,sy,W2.pc1,0,null,Math.PI,'ph','ph'],[0,0,W2.cc,1,'ca',Math.PI,null,null,'CHC'],[caX,sy,W2.cash,0,'ca2',Math.PI,'ca','ca'],
     [0,0,W2.pc2,1,'ph2',Math.PI,null,null,'CHP'],[phX,sy,W2.rec,0,null,Math.PI,'ph','ph'],[11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]];
-  let P2=P;
-  if(row){const out=[[-13.2,9.5,0],[-13.2,-7.2,0],[-37,-7.2,0],[-41.5,-12,0]];
-    if(isH)P2=P.slice(0,6).concat(out); // แถว station_name = ซักประวัติ N → เดินไปโต๊ะ N แล้วออก
-    else P2=P.slice(0,3).concat(P.slice(6)); // แถว station_name = ห้องตรวจ N → เดินไปห้อง N ตรงๆ
-    P2[2][2]=6;if(isH)P2[3][2]=6;else P2[3][2]=6} // เลขคิวถูกเรียกแล้ว: นั่งรอสั้นๆ แล้วเดินไปทันที
-  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P2,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);w.dk=dk;addTag(w.g,w.q)}}
+  const kind=(pn++%20)===9?'c':(Math.random()<.5?'m':'f'),sd=(Math.random()*1e5)|0;mkWalker(P,j,kind,SHIRT[sd%SHIRT.length],sd)}
 /* สร้างตัวละครเดินหนึ่งตัวจากเส้นทาง P (ใช้ทั้งตอนเกิดใหม่และตอนกู้คืนสถานะ) */
 function mkWalker(P,j,kind,shirt,sd){const g=human(shirt,kind,sd);g.position.set(P[0][0],0,P[0][1]);SC.add(g);const p={g,P,i:1,w:0,j,sp:3+Math.random()*.8,kind,shirt,seed:sd,ph0:Math.random()*6};pats.push(p);return p}
 function sitP(p,on){p.sit=on?1:0;p.g.position.y=on?Math.max(0,.62-.7*(p.g.userData.s||1)):0} // นั่ง: ยกตัวเด็กให้ถึงเบาะ
@@ -953,8 +865,8 @@ function pickChair(p,T){const L=T[8]==='CHS'?CHS:T[8]==='CHP'?CHP:T[8]==='CHC'?C
   oc[b]++;p.cl=T[8];p.ci=b;T[0]=L[b][0];T[1]=L[b][1];T.r=1}
 function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefined)p.tk=g.n++;
   if(p.tk!==g.s||simT<g.t||(g.w&&g.w.mv&&p.gk!=='ex'))return false; // ถึงคิวของตัวเอง + ห่างจากตัวก่อน ≥2 วินาที + ตัวก่อนเดินถึงที่หมายแล้ว
-  if(p.gk==='tri'){let k=-1;if(p.dk!=null&&p.dk>=0&&p.dk<XD.length){if(!SO['d'+p.dk])k=p.dk}else for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
-    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,p.dk!=null?W2.tri||3:3,1,null,0,null,'d'+k]}
+  if(p.gk==='tri'){let k=-1;for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
+    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,3,1,null,0,null,'d'+k]}
   else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
   g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
 function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
@@ -966,11 +878,11 @@ function step(dt){simT+=dt;spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats
     if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
     else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
 /* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
-const WKEY='v3walk12',WTTL=6e5;let warmed=false;
-function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,nd:ND,nr:NR,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,q:p.q||null,dk:p.dk==null?null:p.dk,s:p.sit?1:0}))}))}catch(e){}}
-function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0)||o.nd!==ND||o.nr!==NR)return false;
+const WKEY='v3walk10',WTTL=6e5;let warmed=false;
+function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,s:p.sit?1:0}))}))}catch(e){}}
+function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0))return false;
   dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
-  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.dk!=null)w.dk=q.dk;if(q.q){w.q=q.q;addTag(w.g,q.q)}if(q.s)sitP(w,1)});
+  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.s)sitP(w,1)});
   return pats.length>0}catch(e){return false}}
 function warmW(){if(warmed)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
@@ -1003,14 +915,14 @@ const stt=(w,tg)=>w==null?'ok':w<=tg?'ok':w<=tg*1.3?'warn':'bad';
 const split=(t,k)=>Array.from({length:k},(_,i)=>Math.floor(t/k)+(i<t%k?1:0));
 function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_daily),dis=n(d.ipd_discharged_daily),net=Math.max(opd-adm-dis,0);
   const tri=val(d.avg_wait_reg_to_triage),doc=val(d.avg_wait_for_doctor),con=val(d.avg_doctor_consult_time),pha=val(d.avg_wait_for_pharmacy),tot=val(d.avg_total_process_time);
-  const dk=split(net,ND),rm=split(net,NR),mn=v=>v==null?'-':fm(v,1)+' นาที';
+  const dk=split(net,7),rm=split(net,6),mn=v=>v==null?'-':fm(v,1)+' นาที';
   const info=ITEMS.map(o=>{
     if(o.kind==='reg')return{cnt:opd,big:opd,st:'ok',u:'ราย (เปิดบัตรวันนี้)',rows:[['ผู้ป่วยนอกทั้งหมด',fm(opd)+' ราย'],['หัก: รับเป็นผู้ป่วยใน','− '+fm(adm)+' ราย'],['หัก: จำหน่ายออก','− '+fm(dis)+' ราย'],['คงเหลือเข้าระบบตรวจ',fm(net)+' ราย'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]};
-    if(o.kind==='desk')return{cnt:dk[o.no-1],tm:tri,big:tri==null?'-':fm(tri,1),st:tri==null?'na':stt(tri,TG.triage),u:'นาที (รอคัดกรอง/ซักประวัติ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน '+ND+' โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
-    if(o.kind==='room')return{cnt:rm[o.no-1],tm:doc,big:doc==null?'-':fm(doc,1),st:doc==null?'na':stt(doc,TG.doctor),u:'นาที (รอพบแพทย์)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน '+NR+' ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
+    if(o.kind==='desk')return{cnt:dk[o.no-1],tm:tri,big:tri==null?'-':fm(tri,1),st:tri==null?'na':stt(tri,TG.triage),u:'นาที (รอคัดกรอง/ซักประวัติ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน 7 โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
+    if(o.kind==='room')return{cnt:rm[o.no-1],tm:doc,big:doc==null?'-':fm(doc,1),st:doc==null?'na':stt(doc,TG.doctor),u:'นาที (รอพบแพทย์)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน 6 ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
     if(o.kind==='cash'){const c=Math.round(net*CASHP);return{cnt:c,big:'-',st:'na',u:'ยังไม่มีเวลาในระบบ',rows:[['ผู้ใช้บริการชำระเงิน (ประมาณ)',fm(c)+' ราย'],['สัดส่วน',fm(CASHP*100)+'% ของผู้ป่วยนอก'],['เวลารอ','ยังไม่มีข้อมูลในระบบ']]}}
     return{cnt:net,tm:pha,big:pha==null?'-':fm(pha,1),st:pha==null?'na':stt(pha,TG.pharm),u:'นาที (รอรับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
-  return{opd,adm,dis,net,info,per5:net/ND,per6:net/NR}}
+  return{opd,adm,dis,net,info,per5:net/7,per6:net/6}}
 function select(i){sel=i;const o=ITEMS[i];
   document.querySelectorAll('#vlist button').forEach((b,k)=>b.classList.toggle('on',k===i));
   $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${o.big}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
@@ -1021,29 +933,17 @@ function hourOPD(D){const pick=document.querySelector('#vhr')?document.querySele
   rows=(D.oh||[]).map(r=>({h:String(r.time_hour||'').slice(0,2),c:n(r.service_count)}));
   let r=rows.find(x=>x.h===hh);if(!r){const later=pick||rows.some(x=>x.h>hh),p=rows.filter(x=>x.h<hh).sort((a,b)=>a.h<b.h?1:-1)[0];r=later||!p?{h:hh,c:0}:{h:p.h,c:p.c,fb:1}}if(pick)r.sel=1;return r} // ชั่วโมงที่ไม่มีแถวแต่มีข้อมูลชั่วโมงหลังจากนั้น = 0 ราย · ถ้ายังไม่มีข้อมูลชั่วโมงนี้เลย (ข้อมูลยังไม่เข้า) ใช้ชั่วโมงล่าสุด
 function build(D){
-  {const sc=learnStations((D.stn||[]).concat(D.q||[])),nd=sc.hx||ND,nr=sc.ex||NR; // จำนวนโต๊ะ/ห้องตามฐานข้อมูล เพิ่ม-ลดฉากอัตโนมัติ
-   if(nd!==ND||nr!==NR){ND=nd;NR=nr;sel=null;selR.visible=false;wipe();buildScene();HOME.t[2]=3+Math.min(0,(ZMIN+16)/2);if(!camTouched){tgt.set(...HOME.t);resize()}}
-   const sb=document.querySelector('#v3sub');if(sb)sb.textContent='ห้องบัตร → ซักประวัติ '+ND+' โต๊ะ → ห้องตรวจ '+NR+' ห้อง → จ่ายยา 1 ช่อง'}
   M=derive(D);const m=model(D);M.m=m;
   const hrO=hourOPD(D);M.hr=hrO;targetPop=Math.max(0,Math.min(60,Math.round(hrO.c)));
-  LG=D.q?aggLog(D.q,document.querySelector('#vhr').value):null;M.lg=LG;if(LG)targetPop=Math.min(60,LG.pool.length);
   (m.info[0].rows||(m.info[0].rows=[])).push(['OPD ชั่วโมง '+hrO.h+':00'+(hrO.sel?' (เลือกเอง)':hrO.fb?' (ล่าสุด)':''),fm(hrO.c)+' ราย → แสดง '+fm(targetPop)+' ตัว']);
-  const mxL=LG?Math.max(1,...ITEMS.map(o=>(LG.byKey[o.id]||{h:[]}).h.length)):1;
-  ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);let dk=o.st;
-    if(LG){const bq=LG.byKey[o.id]||{h:[],d:0},l=bq.h[bq.h.length-1];o.qh=bq.h.length;o.cnt=o.qh;o.dr=o.qh/mxL;dk=!o.qh?'na':o.dr<.34?'ok':o.dr<.67?'warn':'bad';
-      o.rows=[['เรียกคิว ชั่วโมง '+LG.hh+':00',fm(o.qh)+' ครั้ง'],['เรียกคิวทั้งวัน',fm(bq.d)+' ครั้ง'],['คิวล่าสุดที่เรียก',l?l.queue_no+' · '+hmOf(l.called_at)+' น.':'-'],['ความหนาแน่น',fm(o.dr*100)+'% ของจุดที่แน่นที่สุด'],...f.rows];
-      HPAD[k].material.color.setHex(COL[dk]);HPAD[k].material.opacity=o.qh?.2+o.dr*.4:0}
-    else HPAD[k].material.opacity=0;
-    o.lbl=LG?fm(o.cnt)+' คิว ('+LG.hh+':00)':(o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที'));o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
-    if(LG)paint(o.lb,o.name,fm(o.cnt)+' คิว',CSS[dk]);
-    else (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
-  drawCrowd();renderQ();
+  ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);o.lbl=o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที');o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
+    (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
   signs.forEach(paintSign);
   {const d=D.d,tm=(v,t)=>v==null?'รอข้อมูลเวลา':t+' '+fm(v,1)+' นาที';
    paintT(TP.reg,'เปิดบัตร '+fm(m.opd)+' ราย','#27c4cf');
-   paintT(TP.desk,tm(val(d.avg_wait_reg_to_triage),'รอคัดกรอง'),CSS[IT('hx1').st]);
-   paintT(TP.room,tm(val(d.avg_wait_for_doctor),'รอพบแพทย์'),CSS[IT('ex1').st]);
-   paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[IT('ph').st]);
+   paintT(TP.desk,tm(val(d.avg_wait_reg_to_triage),'รอคัดกรอง'),CSS[ITEMS[1].st]);
+   paintT(TP.room,tm(val(d.avg_wait_for_doctor),'รอพบแพทย์'),CSS[ITEMS[6].st]);
+   paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[ITEMS[12].st]);
 {const tt=val(d.avg_total_process_time);paintT(TP.exit,tt==null?'รอข้อมูลเวลา':'เฉลี่ย '+fm(tt,1)+' นาที',tt==null?'#27c4cf':CSS[stt(tt,TG.total)])}}
   
   const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
@@ -1051,21 +951,17 @@ function build(D){
   {const mm=(v,d)=>v==null?d:v,pa=mm(pha,10);
    W2=RT?{reg:60,c1:mm(tri,10)*60,tri:120,ec:mm(doc,5)*60,room:mm(con,5)*60,pc:pa*30,pc1:45,cc:pa*15,cash:90,pc2:pa*15,rec:60}
         :{reg:WT.reg,c1:WT.desk,tri:3,ec:2,room:WT.room,pc:2,pc1:2,cc:2,cash:3,pc2:2,rec:WT.ph};
-   baseEvery=RT?(LG?(LG.pool.length?3600/LG.pool.length:1e9):hrO.c>0?3600/hrO.c:1e9):Math.min(8,Math.max(6,.5+120/Math.max(M.opd,40)*.6));spawnEvery=baseEvery} /* ไม่ให้คนมาถึงห้องยาเร็วกว่าอัตราเรียกทีละคน (~2 วินาที) จะได้ไม่แออัดที่เก้าอี้ */warmW();
+   baseEvery=RT?(hrO.c>0?3600/hrO.c:1e9):Math.min(8,Math.max(6,.5+120/Math.max(M.opd,40)*.6));spawnEvery=baseEvery} /* ไม่ให้คนมาถึงห้องยาเร็วกว่าอัตราเรียกทีละคน (~2 วินาที) จะได้ไม่แออัดที่เก้าอี้ */warmW();
   $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
   document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
   $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.sel?' (เลือกเอง)':M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย'+(RT?' → โหมดเวลาจริง: เข้าทุก ~'+(M.hr.c>0?fm(60/M.hr.c,1):'-')+' นาที นั่งรอตามเวลาจริง (ซักประวัติ '+fm(W2.c1/60,1)+' · ห้องตรวจ '+fm(W2.ec/60,1)+' · รับยา '+fm((W2.pc+W2.cc+W2.pc2)/60,1)+' นาที)':' → ในฉาก '+fm(targetPop)+' ตัว (จำลองเร็ว)');
-  if(D.qerr)$('#vmsg').textContent='โหลด '+QLOG_TABLE+' ไม่สำเร็จ ('+D.qerr+') — ใช้สถิติรายชั่วโมงแทน'+(/404|403/.test(D.qerr)?' · ต้องเพิ่ม '+QLOG_TABLE+' ในรายการตารางที่ตัวกลาง /api/sb อนุญาต':'');
-  else if(LG){const um=Object.keys(LG.unm);$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+'queue_call_log '+D.day+' ชั่วโมง '+LG.hh+':00'+(LG.sel?' (เลือกเอง)':LG.fb?' (ล่าสุด)':'')+' = '+fm(LG.rowsH.length)+' ครั้ง · คนยืนรอ 1 ตัว = '+fm(unit)+' ครั้ง'+(RT?' · เข้าทุก ~'+(LG.pool.length?fm(60/LG.pool.length,1):'-')+' นาที':'')+(um.length?' · ไม่รู้จักสถานี: '+um.slice(0,3).join(', '):'')}
-  $('#vmsg').textContent+=(LG||D.qerr?' · ':'')+'โต๊ะซักประวัติ '+ND+' · ห้องตรวจ '+NR;
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
 $('#vgo').onclick=load;
-function wipe(){pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}}
-const resetScene=()=>{wipe();if(window._D)build({...window._D})};
+const resetScene=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})};
 $('#vhr').onchange=resetScene;
 const rtLook=()=>{$('#rtbtn').classList.toggle('on',RT);$('#rtbtn').textContent=RT?'⏱ เวลาจริง: เปิด':'⏱ จำลองเร็ว'};rtLook();
 $('#rtbtn').onclick=()=>{RT=!RT;try{localStorage.setItem('v3rt',RT?'1':'0')}catch(e){}rtLook();resetScene()}; // เลือกชั่วโมงใหม่ → เริ่มฉากใหม่ตามจำนวนคนของชั่วโมงนั้น
@@ -1073,7 +969,7 @@ $('#vzi').onclick=()=>{camTouched=true;rad=Math.max(16,rad*.85)};$('#vzo').oncli
 $('#vzr').onclick=()=>{camTouched=false;resize();rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
 let lastSync=null;window.v3sync=d=>{if(d&&d!==lastSync){lastSync=d;$('#vday').value=d;load()}};
 document.fonts.ready.then(()=>{if(M)build({...window._D})});
-function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix();if(!camTouched)HOME.rad=rad=Math.max(56,Math.min(150*DS,128*DS/(w/h)))} /* ระยะกล้องพอดีกับความกว้างกรอบ ฉากเต็มกรอบ */ if(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
+function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix();if(!camTouched)HOME.rad=rad=Math.max(56,Math.min(150,128/(w/h)))} /* ระยะกล้องพอดีกับความกว้างกรอบ ฉากเต็มกรอบ */ if(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
 const clock=new THREE.Clock();
 (function tick(){requestAnimationFrame(tick);if(!vis)return;const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
   cam();
