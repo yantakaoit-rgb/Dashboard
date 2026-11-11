@@ -776,6 +776,7 @@ const kindOf=n=>{n=Math.abs(n|0);return n%20===7?'c':(n%2?'m':'f')}; // เด�
 function person(c,x,z,par,ry,seed){const g=human(c,kindOf(seed|0),seed);g.position.set(x,0,z);g.rotation.y=ry||0;(par||SC).add(g);return g}
 
 /* ===== queue_call_log: called_at, station_id, station_name, queue_no ===== */
+const QLOG_TABLE='queue_call_log'; // ชื่อตาราง/วิวที่อ่านคิว (ถ้าตัวกลาง /api/sb อนุญาตเฉพาะบางชื่อ ให้สร้างวิวชื่อที่อนุญาตแล้วใส่ที่นี่ เช่น 'hospital_queue_call_log')
 const QSID={}; // กำหนดเองได้: station_id → รหัสจุด เช่น {1:'reg',11:'hx1',21:'ex1',31:'ph',32:'cash'} (ถ้าไม่กำหนดจะแยกจาก station_name)
 const hsh=s=>{s=String(s==null?'':s);let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
 const kindQ=q=>{const h=hsh(q);return h%20===7?'c':(h%2?'m':'f')}; // เลขคิวเดิม = ตัวการ์ตูนหน้าตาเดิมเสมอ
@@ -803,7 +804,7 @@ function learnStations(rows){const R={ex:new Map(),hx:new Map()};
 const STN_CFG={table:'',id:'station_id',name:'station_name',days:14}; // ถ้ามีตารางสถานีโดยเฉพาะ ใส่ชื่อตารางที่ table (เช่น 'stations') ไม่เช่นนั้นระบบสรุปรายชื่อสถานีจาก queue_call_log ย้อนหลัง days วัน
 let STNC=null,STNt=0;
 async function loadStn(){if(STNC&&Date.now()-STNt<6e5)return STNC;const c=cfg(),seen=new Map(),
-    f=STN_CFG.table?`${STN_CFG.table}?select=station_id:${STN_CFG.id},station_name:${STN_CFG.name}`:`queue_call_log?select=station_id,station_name&called_at=gte.${addD(iso(new Date()),-STN_CFG.days)}T00:00:00%2B07:00&order=called_at.desc`;
+    f=STN_CFG.table?`${STN_CFG.table}?select=station_id:${STN_CFG.id},station_name:${STN_CFG.name}`:`${QLOG_TABLE}?select=station_id,station_name&called_at=gte.${addD(iso(new Date()),-STN_CFG.days)}T00:00:00%2B07:00&order=called_at.desc`;
   for(let o=0;o<5000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
     if(!r.ok)throw new Error('station list HTTP '+r.status);const j=san(await r.json());j.forEach(x=>seen.set(stSk(x)+'|'+x.station_name,x));if(j.length<1000)break}
   STNt=Date.now();return STNC=[...seen.values()]}
@@ -819,9 +820,9 @@ const QTX={};
 function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false})}
   const s=new THREE.Sprite(m);s.scale.set(3.3,1.24,1);s.renderOrder=8;return s}
 function addTag(g,text){const t=qtag(String(text)),k=g.userData.s||1;t.scale.multiplyScalar(1/k);t.position.set(0,1.7+.85/k,0);g.add(t)} // ป้ายเลขคิวลอยเหนือหัว ขนาดคงที่ไม่ขึ้นกับตัวเล็ก/ใหญ่
-async function loadQ(day){const c=cfg(),out=[],f=`queue_call_log?select=called_at,station_id,station_name,queue_no&called_at=gte.${day}T00:00:00%2B07:00&called_at=lt.${addD(day,1)}T00:00:00%2B07:00&order=called_at.asc`;
+async function loadQ(day){const c=cfg(),out=[],f=`${QLOG_TABLE}?select=called_at,station_id,station_name,queue_no&called_at=gte.${day}T00:00:00%2B07:00&called_at=lt.${addD(day,1)}T00:00:00%2B07:00&order=called_at.asc`;
   for(let o=0;o<60000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
-    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error('queue_call_log HTTP '+r.status+(m?' — '+m:''))}
+    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error(QLOG_TABLE+' HTTP '+r.status+(m?' — '+m:''))}
     const j=san(await r.json());out.push(...j);if(j.length<1000)break}
   return out}
 function demoQ(day){const R=x=>Math.floor(Math.random()*x),nm=['ห้องบัตร',...Array.from({length:7},(_,i)=>'ซักประวัติ '+(i+1)),...Array.from({length:6},(_,i)=>'ห้องตรวจ '+(i+1)),'จ่ายยา','ห้องเก็บเงิน'],out=[];let q=0;
@@ -1056,7 +1057,7 @@ function build(D){
   {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
   $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
   $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.sel?' (เลือกเอง)':M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย'+(RT?' → โหมดเวลาจริง: เข้าทุก ~'+(M.hr.c>0?fm(60/M.hr.c,1):'-')+' นาที นั่งรอตามเวลาจริง (ซักประวัติ '+fm(W2.c1/60,1)+' · ห้องตรวจ '+fm(W2.ec/60,1)+' · รับยา '+fm((W2.pc+W2.cc+W2.pc2)/60,1)+' นาที)':' → ในฉาก '+fm(targetPop)+' ตัว (จำลองเร็ว)');
-  if(D.qerr)$('#vmsg').textContent='โหลด queue_call_log ไม่สำเร็จ ('+D.qerr+') — ใช้สถิติรายชั่วโมงแทน'+(/404|403/.test(D.qerr)?' · ต้องเพิ่ม queue_call_log ในรายการตารางที่ตัวกลาง /api/sb อนุญาต':'');
+  if(D.qerr)$('#vmsg').textContent='โหลด '+QLOG_TABLE+' ไม่สำเร็จ ('+D.qerr+') — ใช้สถิติรายชั่วโมงแทน'+(/404|403/.test(D.qerr)?' · ต้องเพิ่ม '+QLOG_TABLE+' ในรายการตารางที่ตัวกลาง /api/sb อนุญาต':'');
   else if(LG){const um=Object.keys(LG.unm);$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+'queue_call_log '+D.day+' ชั่วโมง '+LG.hh+':00'+(LG.sel?' (เลือกเอง)':LG.fb?' (ล่าสุด)':'')+' = '+fm(LG.rowsH.length)+' ครั้ง · คนยืนรอ 1 ตัว = '+fm(unit)+' ครั้ง'+(RT?' · เข้าทุก ~'+(LG.pool.length?fm(60/LG.pool.length,1):'-')+' นาที':'')+(um.length?' · ไม่รู้จักสถานี: '+um.slice(0,3).join(', '):'')}
   $('#vmsg').textContent+=(LG||D.qerr?' · ':'')+'โต๊ะซักประวัติ '+ND+' · ห้องตรวจ '+NR;
   if(sel!=null)select(sel)}
