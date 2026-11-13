@@ -1,0 +1,1236 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Hospital Yantakhao Management Dashboard </title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#0e2235;--teal:#0b7a8a;--tl:#14a3a8;--paper:#f2f6f9;--line:#dce6ee;--mut:#5d7186;--amber:#e9a23b;--coral:#e2563c;--green:#2f9e6b}
+*{box-sizing:border-box;margin:0}
+body{font-family:'IBM Plex Sans Thai','Noto Sans Thai',system-ui,sans-serif;background:var(--paper);color:var(--ink);font-size:14px;font-variant-numeric:tabular-nums}
+header{background:linear-gradient(110deg,var(--ink) 40%,#0f4a5c);color:#fff;padding:18px clamp(14px,3vw,36px)}
+.top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;max-width:1480px;margin:auto}
+.brand{display:flex;gap:14px;align-items:center}
+.logo{width:48px;height:48px;border-radius:12px;background:#ffffff1c;display:grid;place-items:center;font-size:26px;overflow:hidden}.logo img{width:100%;height:100%;object-fit:contain;background:#fff}
+h1{font-size:clamp(18px,2.4vw,26px);font-weight:700;letter-spacing:.2px}header small{opacity:.7;font-size:12.5px}
+.ctl{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.ctl button,.ctl input{font:inherit;font-size:13px;padding:7px 12px;border-radius:8px;border:1px solid #ffffff30;background:#ffffff14;color:#fff;cursor:pointer}
+.ctl button.on{background:#fff;color:var(--ink);font-weight:600}.ctl input{color-scheme:dark;cursor:text}
+.ctl button:focus-visible,.ctl input:focus-visible{outline:2px solid var(--amber)}
+#msg{max-width:1480px;margin:10px auto 0;padding:0 clamp(14px,3vw,36px);color:#8a5a00;font-size:13px}#msg:empty{display:none}
+main{display:grid;grid-template-columns:repeat(12,1fr);gap:16px;padding:18px clamp(14px,3vw,36px) 36px;max-width:1480px;margin:auto}
+.s{background:#fff;border:1px solid var(--line);border-radius:14px;padding:18px;grid-column:span 4;min-width:0}
+.w12{grid-column:span 12}.w8{grid-column:span 8}.w6{grid-column:span 6}
+@media(max-width:1100px){.s,.w8,.w6{grid-column:span 12}}
+.h{display:flex;align-items:baseline;gap:10px;margin-bottom:14px}.h b{background:var(--teal);color:#fff;border-radius:7px;min-width:24px;height:24px;display:grid;place-items:center;font-size:12px;align-self:center}
+.h h2{font-size:15px;font-weight:600}.h span{color:var(--mut);font-size:12px;margin-left:auto}
+.hero{display:grid;grid-template-columns:230px 1fr;gap:18px}@media(max-width:800px){.hero{grid-template-columns:1fr}}
+.gauge{background:var(--ink);color:#fff;border-radius:12px;padding:16px;text-align:center}.gauge small{opacity:.7;display:block}
+.kp{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px}
+.k{border:1px solid var(--line);border-radius:10px;padding:12px;position:relative}
+.k i{font-style:normal;color:var(--mut);font-size:12px}.k strong{display:block;font-size:26px;font-weight:700;line-height:1.2;margin:2px 0}
+.k u{text-decoration:none;color:var(--mut);font-size:12px;margin-left:4px;font-weight:400}.k em{font-style:normal;font-size:11.5px;font-weight:500}
+.k svg{display:block;margin-top:6px}.up{color:var(--green)}.dn{color:var(--coral)}
+.bar{display:grid;grid-template-columns:minmax(80px,130px) 1fr 70px;gap:10px;align-items:center;margin:7px 0;font-size:13px}
+.bar div{background:#eaf0f5;border-radius:99px;height:10px;overflow:hidden}.bar u{display:block;height:100%;border-radius:99px}.bar span:last-child{text-align:right;font-weight:600}
+.row{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.row>div{flex:1;min-width:130px}
+.lg{display:flex;gap:14px;font-size:12px;color:var(--mut);margin-bottom:6px}.lg i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:5px}
+table{width:100%;border-collapse:collapse}th,td{padding:9px 8px;text-align:right;border-bottom:1px solid var(--line)}th:first-child,td:first-child{text-align:left}
+th{color:var(--mut);font-weight:500;font-size:12px}tr:last-child td{border:0}
+.chip{padding:3px 11px;border-radius:99px;color:#fff;font-size:12px;font-weight:500}.ok{background:var(--green)}.bad{background:var(--coral)}
+.al td:first-child{border-left:4px solid var(--green);padding-left:12px}.al tr.b td:first-child{border-color:var(--coral)}
+.nd{color:var(--mut);text-align:center;padding:14px;font-size:13px}
+svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on{fill:rgba(11,122,138,.10)}
+.rb{max-width:1480px;margin:14px auto 0;padding:0 clamp(14px,3vw,36px)}.rb:empty{display:none}
+.rb>div{background:#fff;border:1px solid var(--line);border-left:4px solid var(--teal);border-radius:12px;padding:10px 16px;display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center;font-size:13px}
+.rb b{font-size:14px}.rb .pill{background:#e6f4f6;color:var(--teal);border-radius:99px;padding:2px 11px;font-size:12px;font-weight:600}.rb span{color:var(--mut)}
+.dn2{display:flex;gap:18px;align-items:center;flex-wrap:wrap}.dn2>svg{flex:none;overflow:visible}
+.dl{flex:1;min-width:150px;display:grid;gap:2px}
+.dl>div{display:grid;grid-template-columns:12px 1fr auto auto;gap:9px;align-items:center;padding:6px 8px;border-radius:8px;font-size:13px;cursor:default}
+.dl>div:hover,.dl>div.on{background:#f2f6f9}.dl i{width:12px;height:12px;border-radius:4px}
+.dl em{font-style:normal;color:var(--mut);font-size:12px;min-width:44px;text-align:right}.dl b{font-weight:600}
+.dsg{transition:opacity .15s,stroke-width .15s;cursor:pointer}.dsg:hover{stroke-width:7.4}
+.gauge .dl>div:hover{background:#ffffff14}
+@keyframes dsw{from{stroke-dasharray:0 100}}
+.dsg{animation:dsw .7s ease-out both}
+@media(prefers-reduced-motion:reduce){.dsg{animation:none}}
+#tip{position:fixed;z-index:60;display:none;pointer-events:none;background:#0e2235;color:#fff;border-radius:10px;padding:10px 12px;font-size:12.5px;min-width:180px;max-width:290px;box-shadow:0 10px 28px #0e223566;line-height:1.4}
+#tip .tr{display:flex;gap:12px;justify-content:space-between;align-items:center;margin-top:5px}#tip .tr span{display:flex;align-items:center}
+#tip i{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px}#tip em{font-style:normal;font-size:10.5px;opacity:.65;margin-left:6px;font-weight:400}
+#tip .tt{border-top:1px solid #ffffff30;padding-top:5px}#tip small{display:block;margin-top:6px;opacity:.6;font-size:11px}
+
+#v3{--ink:#0a1626;--panel:#0f2236ee;--line:#ffffff1f;--tx:#e8f1f8;--mut:#8da4b8;position:relative;height:min(94vh,1200px);min-height:480px;border-radius:12px;overflow:hidden;background:#0a1626;color:#e8f1f8}
+#v3 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#v3.tbh #vtop,#v3.tbh #vlist,#v3.tbh #vdet,#v3.tbh #vhint,#v3.tbh #vzi,#v3.tbh #vzo,#v3.tbh #vzr{display:none}
+#vtg{position:absolute!important;right:14px!important;bottom:14px!important;z-index:99!important;font:inherit;font-size:15px!important;font-weight:700!important;padding:11px 18px!important;border-radius:999px!important;border:2px solid #fff!important;background:#0b7a8a!important;color:#fff!important;cursor:pointer;box-shadow:0 4px 16px #000a!important;opacity:1!important}#vtg:hover{background:#0e97a9!important}
+#vz{bottom:72px!important;right:14px!important;z-index:99!important}#vz button{background:#0f2236!important;color:#fff!important;border:2px solid #fff!important;width:42px;height:42px;font-size:20px!important;font-weight:700;opacity:1!important;box-shadow:0 3px 10px #000a!important}#vz button:hover{background:#0b7a8a!important}
+#v3 .p{position:absolute;background:var(--panel);border:1px solid var(--line);border-radius:12px;backdrop-filter:blur(8px)}
+#vtop{top:10px;left:10px;right:10px;padding:8px 12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;justify-content:space-between}
+#vkc{display:flex;gap:8px;flex-wrap:wrap}#vkc div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#vkc i{font-style:normal;color:var(--mut);font-size:11px;display:block}#vkc b{font-size:16px}
+#vtop .c3{display:flex;gap:6px;align-items:center}#vtop input,#vtop select,#vtop button,#vz button{font:inherit;font-size:13px;padding:5px 9px;border-radius:8px;border:1px solid var(--line);background:#ffffff12;color:#e8f1f8;color-scheme:dark;cursor:pointer}
+#vlist{left:10px;top:68px;width:190px;padding:6px;max-height:calc(100% - 130px);overflow:auto}
+#vlist{transition:opacity .35s,transform .35s}#vlist.hid{opacity:0;transform:translateX(-14px);pointer-events:none}
+#vlist button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;font:inherit;font-size:13px;color:#e8f1f8;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer}
+#vlist button:hover,#vlist button.on{background:#ffffff14}#vlist button i{width:9px;height:9px;border-radius:50%;flex:none}#vlist small{display:block;color:var(--mut);font-size:11px}
+#vdet{right:10px;top:68px;width:270px;padding:14px;max-height:calc(100% - 130px);overflow:auto;font-size:13.5px}
+#vdet h2{font-size:16px}#vdet .big{font-size:30px;font-weight:700;line-height:1.2}#vdet .chip{color:#06121f;font-weight:600}
+#vdet table{width:100%;margin-top:10px;border-collapse:collapse}#vdet td{padding:5px 0;border-bottom:1px solid var(--line);text-align:left}#vdet td:last-child{text-align:right;font-weight:600}
+#vhint{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 14px;color:var(--mut);font-size:12px;white-space:nowrap}
+#vmsg{left:50%;top:62px;transform:translateX(-50%);padding:4px 12px;color:#f5b441;font-size:12.5px}#vmsg:empty{display:none}
+#vq{right:56px;bottom:10px;width:270px;padding:10px 12px;font-size:12px}
+#vq .qh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}#vq .qh b{font-size:12.5px}#vq .qh span{color:var(--mut)}
+#vq .qb{display:flex;align-items:flex-end;gap:2px;height:46px}#vq .qb i{flex:1;background:#27c4cf66;border-radius:2px 2px 0 0;cursor:pointer;min-height:2px}#vq .qb i.on{background:#f5b441}#vq .qb i:hover{background:#27c4cf}
+#vq .qa{display:flex;justify-content:space-between;color:var(--mut);font-size:10px;margin:2px 0 6px}
+#vq .ql{display:grid;gap:2px;color:#cfe0ee}#vq .ql div{display:flex;justify-content:space-between;gap:8px}#vq .ql b{color:#fff}
+#vq .lg2{display:flex;gap:10px;flex-wrap:wrap;color:var(--mut);font-size:10.5px;margin-top:6px}#vq .lg2 i{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:4px}
+#vdet{max-height:calc(100% - 290px)}
+#vrp{left:50%;bottom:44px;transform:translateX(-50%);width:440px;max-width:calc(100% - 20px);padding:8px 12px;font-size:12px}
+#vrp .rh{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px}#vrp .rh b{font-size:12.5px}#vrp #rtm{font-variant-numeric:tabular-nums;color:#f5b441;font-weight:700;font-size:15px}
+#vrp input[type=range]{width:100%;margin:2px 0 6px}
+#vrp .rc{display:flex;gap:6px;align-items:center}#vrp .rc button,#vrp .rc select{background:#16314a;color:#fff;border:1px solid #27c4cf55;border-radius:8px;padding:3px 10px;font:inherit;cursor:pointer}#vrp .rc #rin{margin-left:auto;color:var(--mut);font-size:11.5px}
+#v3.tbh #vq,#v3.tbh #vrp{display:none!important}
+@media(max-width:900px){#vrp{bottom:auto;top:96px;left:10px;right:10px;transform:none;width:auto;max-width:none}}
+@media(max-width:900px){#vq{display:none!important}}
+#vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}
+@media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto!important;top:70px}}
+dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
+dialog input{width:100%;font:inherit;padding:8px 10px;border:1px solid var(--line);border-radius:8px}
+dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;background:var(--teal);color:#fff;cursor:pointer;margin:14px 6px 0 0}dialog button.g{background:#64748b}
+/* ===== สไตล์ของการ์ดรายรับ แผนก/หอผู้ป่วย/สิทธิ ===== */
+.tg{display:flex;gap:6px;align-items:center;flex-wrap:wrap} /* แถวปุ่ม: เรียงแนวนอน เว้นช่อง 6px ขึ้นบรรทัดใหม่ได้ */
+.tg button{font:inherit;font-size:13px;padding:6px 16px;border-radius:8px;border:1px solid var(--line);background:#fff;color:var(--ink);cursor:pointer} /* ปุ่มปกติ: พื้นขาว ขอบเทา มุมมน */
+.tg button.on{background:var(--teal);border-color:var(--teal);color:#fff;font-weight:600} /* ปุ่มที่เลือกอยู่: พื้นเขียวน้ำเงิน ตัวขาวหนา */
+.tg button:focus-visible{outline:2px solid var(--amber)} /* วงโฟกัสสีอำพันเมื่อใช้คีย์บอร์ด */
+.tg span{margin-left:auto;color:var(--mut);font-size:12px} /* ข้อความหน่วยชิดขวา สีจาง */
+@media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}} /* มือถือ: ช่องสรุปเรียงเป็นคอลัมน์เดียว */
+</style>
+<style id="reskin">
+/* ===== ดีไซน์ใหม่ (reskin) — ไม่แตะส่วน 3D (#v3 / #s3d) ===== */
+:root{--ink:#0b1f33;--teal:#0f8f96;--tl:#2dd4bf;--paper:#eef3f8;--line:#e2eaf2;--mut:#60758a;--amber:#f59e0b;--coral:#ef4444;--green:#16a37a;--r:22px;--sh:0 1px 2px #0b1f3310,0 12px 32px -12px #0b1f3322}
+body{background:radial-gradient(1200px 500px at 85% -10%,#2dd4bf26,transparent 60%),radial-gradient(900px 500px at -10% 0,#2563eb1f,transparent 55%),var(--paper);background-attachment:fixed;letter-spacing:.1px}
+header{background:linear-gradient(115deg,#082b3a 0%,#0b6b78 55%,#1d6fe0 130%);padding:22px clamp(14px,3vw,36px) 30px;border-radius:0 0 28px 28px;box-shadow:0 18px 40px -22px #0b3a5a}
+header .logo{background:#ffffff26;backdrop-filter:blur(6px);border:1px solid #ffffff40;border-radius:16px}
+.ctl button,.ctl input{border-radius:999px;border-color:#ffffff38;background:#ffffff1a;backdrop-filter:blur(6px);transition:.15s}
+.ctl button:hover{background:#ffffff33}.ctl button.on{background:#fff;color:#08323f;box-shadow:0 4px 14px #0003}
+#snav{position:sticky;top:0;z-index:40;display:flex;gap:6px;overflow-x:auto;padding:10px clamp(14px,3vw,36px);margin:0 auto;max-width:1480px;scrollbar-width:none;backdrop-filter:blur(14px);background:#eef3f8cc}
+#snav::-webkit-scrollbar{display:none}
+#snav a{flex:none;text-decoration:none;color:var(--mut);font-size:13px;font-weight:500;padding:7px 14px;border-radius:999px;background:#fff;border:1px solid var(--line);transition:.15s}
+#snav a:hover{color:var(--teal);border-color:var(--tl)}#snav a.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+main{gap:20px;padding-top:10px}
+.s{border:1px solid #ffffffb0;border-radius:var(--r);box-shadow:var(--sh);padding:22px;background:#ffffffee;scroll-margin-top:64px}
+.h{margin-bottom:18px}.h b{background:linear-gradient(135deg,var(--teal),#2563eb);border-radius:10px;min-width:28px;height:28px;font-size:13px;box-shadow:0 6px 14px -6px var(--teal)}
+.h h2{font-size:17px;font-weight:700}.h span{background:#eef3f8;border-radius:99px;padding:3px 12px;font-size:11.5px}
+main .gauge{background:linear-gradient(150deg,#082b3a,#0f6a7a);border-radius:18px}
+main .k{border:0;border-radius:16px;background:linear-gradient(180deg,#f7fafd,#eef4fa);padding:14px 14px 10px}
+main .k strong{font-size:28px;letter-spacing:-.5px}
+main .bar div{height:12px;background:#e8eef5}
+main table th{text-transform:none;font-size:12px;padding:10px 8px;border-bottom:2px solid var(--line)}
+main table tr:hover td{background:#f5f9fc}
+main .chip{border-radius:99px;padding:3px 12px}
+main .tg button{border-radius:999px;padding:6px 18px;transition:.15s}main .tg button.on{background:linear-gradient(135deg,var(--teal),#2563eb);border:0}
+.rb>div{border-radius:16px;border-left-width:0;box-shadow:var(--sh);background:linear-gradient(90deg,#e6f7f7,#fff 60%)}
+.hit:hover,.hit.on{fill:rgba(15,143,150,.12)}
+#sec1{background:linear-gradient(180deg,#fff,#f4f9fc)}
+@media(max-width:600px){.s{padding:16px;border-radius:18px}header{border-radius:0 0 20px 20px}}
+@media(prefers-reduced-motion:no-preference){.s{animation:rise .5s ease both}@keyframes rise{from{opacity:0;transform:translateY(10px)}}}
+.now{display:inline-flex;align-items:center;gap:8px;font-size:13px;color:var(--mut);background:#eef6f7;border-radius:999px;padding:5px 14px;margin-bottom:12px;font-variant-numeric:tabular-nums}
+.now b{color:var(--ink);font-weight:600}.nd0{width:8px;height:8px;border-radius:50%;background:#16a37a;box-shadow:0 0 0 0 #16a37a88;animation:pls 1.6s infinite}
+#v3 .now{margin:0;color:#e8f1f8}#v3 .now b{color:#fff}@keyframes pls{70%{box-shadow:0 0 0 7px #16a37a00}}
+@media(prefers-reduced-motion:reduce){.nd0{animation:none}}
+.gb{display:flex;height:14px;border-radius:99px;overflow:hidden;background:#e8eef5;margin:6px 0}.gb i{display:block;height:100%}.gl{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;margin-bottom:4px}.gl b{font-variant-numeric:tabular-nums}
+.dpw{max-height:600px;overflow:auto;border:1px solid var(--line);border-radius:16px;margin-top:10px}
+.dpw table{min-width:820px;border-collapse:separate;border-spacing:0}
+.dpw th{position:sticky;top:0;z-index:3;background:#f1f6fa;border-bottom:1px solid var(--line);white-space:nowrap}
+.dpw td{border-bottom:1px solid #edf2f7;padding:11px 10px;white-space:nowrap}
+.dpw tr:nth-child(even) td{background:#fafcfe}.dpw tr:hover td{background:#eef7f8}
+.dpw td:first-child{position:sticky;left:0;background:inherit;z-index:1}.dpw th:first-child{left:0;z-index:4}
+.dpw tr.tt td{position:sticky;bottom:0;z-index:2;background:#e7f3f5;font-weight:700;border-top:2px solid var(--tl);border-bottom:0}
+.rk{display:inline-grid;place-items:center;width:24px;height:24px;border-radius:8px;background:#eef3f8;font-size:12px;font-weight:600;color:var(--mut);margin-right:10px}.rk.t{background:linear-gradient(135deg,var(--teal),#2563eb);color:#fff}
+main .k{display:flex;flex-direction:column;min-width:0;overflow:hidden}
+main .k strong{min-width:0;margin:3px 0 0;letter-spacing:-.3px;overflow-wrap:anywhere}
+main .k u{display:block;margin:1px 0 0;font-size:12px}
+main .k em{display:block;margin-top:6px}
+small.pv{display:block;color:var(--mut);font-size:12px;line-height:1.45;margin-top:3px;font-weight:400}small.pv b{color:var(--ink);font-weight:600}.dpw small.pv{white-space:nowrap}
+#sec1 .kp{display:grid;gap:14px;align-items:stretch}#sec1 .k svg{margin-top:auto;width:100%}#sec1 .k{min-height:100%}
+/* ===== Responsive ทุกอุปกรณ์ ===== */
+html{-webkit-text-size-adjust:100%}body{font-size:clamp(14px,.3vw + 12.8px,17px);padding-bottom:env(safe-area-inset-bottom,0px)}
+header{padding-top:max(22px,env(safe-area-inset-top,0px));padding-left:max(clamp(14px,3vw,36px),env(safe-area-inset-left,0px));padding-right:max(clamp(14px,3vw,36px),env(safe-area-inset-right,0px))}
+img,svg{max-width:100%}.s{min-width:0}.tw{overflow-x:auto;max-width:100%;-webkit-overflow-scrolling:touch}.tw>table{min-width:520px}
+@media(min-width:1700px){main,.top,#snav{max-width:1760px}body{font-size:17px}}
+@media(max-width:1100px){main .gauge{min-width:0}}
+@media(max-width:700px){
+ header{padding-bottom:18px;border-radius:0 0 20px 20px}.top{gap:10px}
+ .ctl{width:100%;flex-wrap:nowrap;overflow-x:auto;padding-bottom:4px;scrollbar-width:none}.ctl::-webkit-scrollbar{display:none}.ctl>*{flex:none}
+ main{gap:12px;padding-left:max(12px,env(safe-area-inset-left,0px));padding-right:max(12px,env(safe-area-inset-right,0px))}
+ .s{padding:14px;border-radius:18px}.h{flex-wrap:wrap;gap:6px 10px}.h span{margin-left:auto}.h h2{font-size:16px}
+ .hero,.dn2{grid-template-columns:1fr}.dn2{justify-content:center}
+ #snav{padding:8px 12px}#snav a{padding:6px 12px}
+ .dpw{max-height:480px}
+}
+@media(max-width:380px){main .k strong{letter-spacing:-.6px}.chips,.tg{gap:4px}}
+@media(hover:none) and (pointer:coarse){.ctl button,.ctl input,#snav a,main .chip,.tg button,#vlist button,#vtop button,#vtop input,#vtop select{min-height:40px}}
+@media(max-height:560px) and (orientation:landscape){#v3{min-height:0;height:calc(100svh - 24px)}}
+@supports(height:100svh){#v3{height:min(94svh,1200px)}}
+/* ===== ส่วนหัวคงที่ตอนเลื่อน ===== */
+header{position:sticky;top:0;z-index:60;transition:padding .2s ease,box-shadow .2s ease}
+header .logo,header h1,header .brand small{transition:all .2s ease}
+header.stuck{padding-top:max(8px,env(safe-area-inset-top,0px));padding-bottom:8px;border-radius:0 0 18px 18px;box-shadow:0 10px 28px -12px #04202e99}
+header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-size:18px;border-radius:10px}header.stuck h1{font-size:15px}header.stuck .brand small{display:none}
+#snav{top:var(--hh,0px);z-index:50}html{scroll-padding-top:calc(var(--hh,0px) + 56px)}.s{scroll-margin-top:calc(var(--hh,0px) + 64px)}
+@media(max-width:700px){header.stuck .brand{display:none}header.stuck{padding-left:12px;padding-right:12px}}
+#vtop select option{background:#12263a;color:#e8f1f8}
+#vtop #rtbtn.on{background:linear-gradient(135deg,#0f8f96,#2563eb);border-color:transparent;color:#fff}
+</style>
+</head>
+<body>
+<header>
+  <div class="top">
+    <div class="brand"><div class="logo" id="logo">✚</div><div><h1>Hospital Yantakhao Management Dashboard</h1><small>แดชบอร์ดบริหารจัดการโรงพยาบาล · ข้อมูลจาก HOSxP ผ่าน Supabase</small></div></div>
+    <div class="ctl">
+      <button data-d="-1">วันนี้</button><button data-d="7" class="on">7 วันล่าสุด</button><button data-d="30">30 วัน</button><button data-d="90">90 วัน</button><button data-d="0">ปีนี้</button>
+      <input type="date" id="from" aria-label="ตั้งแต่วันที่"><input type="date" id="to" aria-label="ถึงวันที่">
+      <button id="go">โหลด</button><button id="to3d">3D ▾</button><button id="cfgb">ตั้งค่า</button>
+    </div>
+  </div>
+</header>
+<div id="msg"></div>
+<div class="rb" id="rb" aria-live="polite"></div>
+<main id="app"></main>
+<div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
+<div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><select id="vhr" aria-label="เวลา (ชั่วโมง) ของข้อมูล 3D"><option value="">เวลาปัจจุบัน</option><option value="00">00:00</option><option value="01">01:00</option><option value="02">02:00</option><option value="03">03:00</option><option value="04">04:00</option><option value="05">05:00</option><option value="06">06:00</option><option value="07">07:00</option><option value="08">08:00</option><option value="09">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select><button id="rtbtn" title="โหมดเวลาจริง: นั่งรอตามเวลาจริงทุกห้อง">⏱ เวลาจริง</button><button id="vgo">โหลด</button></div></div>
+<div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
+<div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
+<div class="p" id="vq" style="display:none"></div><div class="p" id="vrp" style="display:none"></div>
+<button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+
+
+<dialog id="dlg">
+  <h3>เชื่อมต่อ Supabase</h3>
+  <label for="u">Project URL</label><input id="u" placeholder="https://xxxx.supabase.co">
+  <label for="k">Anon (public) key — ห้ามใช้ service role key</label><input id="k" placeholder="eyJ... หรือ sb_publishable_...">
+  <label for="lg">โลโก้ (ลิงก์ไฟล์ใน Supabase Storage แบบ public — ไม่บังคับ)</label><input id="lg" placeholder="https://xxxx.supabase.co/storage/v1/object/public/assets/logo.png">
+  <p style="margin-top:10px;color:#5d7186;font-size:12px">ค่าเก็บในเบราว์เซอร์นี้เท่านั้น ถ้าไม่กรอก URL/key จะแสดงข้อมูลตัวอย่าง</p>
+  <button id="save">บันทึกและโหลด</button><button class="g" id="demo">ใช้ข้อมูลตัวอย่าง</button>
+</dialog>
+
+<script>
+/* ===== ตั้งค่าครั้งเดียวตรงนี้ แล้วนำไฟล์ขึ้นเว็บ — ผู้ใช้ทุกคนจะเชื่อมต่ออัตโนมัติ ===== */
+const CONFIG={
+  url:'/api/sb', // เรียกผ่านตัวกลางของเรา (Netlify Function / Cloudflare Worker / server.js) — คีย์จริงอยู่ฝั่งเซิร์ฟเวอร์ ไม่อยู่ในไฟล์นี้
+  key:'proxy',   // ค่าตัวแทน ไม่ใช่คีย์จริง
+  logo:''
+};
+const AUTO=!/YOUR_/.test(CONFIG.url+CONFIG.key)&&CONFIG.url&&CONFIG.key;
+const TARGET={occ:85,wait:20,consult:15,readmit:10,total:60}; // เป้าหมายส่วนแจ้งเตือน (แก้ได้)
+const $=s=>document.querySelector(s),TB=['daily','hourly','department','pttype','er_triage','doctor_clinic'];
+const num=v=>+v||0,sum=(a,f)=>a.reduce((s,r)=>s+num(f(r)),0);
+const avg=(a,f)=>{const x=a.map(f).filter(v=>v!==null&&v!==''&&v!==undefined&&isFinite(+v)).map(Number);return x.length?x.reduce((s,v)=>s+v,0)/x.length:null};
+const fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2}); // แสดงทศนิยมไม่เกิน 2 ตำแหน่ง (พารามิเตอร์ d ถูกละไว้)
+const fr=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:d}); // ใช้เฉพาะตัวเลขบนแกนกราฟ
+const iso=d=>d.toISOString().slice(0,10),addD=(s,n)=>{const d=new Date(s);d.setDate(d.getDate()+n);return iso(d)};
+let store;try{store=localStorage}catch(e){store={getItem(){},setItem(){}}}
+const cfg=()=>AUTO?{u:CONFIG.url.replace(/\/$/,''),k:CONFIG.key,l:CONFIG.logo}:{u:(store.getItem('sb_u')||'').replace(/\/$/,''),k:store.getItem('sb_k')||'',l:store.getItem('sb_l')||''};
+
+const san=v=>typeof v==='string'?v.replace(/[<>"'`]/g,'’'):Array.isArray(v)?v.map(san):v&&typeof v==='object'?Object.fromEntries(Object.entries(v).map(([k,x])=>[k,san(x)])):v;
+async function get(t,a,b){
+  const c=cfg(),out=[];let ord='key_id'; // เรียงตาม key_id ก่อน ถ้าตารางไม่มีคอลัมน์นี้ (HTTP 400) จะถอยไปเรียงตามวันที่
+  for(let o=0;;o+=1000){
+    const u=od=>`${c.u}/rest/v1/hospital_${t}_stats?select=*&record_date=gte.${a}&record_date=lte.${b}&order=${od}`,hd={headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}};
+    let r=await fetch(u(ord),hd);
+    if(r.status===400&&ord==='key_id'){ord='record_date';r=await fetch(u(ord),hd)} // ตารางผู้ป่วยในอาจไม่มี key_id ทำให้เดิมโหลดไม่ได้และแสดงว่าไม่พบข้อมูล
+    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(e){}throw new Error(`${t}: HTTP ${r.status}${m?' — '+m:''}`)}
+    const j=san(await r.json());out.push(...j);if(j.length<1000)break;
+  }
+  return out;
+}
+function demo(a,b){
+  const D={};TB.forEach(t=>D[t]=[]);
+  D.ward=[]; // [เพิ่มใหม่] ข้อมูลตัวอย่างหอผู้ป่วย (ผู้ป่วยใน)
+  D.ipd_pttype=[]; // [เพิ่มใหม่] ข้อมูลตัวอย่างสิทธิผู้ป่วยใน
+  let i=0;const R=n=>Math.round(Math.random()*n);
+  for(let s=a;s<=b;s=addD(s,1),i++){
+    const w=1+.15*Math.sin(i/9);
+    D.daily.push({record_date:s,opd_daily_count:Math.round(230*w)+R(30),ipd_new_admit_daily:R(8)+14,ipd_discharged_daily:R(8)+13,ipd_avg_length_of_stay:3.5+Math.random(),ipd_current_beds:Math.round(60*w),ipd_total_beds:80,opd_his_income:Math.round(420e3*w),ipd_his_discharge_income:Math.round(260e3*w),er_his_income:Math.round(60e3*w),readmit_28days_pct:6+Math.random()*3,avg_wait_reg_to_triage:8+R(4),avg_wait_for_doctor:22+R(8),avg_doctor_consult_time:11+R(5),avg_wait_for_pharmacy:14+R(6),avg_total_process_time:55+R(15)});
+    D.hourly.push({record_date:s,patient_type:'ER',time_hour:'08:00',service_count:R(15)+25});
+    // [แก้ไข] ข้อมูลตัวอย่างแผนก: เพิ่มรหัสแผนก รายรับ เบิกตามสิทธิ และชำระเอง เพื่อให้การ์ดรายรับมีข้อมูลทดลอง
+    [['อายุรกรรม',70,'001'],['กุมารเวช',45,'002'],['ศัลยกรรม',35,'003'],['สูติ-นรีเวช',30,'004']].forEach(([d,n,c])=>{ // วนแต่ละแผนก (ชื่อ, ฐานจำนวนผู้ป่วย, รหัสแผนก)
+      const v=n+R(15); // จำนวนผู้ป่วยของวันนั้น (เหมือนเดิม)
+      const inc=v*320; // รายรับตัวอย่าง = จำนวนผู้ป่วย × 320 บาท
+      const paid=Math.round(inc*(.04+Math.random()*.1)); // ส่วนที่ผู้ป่วยชำระเอง สุ่ม 4-14% ของรายรับ
+      D.department.push({record_date:s,main_dep:c,department:d,visit_count:v,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวข้อมูลตัวอย่าง
+    });
+    // [แก้ไข] ข้อมูลตัวอย่างสิทธิ: เพิ่มยอดเบิกตามสิทธิและชำระเอง
+    [['UC',.6],['ประกันสังคม',.25],['ชำระเงินเอง',.15]].forEach(([d,p])=>{ // วนแต่ละสิทธิ (ชื่อ, สัดส่วนรายรับ)
+      const inc=Math.round(300e3*p*w); // รายรับของสิทธินั้น (เหมือนเดิม)
+      const paid=d==='ชำระเงินเอง'?inc:Math.round(inc*.05); // สิทธิ "ชำระเงินเอง" ผู้ป่วยจ่ายทั้งหมด ส่วนอื่นจ่ายเอง 5%
+      D.pttype.push({record_date:s,pttype_name:d,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวข้อมูลตัวอย่าง
+    });
+    // [เพิ่มใหม่] ข้อมูลตัวอย่างหอผู้ป่วยใน: รายรับตามจำนวนผู้ป่วยที่จำหน่าย
+    [['W1','ตึกผู้ป่วยใน 1',9,30],['W2','ตึกผู้ป่วยใน 2',8,30],['W3','หลังคลอด',2,20]].forEach(([c,nm,n,bd])=>{ // วนแต่ละหอ (รหัส, ชื่อ, ฐานจำนวนจำหน่าย)
+      const an=n+R(3); // จำนวนผู้ป่วยจำหน่ายของวันนั้น
+      const inc=an*14000; // รายรับตัวอย่าง = จำนวนจำหน่าย × 14,000 บาท
+      const paid=Math.round(inc*.05); // ผู้ป่วยชำระเอง 5%
+      D.ward.push({record_date:s,ward:c,ward_name:nm,bed_count:bd,bed_used:Math.min(bd,Math.round(bd*(.55+Math.random()*.4))),patient_count:an,discharge_an_count:an,his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวหอผู้ป่วย
+    });
+    // [เพิ่มใหม่] ข้อมูลตัวอย่างสิทธิผู้ป่วยใน
+    [['บัตรทอง',.55],['เบิกกรมบัญชีกลาง',.2],['ประกันสังคม',.15],['ชำระเงินเอง',.1]].forEach(([nm,p])=>{ // วนแต่ละสิทธิ (ชื่อ, สัดส่วน)
+      const inc=Math.round(120e3*p*w); // รายรับของสิทธินั้น
+      const paid=nm==='ชำระเงินเอง'?inc:Math.round(inc*.03); // ชำระเอง: ทั้งหมด หรือ 3%
+      D.ipd_pttype.push({record_date:s,pttype_name:nm,discharge_an_count:Math.max(1,Math.round(inc/14000)),his_income:inc,uc_money:inc-paid,paid_money:paid}); // เพิ่มแถวสิทธิผู้ป่วยใน
+    });
+    [['Level 1',1],['Level 2',6],['Level 3',14],['Level 4',9],['Level 5',3]].forEach(([d,n],j)=>D.er_triage.push({record_date:s,triage_level_id:j+1,triage_level_name:d,patient_count:n+R(3)}));
+    [['0033','นพ.สมชาย','กุมารเวชกรรม'],['0152','นพ.สมหญิง','อายุรกรรม'],['373','พญ.สมศรี','สูตินรีเวชกรรม']].forEach(([c,n,k])=>D.doctor_clinic.push({record_date:s,doctor_code:c,doctor_name:n,clinic_name:k,visit_count:R(20)+25,patient_count:R(15)+22,admit_count:R(4)}));
+  }
+  D.bed_occupancy=D.ward.map(r=>({record_date:r.record_date,ward:r.ward,ward_name:r.ward_name,total_beds:r.bed_count,used_beds:r.bed_used})); // ตัวอย่างตาราง hospital_bed_occupancy_stats
+  return D;
+}
+
+const sec=(n,t,s,body,cls='')=>`<section class="s ${cls}" id="sec${String(n).replace('.','_')}"><div class="h"><b>${n}</b><h2>${t}</h2><span>${s}</span></div>${body}</section>`;
+const spark=(pts,c,lb)=>{if(pts.length<2)return '';const v=pts.map(e=>e[1]),m=Math.max(...v),n=Math.min(...v),r=m-n||1,w=100/v.length;return `<svg viewBox="0 0 100 26" width="100%" height="26" preserveAspectRatio="none" aria-label="แนวโน้ม ${lb}"><polyline fill="none" stroke="${c}" stroke-width="1.8" vector-effect="non-scaling-stroke" points="${v.map((x,i)=>(i/(v.length-1)*100).toFixed(1)+','+(24-(x-n)/r*22).toFixed(1)).join(' ')}"/>${pts.map((e,i)=>`<rect class="hit" x="${(i*w).toFixed(2)}" y="0" width="${w.toFixed(2)}" height="26" data-tip="${esc(`<b>${fd(e[0])}</b><div class="tr"><span>${lb}</span><b>${fm(e[1],e[1]<100?1:0)}</b></div>`)}"/>`).join('')}</svg>`};
+const NARROW=()=>innerWidth<640; // จอแคบ (มือถือ)
+let LAST=null; // อาร์กิวเมนต์ render ล่าสุด ไว้วาดใหม่เมื่อขนาดจอข้ามจุดเปลี่ยน
+let CMP={len:1,pa:'',pb:''}; // ช่วงเปรียบเทียบ (จำนวนวัน + วันที่เริ่ม/สิ้นสุดของช่วงก่อนหน้า) ตั้งค่าใหม่ทุกครั้งที่ค้นหา
+const cmpDate=t=>t?`${t.slice(8)}/${t.slice(5,7)}/${+t.slice(0,4)+543}`:'';
+const cmpTxt=()=>`เทียบ ${CMP.len} วัน · ${cmpDate(CMP.pa)}${CMP.len>1?' – '+cmpDate(CMP.pb):''}`;
+const NOCMP='<em style="color:var(--mut);font-weight:500">ไม่มีช่วงเปรียบเทียบ</em>';
+const delta=(c,p,inv,u='')=>{if(!p)return NOCMP+`<small class="pv">${cmpTxt()}</small>`;const d=(c-p)/p*100,g=inv?d<0:d>0;return `<em class="${g?'up':'dn'}">${d>=0?'▲':'▼'} ${fm(Math.abs(d),1)}% vs ช่วงก่อน</em><small class="pv">ช่วงก่อน <b>${fm(p)}</b> ${u}<br>${cmpTxt()}</small>`};
+const kpi=(l,v,u,c,p,inv,sr,col='#0b7a8a')=>`<div class="k"><i>${l}</i><strong>${v}<u>${u}</u></strong>${delta(c,p,inv,u)}${sr?spark(sr,col,l):''}</div>`;
+const bars=(rows,unit)=>{const m=Math.max(...rows.map(r=>r[1]),1);return rows.length?rows.map(r=>`<div class="bar"><span>${r[0]}</span><div><u style="width:${r[1]/m*100}%;background:${r[2]||'linear-gradient(90deg,#0b7a8a,#14a3a8)'}"></u></div><span>${fm(r[1],unit?1:0)}${unit||''}</span></div>`).join(''):'<div class="nd">ไม่มีข้อมูล</div>'};
+const group=(a,kf,vf)=>{const m={};a.forEach(r=>{const k=kf(r);m[k]=(m[k]||0)+num(vf(r))});return Object.entries(m).sort((x,y)=>y[1]-x[1])};
+const donut=(parts,cols,center,size=132,o={})=>{
+  const T=parts.reduce((s,p)=>s+p[1],0)||1,R=15.9155,gap=parts.filter(p=>p[1]>0).length>1?.9:0,dark=o.dark,trk=dark?'#ffffff1f':'#eaf0f5',tx=dark?'#fff':'#0e2235',ms=dark?'#9fb4c6':'#5d7186';
+  let off=25;const seg=parts.map((p,i)=>{const l=p[1]/T*100,vis=Math.max(l-gap,0),c=cols[i%cols.length],
+    tip=esc(`<b>${p[0]}</b><div class="tr"><span><i style="background:${c}"></i>สัดส่วน</span><b>${fm(l,1)}%</b></div>${o.fmtv?`<div class="tr"><span>มูลค่า</span><b>${o.fmtv(p[1])}</b></div>`:''}`),
+    e=l>0?`<circle class="dsg" cx="21" cy="21" r="${R}" fill="none" stroke="${c}" stroke-width="6" stroke-linecap="butt" stroke-dasharray="${vis.toFixed(3)} ${(100-vis).toFixed(3)}" stroke-dashoffset="${(off-gap/2).toFixed(3)}" data-tip="${tip}" data-i="${i}"/>`:'';off-=l;return e}).join('');
+  const tgt=o.target!=null?(()=>{const a=o.target/100*2*Math.PI-Math.PI/2,x1=21+Math.cos(a)*12.2,y1=21+Math.sin(a)*12.2,x2=21+Math.cos(a)*19.2,y2=21+Math.sin(a)*19.2;return `<line x1="${x1.toFixed(2)}" y1="${y1.toFixed(2)}" x2="${x2.toFixed(2)}" y2="${y2.toFixed(2)}" stroke="${dark?'#f5b441':'#0e2235'}" stroke-width="1.1" stroke-linecap="round" data-tip="${esc(`<b>เป้าหมาย</b><div class="tr"><span>ไม่เกิน</span><b>${o.target}%</b></div>`)}"/>`})():'';
+  return `<svg viewBox="0 0 42 42" width="${size}" height="${size}" role="img" aria-label="${esc(o.label||'แผนภูมิโดนัท')}: ${esc(parts.map(p=>p[0]+' '+fm(p[1]/T*100,1)+'%').join(', '))}"><circle cx="21" cy="21" r="${R}" fill="none" stroke="${trk}" stroke-width="6"/>${seg}${tgt}<text x="21" y="${o.sub?21.6:23}" text-anchor="middle" font-size="${String(center).length>6?Math.max(3.4,27/String(center).length):6.6}" font-weight="700" fill="${tx}" style="letter-spacing:-.2px">${center}</text>${o.sub?`<text x="21" y="27" text-anchor="middle" font-size="2.9" fill="${ms}">${o.sub}</text>`:''}</svg>`};
+const dlegend=(parts,cols,fmtv,dark)=>{const T=parts.reduce((s,p)=>s+p[1],0)||1;return `<div class="dl">${parts.map((p,i)=>`<div><i style="background:${cols[i%cols.length]}"></i><span>${p[0]}</span>${fmtv?`<b>${fmtv(p[1])}</b>`:'<b></b>'}<em>${fm(p[1]/T*100,1)}%</em></div>`).join('')}</div>`};
+const PAL=['#0b7a8a','#e9a23b','#2f9e6b','#e2563c','#7c6bd6'];
+
+function chart(keys,series,tgt,note){
+  const W=NARROW()?340:620,H=220,mx=Math.max(...series.flatMap(s=>s.v),tgt||0,1),L=Math.max(44,String(fr(mx)).length*5.8+10),span=W-L-12,few=keys.length<=7,x=i=>few?L+(i+.5)*span/keys.length:L+i*span/Math.max(keys.length-1,1),y=v=>H-28-v/mx*(H-48); // ข้อมูลน้อย (≤7 จุด) วางกึ่งกลางกราฟ
+  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f)}</text>`).join('');
+  const area=`<polygon fill="#0b7a8a" opacity=".1" points="${x(0)},${y(0)} ${series[0].v.map((v,i)=>x(i)+','+y(v)).join(' ')} ${x(keys.length-1)},${y(0)}"/>`;
+  const tg=tgt==null?'':`<line x1="${L}" x2="${W-12}" y1="${y(tgt)}" y2="${y(tgt)}" stroke="#e2563c" stroke-width="1.5" stroke-dasharray="6 4"/><text x="${W-14}" y="${y(tgt)-5}" font-size="10" text-anchor="end" fill="#e2563c">เป้าหมาย ${tgt}</text>`;
+  const ln=series.map(s=>`<polyline fill="none" stroke="${s.c}" stroke-width="2.6" stroke-linejoin="round" points="${s.v.map((v,i)=>x(i)+','+y(v)).join(' ')}"/>`+(keys.length>40?'':s.v.map((v,i)=>`<circle cx="${x(i)}" cy="${y(v)}" r="3.5" fill="#fff" stroke="${s.c}" stroke-width="2"/>`).join(''))).join('');
+  const bw=few?span/keys.length:span/Math.max(keys.length-1,1),hits=keys.map((k,i)=>`<rect class="hit" x="${Math.max(x(i)-bw/2,L)}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{tgt,note})}"/>`).join('');
+  const step=keys.length<=8?1:Math.ceil(keys.length/8),tx=keys.map((k,i)=>i%step?'':`<text x="${x(i)}" y="${H-8}" font-size="10" text-anchor="middle" fill="#5d7186">${lab(k)}</text>`).join('');
+  return `<div class="lg">${series.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join('')}</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="กราฟแนวโน้ม แตะหรือชี้เพื่อดูรายละเอียด">${grid}${tg}${area}${ln}${hits}${tx}</svg>`;
+}
+
+
+
+const fd=k=>/^\d{4}-\d{2}-\d{2}$/.test(k)?new Date(k+'T00:00:00').toLocaleDateString('th-TH',{weekday:'long',day:'numeric',month:'long',year:'numeric'}):/^\d{4}-\d{2}$/.test(k)?new Date(k+'-01T00:00:00').toLocaleDateString('th-TH',{month:'long',year:'numeric'}):/^\d{2}:\d{2}$/.test(k)?k+'–'+k.slice(0,2)+':59 น.':k;
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function tipOf(k,series,i,o={}){
+  const f=v=>fm(v,o.dec??(v<100?1:0));let h=`<b>${fd(k)}</b>`;
+  series.forEach(s=>{const v=s.v[i],p=i>0?s.v[i-1]:null,dl=p?(v-p)/p*100:null;h+=`<div class="tr"><span><i style="background:${s.c}"></i>${s.n}</span><b>${f(v)}${s.u||''}${dl!=null&&isFinite(dl)?`<em>${dl>=0?'▲':'▼'}${fm(Math.abs(dl),1)}%</em>`:''}</b></div>`});
+  if(o.stack)h+=`<div class="tr tt"><span>รวม</span><b>${f(series.reduce((s,x)=>s+x.v[i],0))}${series[0].u||''}</b></div>`;
+  if(o.tgt!=null)h+=`<div class="tr tt"><span>เป้าหมาย</span><b>${o.tgt}${series[0].u||''}</b></div>`;
+  if(o.note&&k.length==7)h+=`<small>${o.note}</small>`;
+  if(series[0].v.length>1&&k.length>5)h+=`<small>% = เปลี่ยนจากจุดก่อนหน้า</small>`;
+  return esc(h);
+}
+const DOWF=['อาทิตย์','จันทร์','อังคาร','พุธ','พฤหัสบดี','ศุกร์','เสาร์'],DOW=['อา.','จ.','อ.','พ.','พฤ.','ศ.','ส.'],lab=k=>k.length>7?(SHORT&&/^\d{4}-\d{2}-\d{2}$/.test(k)?DOW[new Date(k+'T00:00:00').getDay()]+' ':'')+k.slice(8)+'/'+k.slice(5,7):k.length==7?k.slice(5)+'/'+k.slice(2,4):k;
+let SHORT=false;
+function cols(keys,series,stack,dec=0,note){
+  const W=NARROW()?340:620,H=230,n=keys.length||1,tot=keys.map((_,i)=>stack?series.reduce((s,x)=>s+x.v[i],0):Math.max(...series.map(x=>x.v[i]))),mx=Math.max(...tot,1),L=Math.max(44,String(fr(mx,dec)).length*5.8+10),y=v=>H-28-v/mx*(H-50),bw=(W-L-12)/n,g=bw*.8/series.length;
+  const grid=[0,.5,1].map(f=>`<line x1="${L}" x2="${W-12}" y1="${y(mx*f)}" y2="${y(mx*f)}" stroke="#dce6ee" stroke-dasharray="3 4"/><text x="${L-6}" y="${y(mx*f)+4}" font-size="10" text-anchor="end" fill="#5d7186">${fr(mx*f,dec)}</text>`).join('');
+  const bars=keys.map((k,i)=>{let acc=0;return series.map((s,j)=>{const v=s.v[i],x=L+i*bw+(stack?bw*.15:bw*.1+j*g),yy=stack?y(acc+v):y(v);acc+=v;return `<rect x="${x}" y="${yy}" width="${stack?bw*.7:g*.92}" height="${Math.max(y(0)-y(v),0)}" rx="2" fill="${s.c}"/>`}).join('')}).join('');
+  const hits=keys.map((k,i)=>`<rect class="hit" x="${L+i*bw}" y="8" width="${bw}" height="${H-34}" data-tip="${tipOf(k,series,i,{stack,dec,note})}"/>`).join('');
+  const st=n<=10?1:Math.ceil(n/10),tx=keys.map((k,i)=>i%st?'':`<text x="${L+i*bw+bw/2}" y="${H-8}" font-size="10" text-anchor="middle" fill="#5d7186">${lab(k)}</text>`).join('');
+  return `<div class="lg">${series.map(s=>`<span><i style="background:${s.c}"></i>${s.n}</span>`).join('')}</div><svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="กราฟแท่ง แตะหรือชี้เพื่อดูรายละเอียด">${grid}${bars}${hits}${tx}</svg>`;
+}
+function deepCharts(cur,d,keys,keyf,erR){
+  const mvA=f=>keys.map(k=>avg(d.filter(r=>keyf(r.record_date)===k),f)||0),mvS=(rows,f)=>keys.map(k=>sum(rows.filter(r=>keyf(r.record_date)===k),f));
+  const dd={};[...new Set(d.map(r=>r.record_date))].forEach(s=>{const w=new Date(s).getUTCDay();dd[w]=(dd[w]||0)+1});
+  const nd=Math.max(new Set(cur.hourly.map(r=>r.record_date)).size,1),H24=[...Array(24).keys()];
+  const hp=t=>H24.map(h=>sum(cur.hourly.filter(r=>r.patient_type===t&&parseInt(r.time_hour)===h),r=>r.service_count)/nd);
+  const heat=t=>{const m={};cur.hourly.filter(r=>r.patient_type===t).forEach(r=>{const k=new Date(r.record_date).getUTCDay()+'-'+parseInt(r.time_hour);m[k]=(m[k]||0)+num(r.service_count)});
+    const v=(w,h)=>(m[w+'-'+h]||0)/(dd[w]||1),mx=Math.max(...Object.keys(m).map(k=>v(...k.split('-'))),1),rgb=t==='ER'?'226,86,60':'11,122,138';
+    return `<div style="display:grid;grid-template-columns:30px repeat(24,1fr);gap:2px;font-size:10px;color:#5d7186">`+[...Array(7).keys()].map(w=>`<span style="align-self:center">${DOW[w]}</span>`+H24.map(h=>`<i style="height:22px;border-radius:3px;background:rgba(${rgb},${(.06+.94*v(w,h)/mx).toFixed(2)})" data-tip="${esc(`<b>วัน${DOWF[w]} ${String(h).padStart(2,'0')}:00–${String(h).padStart(2,'0')}:59 น.</b><div class="tr"><span>เฉลี่ย ${t}</span><b>${fm(v(w,h),1)} ราย/ชม.</b></div><small>เฉลี่ยจาก ${dd[w]||0} วัน${DOWF[w]}ในช่วงที่เลือก</small>`)}"></i>`).join('')).join('')+`<span></span>`+H24.map(h=>`<span style="text-align:center">${h%3?'':h}</span>`).join('')+`</div><p class="nd" style="padding:6px">สีเข้ม = ผู้ป่วยหนาแน่น (ค่าเฉลี่ยต่อชั่วโมง)</p>`};
+  const wk=[...Array(7).keys()].map(w=>[DOW[w],(sum(d.filter(r=>new Date(r.record_date).getUTCDay()===w),r=>r.opd_daily_count))/(dd[w]||1)]);
+  const E=r=>num(r.er_his_income),O=r=>num(r.opd_his_income)-E(r);
+  const W=(n,t,s,b)=>sec(n,t,s,keys.length?b:'<div class="nd">ไม่มีข้อมูล</div>','w6');
+  return `<div class="h" style="grid-column:span 12;margin:10px 0 -4px"><h2 style="font-size:18px">กราฟเชิงลึก</h2><span>Deep-dive Analytics</span></div>`+
+   W(11,'อัตราครองเตียงเทียบเป้าหมาย (%)','Bed Occupancy vs Target',chart(keys,[{n:'อัตราครองเตียง',c:'#0b7a8a',u:'%',v:keys.map((_,i)=>{const r=d.filter(x=>keyf(x.record_date)===keys[i]),t=avg(r,x=>x.ipd_total_beds);return t?(avg(r,x=>x.ipd_current_beds)||0)/t*100:0})}],TARGET.occ,'ค่าเฉลี่ยทั้งเดือน'))+
+   W(12,'รับใหม่ เทียบ จำหน่าย','Admission vs Discharge',cols(keys,[{n:'รับใหม่',c:'#2f9e6b',u:' ราย',v:mvS(d,r=>r.ipd_new_admit_daily)},{n:'จำหน่าย',c:'#7c6bd6',u:' ราย',v:mvS(d,r=>r.ipd_discharged_daily)}],false,0,'ผลรวมทั้งเดือน'))+
+   W(13,'รายได้แยกประเภท (บาท)','Revenue Breakdown',cols(keys,[{n:'OPD',c:'#0b7a8a',u:' บาท',v:mvS(d,O)},{n:'IPD',c:'#2f9e6b',u:' บาท',v:mvS(d,r=>r.ipd_his_discharge_income)},{n:'ER',c:'#e2563c',u:' บาท',v:mvS(d,E)}],true,0,'ผลรวมทั้งเดือน'))+
+   W(14,'เวลารอแต่ละขั้นตอน (นาที)','Waiting Time by Stage',cols(keys,[{n:'ลงทะเบียน→คัดกรอง',c:'#8aa0b3',u:' นาที',v:mvA(r=>r.avg_wait_reg_to_triage)},{n:'รอพบแพทย์',c:'#e9a23b',u:' นาที',v:mvA(r=>r.avg_wait_for_doctor)},{n:'ตรวจ',c:'#0b7a8a',u:' นาที',v:mvA(r=>r.avg_doctor_consult_time)},{n:'รอรับยา',c:'#7c6bd6',u:' นาที',v:mvA(r=>r.avg_wait_for_pharmacy)}],true,1,'ค่าเฉลี่ยทั้งเดือน'))+
+   W(15,'ช่วงเวลาที่ผู้ป่วยมาใช้บริการ','Hourly Arrival Profile',chart(H24.map(h=>String(h).padStart(2,'0')+':00'),[{n:'OPD',c:'#0b7a8a',u:' ราย/ชม.',v:hp('OPD')},{n:'ER',c:'#e2563c',u:' ราย/ชม.',v:hp('ER')}]))+
+   W(16,'OPD เฉลี่ยตามวันในสัปดาห์','Weekday Pattern',bars(wk.map(w=>[w[0],w[1],'linear-gradient(90deg,#0b7a8a,#14a3a8)'])))+
+   W(17,'Heatmap OPD: วัน × ชั่วโมง','OPD Peak Hours',heat('OPD'))+
+   W(18,'Heatmap ER: วัน × ชั่วโมง','ER Peak Hours',heat('ER'));
+}
+
+const fdt=s=>new Date(s+'T00:00:00').toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
+function banner(a,b,pa,pb,n,seven,have){const $r=$('#rb');$r.innerHTML=`<div>${seven?'<span class="pill">7 วันล่าสุด</span>':`<span class="pill">${n} วัน</span>`}<b>${fdt(a)} – ${fdt(b)}</b><span>เปรียบเทียบกับ ${fdt(pa)} – ${fdt(pb)}</span>${have!=null?`<span>มีข้อมูล ${have}/${n} วัน</span>`:''}<span style="margin-left:auto;font-size:12px">ข้อมูลล่าสุด ${fdt(b)}</span></div>`}
+/* ===== การ์ดรายรับแยกตามแผนก/หอผู้ป่วย และสิทธิการรักษา (ผู้ป่วยนอก / ผู้ป่วยใน / รวม) =====
+   ผู้ป่วยนอก: hospital_department_stats (ตามแผนก) และ hospital_pttype_stats (ตามสิทธิ)
+   ผู้ป่วยใน : hospital_ward_stats (รายรับตามหอผู้ป่วย), hospital_bed_occupancy_stats (เตียงรายหอ) และ hospital_ipd_pttype_stats (ตามสิทธิ)
+   รายรับของแต่ละแถวแบ่งเป็น 3 ส่วน: เบิกตามสิทธิ (uc_money) / ผู้ป่วยชำระเอง (paid_money) / ยอดที่ไม่ระบุแหล่งจ่าย (ส่วนที่เหลือจาก his_income) */
+
+const DPC={uc:'#0b7a8a',paid:'#e9a23b',oth:'#8aa0b3'}; // สีของแต่ละส่วนในแถบสัดส่วน
+const DPN={uc:'เบิกตามสิทธิ',paid:'ผู้ป่วยชำระเอง',oth:'ยอดที่ไม่ระบุแหล่งจ่าย'}; // ชื่อของแต่ละส่วน ใช้ในคำอธิบายสีและ tooltip
+let DPV='dept'; // มุมมองปัจจุบัน: 'dept' = ตามแผนก/หอผู้ป่วย, 'pt' = ตามสิทธิการรักษา
+let DPT='opd'; // ประเภทผู้ป่วยปัจจุบัน: 'opd' = ผู้ป่วยนอก, 'ipd' = ผู้ป่วยใน, 'all' = รวมทั้งหมด
+let IPDERR={}; // เก็บข้อความ error จริงตอนโหลดตารางผู้ป่วยใน ไว้แสดงในการ์ด
+let DPS={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงที่เลือก (แผนก, สิทธิ OPD, หอผู้ป่วย, สิทธิ IPD)
+let DPQ={dept:[],pt:[],ward:[],ipt:[]}; // ข้อมูลดิบช่วงก่อนหน้า ใช้เทียบ %
+
+function dpRows(src,byD,pt){ // ปรับข้อมูลดิบจากหลายตารางให้เป็นรูปแบบเดียวกัน {k,n,inc,uc,paid,an}
+  const out=[]; // อาร์เรย์ผลลัพธ์
+  const tag=t=>pt==='all'?t:''; // ใส่ป้าย [นอก]/[ใน] นำหน้าชื่อเฉพาะตอนดูรวม เพื่อแยกแผนกกับหอผู้ป่วย
+  const mk=(k,n,r)=>({k:k,n:n,inc:num(r.his_income),uc:num(r.uc_money),paid:num(r.paid_money),an:num(r.discharge_an_count)}); // สร้างแถวมาตรฐาน (an = จำนวนผู้ป่วยจำหน่าย มีเฉพาะผู้ป่วยใน)
+  if(byD){ // มุมมองตามแผนก/หอผู้ป่วย
+    if(pt!=='ipd')(src.dept||[]).forEach(r=>out.push(mk('o:'+(r.main_dep||r.department||'ไม่ระบุ'),tag('[นอก] ')+(r.department||'ไม่ระบุ'),r))); // แผนกผู้ป่วยนอก (คีย์ใช้รหัสแผนก)
+    if(pt!=='opd')(src.ward||[]).forEach(r=>out.push(mk('i:'+(r.ward||r.ward_name||'ไม่ระบุ'),tag('[ใน] ')+(r.ward_name||r.wardname||r.ward||'ไม่ระบุ'),r))); // หอผู้ป่วยใน (คีย์ใช้รหัสหอ)
+  }else{ // มุมมองตามสิทธิการรักษา
+    const f=r=>out.push(mk(r.pttype_name||'ไม่ระบุ',r.pttype_name||'ไม่ระบุ',r)); // แถวสิทธิ: คีย์และชื่อใช้ชื่อสิทธิ (OPD กับ IPD ที่ชื่อเดียวกันจะรวมกันตอนดูรวม)
+    if(pt!=='ipd')(src.pt||[]).forEach(f); // สิทธิผู้ป่วยนอก
+    if(pt!=='opd')(src.ipt||[]).forEach(f); // สิทธิผู้ป่วยใน
+  }
+  return out; // คืนค่าแถวมาตรฐานทั้งหมด
+}
+
+function dpAgg(list){ // รวมแถวมาตรฐานที่คีย์เดียวกันให้เป็นแถวเดียว
+  const m={}; // ตัวเก็บผลรวมแยกตามคีย์
+  list.forEach(x=>{ // วนทุกแถวมาตรฐาน
+    const o=m[x.k]||(m[x.k]={k:x.k,n:x.n,mx:-1,inc:0,uc:0,paid:0,an:0}); // หยิบกลุ่มเดิม หรือสร้างกลุ่มใหม่
+    if(x.inc>o.mx){o.mx=x.inc;o.n=x.n;} // เก็บชื่อจากแถวที่รายรับสูงสุดของกลุ่ม (กันชื่อที่พิมพ์เพี้ยน)
+    o.inc+=x.inc; // สะสมรายรับรวม
+    o.uc+=x.uc; // สะสมส่วนที่เบิกตามสิทธิ
+    o.paid+=x.paid; // สะสมส่วนที่ผู้ป่วยชำระเอง
+    o.an+=x.an; // สะสมจำนวนผู้ป่วยจำหน่าย
+  });
+  return Object.values(m); // คืนค่าเป็นอาร์เรย์ของกลุ่ม
+}
+
+function dpRender(){ // ฟังก์ชันวาดเนื้อหาการ์ดทั้งหมด (เรียกซ้ำเมื่อสลับประเภทผู้ป่วยหรือมุมมอง)
+  const box=$('#dpc'); // หากล่องของการ์ดที่สร้างไว้ใน render()
+  if(!box)return; // ถ้ายังไม่มีกล่อง ให้ออกจากฟังก์ชัน
+  const byD=DPV==='dept'; // true = แถวเป็นแผนก/หอผู้ป่วย, false = แถวเป็นสิทธิ
+  const pt=DPT; // ประเภทผู้ป่วยปัจจุบัน (ย่อชื่อ)
+  const rl=byD?(pt==='ipd'?'หอผู้ป่วย':pt==='all'?'แผนก / หอผู้ป่วย':'แผนก'):'สิทธิการรักษา'; // ป้ายชื่อของแถว ใช้ในหัวตาราง
+  const unit=byD?(pt==='ipd'?'หอผู้ป่วย':pt==='all'?'แผนก/หอ':'แผนก'):'สิทธิ'; // หน่วยนับ ใช้ในแถว "อื่นๆ"
+  const showAN=pt==='ipd'; // แสดงคอลัมน์ "รายรับ/AN" เฉพาะมุมมองผู้ป่วยใน
+  const all=dpAgg(dpRows(DPS,byD,pt)).filter(o=>o.inc>0).sort((a,b)=>b.inc-a.inc); // รวมข้อมูล ตัดแถวที่ไม่มีรายรับ เรียงมาก->น้อย
+  const ipdMiss=pt!=='opd'&&!(byD?DPS.ward:DPS.ipt).length; // true = ต้องการข้อมูลผู้ป่วยใน แต่ไม่มีข้อมูลเลย
+
+  const b1='<div class="tg">'+ // เริ่มแถวปุ่มเลือกประเภทผู้ป่วย
+    [['opd','ผู้ป่วยนอก'],['ipd','ผู้ป่วยใน'],['all','รวมทั้งหมด']].map(x=>`<button data-dpt="${x[0]}" class="${pt===x[0]?'on':''}">${x[1]}</button>`).join('')+ // ปุ่มทั้งสาม (ไฮไลต์ปุ่มที่ใช้งาน)
+    '</div>'; // ปิดแถวปุ่มประเภทผู้ป่วย
+  const b2='<div class="tg" style="margin-top:8px">'+ // เริ่มแถวปุ่มสลับมุมมอง
+    `<button data-dpv="dept" class="${byD?'on':''}">${pt==='ipd'?'ดูตามหอผู้ป่วย':pt==='all'?'ดูตามแผนก/หอผู้ป่วย':'ดูตามแผนก'}</button>`+ // ปุ่มมุมมองแรก ชื่อเปลี่ยนตามประเภทผู้ป่วย
+    `<button data-dpv="pt" class="${byD?'':'on'}">ดูตามสิทธิการรักษา</button>`+ // ปุ่มดูตามสิทธิการรักษา
+    `<span>หน่วย: บาท · แสดงทั้งหมด ${all.length} ${unit} · ${cmpTxt()}</span></div>`; // ข้อความหน่วยและข้อจำกัด
+  const warn=ipdMiss?'<div class="nd" style="margin:10px 0">ไม่พบข้อมูลผู้ป่วยใน — ตรวจว่ามีข้อมูลในช่วงวันที่ที่เลือก และตาราง <b>hospital_ward_stats</b> / <b>hospital_ipd_pttype_stats</b> เปิดสิทธิ์อ่าน (RLS policy) ให้ anon แล้ว'+(Object.keys(IPDERR).length?'<br><small style="color:#b42318">สาเหตุที่โหลดไม่ได้: '+Object.values(IPDERR).map(esc).join(' | ')+'</small>':'')+'</div>':''; // ข้อความเตือนเมื่อไม่มีข้อมูลผู้ป่วยใน
+  const note=(pt!=='opd'&&!ipdMiss)?'<p style="margin:8px 0 0;color:var(--mut);font-size:12px">ผู้ป่วยใน: นับตามผู้ป่วยที่จำหน่ายในช่วงวันที่ที่เลือก (ระดับหอผู้ป่วย/สิทธิ)</p>':''; // หมายเหตุวิธีนับรายรับผู้ป่วยใน
+  if(!all.length){ // กรณีไม่มีข้อมูลรายรับในช่วงที่เลือก
+    box.innerHTML=b1+b2+(warn||'<div class="nd">ไม่มีข้อมูลรายรับในช่วงวันที่ที่เลือก</div>'); // แสดงปุ่มพร้อมข้อความ (สาเหตุผู้ป่วยในถ้าเกี่ยวข้อง)
+    return; // จบการทำงาน
+  }
+
+  const pv={}; // ยอดรายรับช่วงก่อนหน้า แยกตามคีย์แถว
+  dpAgg(dpRows(DPQ,byD,pt)).forEach(o=>{pv[o.k]=o.inc;}); // เก็บยอดช่วงก่อนหน้าของแต่ละแถว
+  const T=sum(all,o=>o.inc); // รายรับรวมช่วงปัจจุบัน
+  const TP=sum(all,o=>pv[o.k]||0); // รายรับรวมช่วงก่อนหน้า (เฉพาะแถวที่มีรายรับตอนนี้ เพื่อเทียบอย่างเป็นธรรม)
+  const UC=sum(all,o=>o.uc); // รวมส่วนที่เบิกตามสิทธิ
+  const PD=sum(all,o=>o.paid); // รวมส่วนที่ผู้ป่วยชำระเอง
+  const AN=sum(all,o=>o.an); // รวมจำนวนผู้ป่วยจำหน่าย
+  const oth=o=>Math.max(o.inc-o.uc-o.paid,0); // ส่วน "อื่นๆ" = รายรับ - เบิกตามสิทธิ - ชำระเอง (ไม่ติดลบ)
+
+  const rows=all; // แสดงทุกแผนก/หอผู้ป่วย/สิทธิ ไม่ตัดแถวและไม่รวมเป็น "อื่นๆ"
+  const mx=Math.max(...rows.map(o=>o.inc),1); // รายรับสูงสุดในตาราง ใช้เป็น 100% ของความยาวแถบ
+
+  const dchg=(v,p)=>{ // ฟังก์ชันสร้างข้อความ % เปลี่ยนแปลงเทียบช่วงก่อน (v=ปัจจุบัน, p=ก่อนหน้า)
+    if(!p)return '<span style="color:var(--mut);font-size:12px">ไม่มีช่วงเปรียบเทียบ</span>'; // ไม่มีข้อมูลช่วงก่อนของแผนก/สิทธิเดียวกัน
+    const up=v>=p; // เพิ่มขึ้นหรือเท่าเดิมหรือไม่
+    const pct=fm(Math.abs((v-p)/p*100),1); // คำนวณ % ความต่าง (ทศนิยม 1 ตำแหน่ง)
+    return `<span class="${up?'up':'dn'}">${up?'▲':'▼'} ${pct}%</span><small class="pv">ก่อนหน้า ${fm(p)} บาท</small>`; // เขียว ▲ เมื่อเพิ่ม, แดง ▼ เมื่อลด + ยอดช่วงก่อน
+  };
+  const kc=(l,v,s)=>`<div class="k"><i>${l}</i><strong style="font-size:18px;line-height:1.5">${v}</strong><em style="color:var(--mut)">${s}</em></div>`; // สร้างช่องสรุปแบบข้อความ (หัวข้อ, ค่า, คำอธิบาย)
+  const mil=v=>`${fm(v)} บาท`; // แสดงเป็นบาทเต็มจำนวน
+  const perAN=o=>o.an?fm(o.inc/o.an):'-'; // รายรับเฉลี่ยต่อผู้ป่วยจำหน่าย 1 ราย (AN)
+
+  const bar=o=>{ // ฟังก์ชันสร้างแถบสัดส่วน 3 ส่วนของหนึ่งแถว
+    const parts=[['uc',o.uc],['paid',o.paid],['oth',oth(o)]]; // ส่วนที่จะวาด (คีย์สี, ยอด)
+    const tot=sum(parts,p=>p[1])||1; // ยอดรวมของทุกส่วน (กันหารศูนย์)
+    const segs=parts.map(p=>{ // วนสร้างทีละส่วน
+      if(p[1]<=0)return ''; // ไม่มียอด ไม่ต้องวาด
+      const tip=esc(`<b>${o.n}</b><div class="tr"><span><i style="background:${DPC[p[0]]}"></i>${DPN[p[0]]}</span><b>${fm(p[1])} บาท<em>${fm(p[1]/tot*100,1)}%</em></b></div>`); // ข้อความ tooltip (ชื่อแถว, ส่วน, ยอด, %)
+      return `<u style="display:block;height:100%;width:${p[1]/tot*100}%;background:${DPC[p[0]]}" data-tip="${tip}"></u>`; // ส่วนสีกว้างตามสัดส่วน
+    }).join(''); // รวมทุกส่วนเป็นข้อความเดียว
+    return `<div style="background:#eaf0f5;border-radius:99px;height:12px;overflow:hidden;min-width:120px"><div style="display:flex;height:100%;width:${o.inc/mx*100}%">${segs}</div></div>`; // รางสีเทา + แถบที่ยาวตามรายรับเทียบแถวสูงสุด
+  };
+
+  const body=rows.map((o,i)=> // สร้างแถวของตารางทีละแถวข้อมูล
+    `<tr><td><span class="rk${i<3?' t':''}">${i+1}</span><b>${esc(o.n)}</b></td>`+ // คอลัมน์ 1: ชื่อแถว (แผนก/หอผู้ป่วย/สิทธิ)
+    `<td style="text-align:left">${bar(o)}</td>`+ // คอลัมน์ 2: แถบสัดส่วน
+    `<td>${fm(o.inc)}</td>`+ // คอลัมน์ 3: รายรับ (บาท)
+    `<td>${fm(o.uc)}</td>`+ // คอลัมน์ 4: เบิกตามสิทธิ (บาท)
+    `<td>${fm(o.paid)}</td>`+ // คอลัมน์ 5: ผู้ป่วยชำระเอง (บาท)
+    (showAN?`<td>${perAN(o)}</td>`:'')+ // คอลัมน์ (เฉพาะผู้ป่วยใน): รายรับต่อ AN
+    `<td>${fm(o.inc/T*100,1)}%</td>`+ // คอลัมน์ถัดไป: % ของรายรับทั้งหมด
+    `<td>${dchg(o.inc,pv[o.k]||0)}</td></tr>` // คอลัมน์สุดท้าย: เทียบช่วงก่อน
+  ).join(''); // รวมทุกแถวเป็นข้อความเดียว
+  const tbl='<div class="dpw"><table>'+ // กล่องเลื่อนแนวนอน (กันล้นจอมือถือ) + เริ่มตาราง
+    `<tr><th>${rl}</th>`+ // หัวคอลัมน์: ชื่อแถว
+    '<th style="text-align:left;width:26%">สัดส่วนรายรับ</th>'+ // หัวคอลัมน์: แถบสัดส่วน
+    '<th>รายรับ</th><th>เบิกตามสิทธิ</th><th>ชำระเอง</th>'+ // หัวคอลัมน์ตัวเลขหลัก
+    (showAN?'<th>รายรับ/AN</th>':'')+ // หัวคอลัมน์รายรับต่อ AN (เฉพาะผู้ป่วยใน)
+    '<th>% ทั้งหมด</th><th>เทียบช่วงก่อน ('+CMP.len+' วัน)</th></tr>'+ // หัวคอลัมน์ที่เหลือ
+    body+ // แถวข้อมูลทั้งหมด
+    `<tr class="tt"><td><b>รวมทั้งหมด</b></td><td></td><td><b>${fm(T)}</b></td><td><b>${fm(UC)}</b></td><td><b>${fm(PD)}</b></td>`+ // แถวสรุปรวม: ชื่อ แถบ(ว่าง) รายรับ เบิกตามสิทธิ ชำระเอง
+    (showAN?`<td><b>${AN?fm(T/AN):'-'}</b></td>`:'')+ // รวม: รายรับต่อ AN (เฉพาะผู้ป่วยใน)
+    `<td><b>100%</b></td><td>${dchg(T,TP)}</td></tr>`+ // รวม: 100% และเทียบช่วงก่อน
+    '</table></div>'; // ปิดตารางและกล่องเลื่อน
+
+  box.innerHTML= // ประกอบทั้งการ์ดแล้วใส่ลงในกล่อง
+    '<div class="kp" style="margin-bottom:12px">'+ // เริ่มแถวช่องสรุป 4 ช่อง
+    kpi('รายรับรวม',fm(T),'บาท',T,TP,0)+ // ช่อง 1: รายรับรวม + % เทียบช่วงก่อน (ฟังก์ชัน kpi เดิมของแดชบอร์ด)
+    kc('เบิกตามสิทธิ',mil(UC),fm(UC/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 2: ยอดและสัดส่วนที่เบิกตามสิทธิ
+    kc('ผู้ป่วยชำระเอง',mil(PD),fm(PD/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 3: ยอดและสัดส่วนที่ผู้ป่วยชำระเอง
+    kc(byD?(pt==='ipd'?'หอผู้ป่วยรายรับสูงสุด':'แผนก/หอรายรับสูงสุด'):'สิทธิรายรับสูงสุด',esc(all[0].n),fm(all[0].inc/T*100,1)+'% ของรายรับทั้งหมด')+ // ช่อง 4: แถวที่รายรับสูงสุด
+    '</div>'+ // ปิดแถวช่องสรุป
+    b1+ // ปุ่มเลือกประเภทผู้ป่วย
+    b2+ // ปุ่มสลับมุมมอง
+    warn+ // ข้อความเตือน (ถ้าไม่พบข้อมูลผู้ป่วยในตอนดูรวม)
+    '<div class="lg" style="flex-wrap:wrap;margin:10px 0 8px">'+ // เริ่มคำอธิบายสี
+    ['uc','paid','oth'].map(k=>`<span><i style="background:${DPC[k]}"></i>${DPN[k]}</span>`).join('')+ // จุดสีพร้อมชื่อของแต่ละส่วน
+    '</div>'+ // ปิดคำอธิบายสี
+    tbl+ // ตารางรายรับ
+    note; // หมายเหตุวิธีนับรายรับผู้ป่วยใน (ถ้าเกี่ยวข้อง)
+}
+
+document.addEventListener('click',e=>{ // ดักการคลิกทั้งหน้า (event delegation) เพราะปุ่มถูกสร้างใหม่ทุกครั้งที่วาดการ์ด
+  const el=e.target&&e.target.closest?e.target:null; // องค์ประกอบที่ถูกคลิก (กันกรณีไม่ใช่ element)
+  if(!el)return; // ไม่ใช่ element ให้ออก
+  const v=el.closest('[data-dpv]'); // หาปุ่มสลับมุมมองที่ถูกคลิก (ถ้ามี)
+  const t=el.closest('[data-dpt]'); // หาปุ่มเลือกประเภทผู้ป่วยที่ถูกคลิก (ถ้ามี)
+  if(v){ // ถ้าคลิกโดนปุ่มสลับมุมมอง
+    DPV=v.dataset.dpv; // เปลี่ยนมุมมองตามค่าในปุ่ม ('dept' หรือ 'pt')
+    dpRender(); // วาดการ์ดใหม่
+  }
+  if(t){ // ถ้าคลิกโดนปุ่มประเภทผู้ป่วย
+    DPT=t.dataset.dpt; // เปลี่ยนประเภทผู้ป่วยตามค่าในปุ่ม ('opd' / 'ipd' / 'all')
+    dpRender(); // วาดการ์ดใหม่
+  }
+});
+
+/* [เพิ่มใหม่] ตารางเตียงรายหอผู้ป่วย: จำนวนเตียง + จำนวนเตียงที่ใช้งาน (เฉลี่ยต่อวัน) + % ครองเตียง */
+const BED_TOT=['bed_count','bedcount','total_beds','bed_total','beds','bed_qty','bed_all','bed_capacity','capacity'],BED_USE=['bed_used','used_beds','current_beds','occupied_beds','bed_occupied','bed_current','census'];
+function bedField(r,kind){ // อ่านค่าเตียงจากแถวหอผู้ป่วย: ลองชื่อคอลัมน์ที่พบบ่อยก่อน แล้วค่อยเดาจากคำว่า bed
+  const list=kind==='tot'?BED_TOT:BED_USE;
+  for(const k of list)if(r[k]!=null&&r[k]!==''&&isFinite(+r[k]))return +r[k];
+  const re=kind==='tot'?/total|all|count|qty|cap|^beds?$/i:/used|occup|current|census|inuse/i,ex=kind==='tot'?/used|occup|current|rate|pct|percent/i:/rate|pct|percent|total/i;
+  const k=Object.keys(r).find(k=>/bed/i.test(k)&&re.test(k)&&!ex.test(k)&&r[k]!=null&&r[k]!==''&&isFinite(+r[k]));
+  return k?+r[k]:null;
+}
+const bedNum=v=>v===''||v==null||isNaN(+v)?null:+v;
+function bedStats(rows){ // สรุปเตียงรายหอจาก hospital_bed_occupancy_stats: เตียง=ค่าล่าสุด, ใช้งาน/ชาย/หญิง=เฉลี่ยต่อวัน
+  const m=new Map();(rows||[]).forEach(r=>{const k=r.ward||r.ward_name||'ไม่ระบุ';if(!m.has(k))m.set(k,{n:r.ward_name||r.ward||'ไม่ระบุ',rows:[]});m.get(k).rows.push(r)});
+  const av=(rs,f)=>{const v=rs.map(f).filter(x=>x!=null);return v.length?v.reduce((a,b)=>a+b,0)/v.length:null};
+  const ws=[...m.values()].map(w=>{const last=w.rows.reduce((x,y)=>String(y.record_date)>String(x.record_date)?y:x);
+    return{n:w.n,tot:bedNum(last.total_beds)??bedField(last,'tot'),used:av(w.rows,r=>bedNum(r.used_beds)??bedField(r,'use')),male:av(w.rows,r=>bedNum(r.male_count)),female:av(w.rows,r=>bedNum(r.female_count))}}).sort((x,y)=>String(x.n).localeCompare(String(y.n),'th'));
+  const sm=k=>ws.reduce((s,w)=>s+(w[k]||0),0);
+  return{ws,T:sm('tot'),U:sm('used'),M:sm('male'),F:sm('female')};
+}
+function wardBedHtml(rows,err){
+  const h='<p style="margin:16px 0 4px;font-weight:600">การใช้งานเตียงแต่ละหอผู้ป่วย</p>';
+  if(err)return h+'<div class="nd">โหลดตาราง <b>hospital_bed_occupancy_stats</b> ไม่ได้ — ตรวจสิทธิ์อ่าน (RLS policy)<br><small style="color:#b42318">'+esc(err)+'</small></div>';
+  if(!rows||!rows.length)return h+'<div class="nd">ไม่มีข้อมูลเตียงรายหอผู้ป่วยในช่วงที่เลือก (hospital_bed_occupancy_stats)</div>';
+  const B=bedStats(rows),ws=B.ws;
+  if(!ws.some(w=>w.tot!=null||w.used!=null))return h+'<div class="nd">ตาราง hospital_bed_occupancy_stats ไม่พบคอลัมน์จำนวนเตียง</div>';
+  const col=p=>p>100?'#c2371f':p>=90?'#e2563c':p>=75?'#e9a23b':'#2f9e6b',f1=v=>v==null?'-':fm(v,1);
+  const gT=B.M+B.F,mp=gT?B.M/gT*100:0,fp=gT?B.F/gT*100:0;
+  const gender=gT?`<div style="margin:6px 0 2px;font-size:12px;color:var(--mut)">ผู้ป่วยที่ครองเตียงแยกเพศ (เฉลี่ยต่อวัน)</div><div class="gb"><i style="width:${mp}%;background:#2563eb" title="ชาย"></i><i style="width:${fp}%;background:#d6457f" title="หญิง"></i></div><div class="gl"><span style="color:#2563eb">● ชาย <b>${f1(B.M)}</b> ราย (${fm(mp,1)}%)</span><span style="color:#d6457f">● หญิง <b>${f1(B.F)}</b> ราย (${fm(fp,1)}%)</span></div>`:'';
+  const row=(n,tot,used,m,f,b)=>{const p=tot?used/tot*100:null;return `<tr${b?' style="font-weight:700;background:#f4f8fb"':''}><td>${esc(n)}</td><td style="text-align:right">${fm(tot)}</td><td style="text-align:right">${f1(used)}</td><td style="text-align:right;color:#2563eb">${f1(m)}</td><td style="text-align:right;color:#d6457f">${f1(f)}</td><td style="min-width:140px">${p==null?'-':`<div style="display:flex;align-items:center;gap:6px"><div style="flex:1;height:10px;border-radius:9px;background:#e8eef5;overflow:hidden"><div style="height:100%;width:${Math.min(p,100)}%;background:${col(p)};border-radius:9px"></div></div><span style="min-width:42px;text-align:right">${fm(p,0)}%</span></div>${p>100?`<small style="color:#c2371f">เกินจำนวนเตียง ${fm(used-tot,1)}</small>`:''}`}</td></tr>`};
+  return h+gender+'<div style="overflow-x:auto;margin-top:8px"><table><tr><th>หอผู้ป่วย</th><th style="text-align:right">เตียง</th><th style="text-align:right">ใช้งาน</th><th style="text-align:right">ชาย</th><th style="text-align:right">หญิง</th><th>ครองเตียง</th></tr>'+ws.map(w=>row(w.n,w.tot,w.used,w.male,w.female)).join('')+row('รวมทุกหอ',B.T,B.U,B.M,B.F,true)+'</table></div><small style="color:var(--mut)">เตียง = ค่าล่าสุดในช่วงที่เลือก · ใช้งาน/ชาย/หญิง = เฉลี่ยต่อวัน (ชาย+หญิง = ผู้ป่วยที่ครองเตียง) · ครองเตียงเกิน 100% = ผู้ป่วยมากกว่าจำนวนเตียงที่ตั้งไว้</small>';
+}
+function nowStamp(a,b){ // เวลาปัจจุบัน ณ ตอนกดค้นหา — ค่าเปลี่ยนเฉพาะเมื่อเลือกวันที่แล้วค้นหา/โหลดใหม่
+  const t=new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date()).replace(/\s+(?=\d{2}:)/,' · ');
+  return `<div class="now"><span class="nd0" style="animation:none"></span>เวลาปัจจุบัน ณ ตอนค้นหา <b>${t} น.</b><span>· ข้อมูลวันที่ ${a===b?a:a+' ถึง '+b}</span></div>`}
+function render(cur,prev,a,b){
+  SHORT=(new Date(b)-new Date(a))/864e5<=13;
+  const d=cur.daily,pd=prev.daily,days=d.length||1,span=(new Date(b)-new Date(a))/864e5;
+  const ser=(rows,f)=>group(rows,r=>r.record_date,f).sort((x,y)=>x[0]<y[0]?-1:1);
+  const erR=cur.hourly.filter(r=>r.patient_type==='ER'),erP=prev.hourly.filter(r=>r.patient_type==='ER');
+  const opd=sum(d,r=>r.opd_daily_count),adm=sum(d,r=>r.ipd_new_admit_daily),dis=sum(d,r=>r.ipd_discharged_daily),er=sum(erR,r=>r.service_count);
+  const BO=bedStats(cur.bed_occupancy),BOp=bedStats(prev.bed_occupancy),hasB=BO.T>0; // เตียง/ใช้งานจาก hospital_bed_occupancy_stats (ถ้าไม่มีใช้ daily เดิม)
+  const lastBeds=rs=>{const r=(rs||[]).filter(x=>+x.ipd_total_beds>0).reduce((m,x)=>!m||String(x.record_date)>String(m.record_date)?x:m,null);return r?+r.ipd_total_beds:0}; // เตียงทั้งหมด = ค่าล่าสุดของ ipd_total_beds ในช่วงที่เลือก
+  const tot=lastBeds(d)||(hasB?BO.T:0),used=hasB?BO.U:(avg(d,r=>r.ipd_current_beds)||0),occ=tot?used/tot*100:0;
+  const pt=lastBeds(pd)||(BOp.T>0?BOp.T:0),pocc=pt?(BOp.T>0?BOp.U:(avg(pd,r=>r.ipd_current_beds)||0))/pt*100:0;
+  const wait=avg(d,r=>r.avg_wait_for_doctor),consult=avg(d,r=>r.avg_doctor_consult_time),los=avg(d,r=>r.ipd_avg_length_of_stay);
+  const iO=sum(d,r=>r.opd_his_income),iI=sum(d,r=>r.ipd_his_discharge_income),iE=sum(d,r=>r.er_his_income),inc=iO+iI;
+  const pinc=sum(pd,r=>r.opd_his_income)+sum(pd,r=>r.ipd_his_discharge_income);
+  const readmit=avg(d,r=>r.readmit_28days_pct),proc=avg(d,r=>r.avg_total_process_time);
+  const keyf=span>62?(s=>s.slice(0,7)):(s=>s),keys=[...new Set(d.map(r=>keyf(r.record_date)))].sort();
+  const mv=(rows,f)=>keys.map(k=>sum(rows.filter(r=>keyf(r.record_date)===k),f));
+  const flow=[['ลงทะเบียน→คัดกรอง',avg(d,r=>r.avg_wait_reg_to_triage)],['รอพบแพทย์',wait],['ตรวจโดยแพทย์',consult],['รอรับยา',avg(d,r=>r.avg_wait_for_pharmacy)],['รวมทั้งกระบวนการ',proc]];
+  const dep=group(cur.department,r=>r.department,r=>r.visit_count).slice(0,10);
+  const tri=group(cur.er_triage,r=>r.triage_level_name,r=>r.patient_count).sort((x,y)=>x[0]<y[0]?-1:1),trT=sum(tri,r=>r[1])||1;
+  const dr={};cur.doctor_clinic.forEach(r=>{const o=dr[r.doctor_code]||(dr[r.doctor_code]={n:r.doctor_name,c:r.clinic_name,v:0,p:0,a:0});o.v+=num(r.visit_count);o.p+=num(r.patient_count);o.a+=num(r.admit_count)});
+  const drs=Object.values(dr).sort((x,y)=>y.v-x.v).slice(0,8);
+  const pay=group(cur.pttype,r=>r.pttype_name,r=>r.his_income),payT=sum(pay,r=>r[1])||1;
+  const al=[['อัตราการครองเตียง',occ,TARGET.occ,'%'],['เวลารอพบแพทย์',wait,TARGET.wait,' นาที'],['ระยะเวลาตรวจแพทย์',consult,TARGET.consult,' นาที'],['Readmit 28 วัน',readmit,TARGET.readmit,'%'],['เวลารวมทั้งกระบวนการ OPD',proc,TARGET.total,' นาที']];
+  const deep=deepCharts(cur,d,keys,keyf,erR);
+  const gcol=occ>TARGET.occ?'#e2563c':'#14a3a8';
+  $('#app').innerHTML=
+   sec(1,'ภาพรวมโรงพยาบาล','Hospital KPI Summary',`<div class="hero"><div class="gauge"><small>อัตราครองเตียง</small>${donut([['เตียงที่ครอง',occ],['เตียงว่าง',Math.max(100-occ,0)]],[gcol,'#ffffff26'],fm(occ,0)+'%',160,{dark:1,sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง'})}<small style="margin-top:4px">${fm(used)} / ${fm(tot)} เตียง</small><small style="color:${occ>TARGET.occ?'#ff9d8a':'#7fe0c0'};opacity:1;margin-top:2px">${occ>TARGET.occ?'▲ เกินเป้า':'● อยู่ในเกณฑ์'} (เป้า ≤ ${TARGET.occ}%)</small></div><div class="kp">${
+     kpi('OPD ผู้ป่วยนอก',fm(opd),'ครั้ง',opd,sum(pd,r=>r.opd_daily_count),0,ser(d,r=>r.opd_daily_count))+
+     kpi('IPD รับไว้รักษา',fm(adm),'ราย',adm,sum(pd,r=>r.ipd_new_admit_daily),0,ser(d,r=>r.ipd_new_admit_daily),'#2f9e6b')+
+     kpi('ER ผู้ป่วยฉุกเฉิน',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0,ser(erR,r=>r.service_count),'#e2563c')+
+     kpi('จำหน่ายผู้ป่วยใน',fm(dis),'ราย',dis,sum(pd,r=>r.ipd_discharged_daily),0,ser(d,r=>r.ipd_discharged_daily),'#7c6bd6')+
+     kpi('เวลารอพบแพทย์',fm(wait,1),'นาที',wait,avg(pd,r=>r.avg_wait_for_doctor),1,ser(d,r=>r.avg_wait_for_doctor),'#e9a23b')+
+     kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
+     kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
+     kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
+   sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
+   sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
+   sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
+   sec(5,'บริหารเตียงผู้ป่วยใน','IPD & Bed Management',`<div class="dn2">${donut([['เตียงที่ครอง',used],['เตียงว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],fm(occ,0)+'%',132,{sub:'ครองเตียง',target:TARGET.occ,label:'อัตราครองเตียง',fmtv:v=>fm(v)+' เตียง'})}<div style="flex:1;min-width:150px"><div style="color:var(--mut);font-size:12px">เตียงทั้งหมด</div><b style="font-size:24px">${fm(tot)}</b>${dlegend([['ครอง',used],['ว่าง',Math.max(tot-used,0)]],[gcol,'#c9d6e2'],v=>fm(v))}</div></div><table style="margin-top:8px"><tr><th>รับใหม่</th><th>จำหน่าย</th><th>วันนอนเฉลี่ย</th></tr><tr><td>${fm(adm)}</td><td>${fm(dis)}</td><td>${fm(los,1)} วัน</td></tr></table>${wardBedHtml(cur.bed_occupancy,IPDERR.bed_occupancy)}`)+
+   sec(6,'งานอุบัติเหตุฉุกเฉิน','Emergency Department',`<div class="kp" style="grid-template-columns:1fr 1fr">${kpi('ผู้ป่วย ER',fm(er),'ครั้ง',er,sum(erP,r=>r.service_count),0)}${kpi('เฉลี่ยต่อวัน',fm(er/days,1),'ครั้ง',0,0)}</div><p style="margin:12px 0 2px;font-weight:600">ระดับความเร่งด่วน (Triage)</p>${bars(tri.map((t,i)=>[t[0]+' ('+fm(t[1]/trT*100,0)+'%)',t[1],['#e2563c','#f08a3c','#e9a23b','#2f9e6b','#8aa0b3'][i%5]]))}`)+
+   sec(7,'ผลปฏิบัติงานแพทย์/คลินิก','Doctor & Clinic Performance',drs.length?`<table><tr><th>แพทย์ / คลินิก</th><th>ครั้ง</th><th>คน</th><th>Admit</th></tr>${drs.map(r=>`<tr><td><b>${r.n||'-'}</b><br><small style="color:#5d7186">${r.c||''}</small></td><td>${fm(r.v)}</td><td>${fm(r.p)}</td><td>${fm(r.a)}</td></tr>`).join('')}</table>`:'<div class="nd">ไม่มีข้อมูล</div>')+
+   sec(8,'วิเคราะห์รายได้','Financial & Revenue Analysis',`<div class="dn2">${donut([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,fm(inc),132,{sub:'บาท',label:'สัดส่วนรายได้',fmtv:v=>fm(v)+' บาท'})}${dlegend([['OPD',iO-iE],['IPD',iI],['ER',iE]],PAL,v=>fm(v)+' บาท')}</div><p style="margin:12px 0 2px;font-weight:600">ตามสิทธิการรักษา (OPD)</p>${bars(pay.slice(0,5).map(p=>[p[0],p[1]/payT*100,'#2f9e6b']),'%')}`)+
+   sec(9,'คุณภาพบริการ','Quality',`<div class="kp" style="grid-template-columns:1fr">${kpi('อัตรากลับมารักษาซ้ำภายใน 28 วัน',fm(readmit,1),'%',readmit,avg(pd,r=>r.readmit_28days_pct),1,ser(d,r=>r.readmit_28days_pct),'#e9a23b')}</div><p class="nd">ความพึงพอใจผู้ป่วยยังไม่มีข้อมูล — เพิ่มตารางแบบสำรวจเพื่อแสดงส่วนนี้</p>`)+
+   // [เพิ่มใหม่] การ์ดรายรับแยกตามแผนก/หอผู้ป่วย/สิทธิ (เป็นกล่องว่าง #dpc แล้ว dpRender() ค่อยเติมเนื้อหา)
+   sec('8.1','รายรับแยกตามแผนก หอผู้ป่วย และสิทธิการรักษา','Revenue by Department, Ward & Patient Right','<div id="dpc"></div>','w12')+
+   sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
+  // [เพิ่มใหม่] ส่งข้อมูลแผนก หอผู้ป่วย และสิทธิ (ช่วงปัจจุบัน/ก่อนหน้า) เข้าสู่การ์ด
+  DPS={dept:cur.department||[],pt:cur.pttype||[],ward:cur.ward||[],ipt:cur.ipd_pttype||[]}; // ข้อมูลช่วงปัจจุบัน
+  DPQ={dept:prev.department||[],pt:prev.pttype||[],ward:prev.ward||[],ipt:prev.ipd_pttype||[]}; // ข้อมูลช่วงก่อนหน้า
+  dpRender(); // วาดการ์ดลงหน้าจอ
+}
+
+
+/* ===== ส่วนเพิ่มตามโครงเว็บสถิติโรงพยาบาล: รายงานรายเดือน / KPI / รับ–จำหน่ายรายวอร์ด (ข้อมูลจาก Supabase) ===== */
+const XT=[{k:'opd_daily_count',n:'ผู้ป่วยนอก (OPD)',u:'ครั้ง',g:'sum'},{k:'ipd_new_admit_daily',n:'รับใหม่ IPD',u:'ราย',g:'sum'},{k:'ipd_discharged_daily',n:'จำหน่าย IPD',u:'ราย',g:'sum'},{k:'ipd_avg_length_of_stay',n:'วันนอนเฉลี่ย',u:'วัน',g:'avg',d:1},{k:'opd_his_income',n:'รายได้ OPD',u:'บาท',g:'sum'},{k:'ipd_cash_discharge_income',n:'รายได้ IPD',u:'บาท',g:'sum'}];
+let XD=null,xk=XT[0];
+const xmon=k=>['ม.ค.','ก.พ.','มี.ค.','เม.ย.','พ.ค.','มิ.ย.','ก.ค.','ส.ค.','ก.ย.','ต.ค.','พ.ย.','ธ.ค.'][+k.slice(5)-1]+' '+String(+k.slice(0,4)+543).slice(2);
+function xbars(ser,lab,d=0){
+  const W=NARROW()?360:700,H=270,B=30,T=16,n=lab.length,single=ser.length===1,top=Math.max(1,...ser.flatMap(x=>x.v));
+  const vt=single?ser[0].v.map(v=>fm(v,d)):[],maxLen=vt.length?Math.max(...vt.map(t=>t.length)):0;
+  const cw0=(W-62)/Math.max(n,1),rot=single&&n<=14&&cw0*.96/(maxLen*.58)<7.5; // ตัวเลขยาวเกินช่อง -> หมุนแนวตั้ง
+  const room=rot?(maxLen*6+14)/(H-T-B):.12,mx=top*(1+Math.max(room,.12));
+  const ticks=[0,1,2,3,4].map(i=>fr(mx*(1-i/4),mx<10?1:0));
+  const L=Math.max(46,Math.max(...ticks.map(t=>t.length))*6.4+12),cw=(W-L)/Math.max(n,1),bw=Math.min(40,cw*.72/ser.length);let g='';
+  ticks.forEach((t,i)=>{const y=T+(H-T-B)*i/4;g+=`<line x1="${L}" x2="${W}" y1="${y}" y2="${y}" stroke="#e2eaf2"/><text x="${L-6}" y="${y+4}" font-size="11" text-anchor="end" fill="#60758a">${t}</text>`});
+  ser.forEach((x,si)=>x.v.forEach((v,i)=>{const h=(H-T-B)*v/mx,px=L+cw*i+(cw-bw*ser.length)/2+bw*si,y=H-B-h;
+    g+=`<rect x="${px}" y="${y}" width="${bw-2}" height="${h}" rx="5" fill="${x.c}"><title>${lab[i]}: ${fm(v,d)}</title></rect>`;
+    if(single&&n<=14){const cx=L+cw*i+cw/2,t=vt[i];
+      g+=rot?`<text transform="rotate(-90 ${cx+4} ${y-6})" x="${cx+4}" y="${y-6}" font-size="10.5" fill="#0b1f33">${t}</text>`
+            :`<text x="${cx}" y="${y-6}" font-size="${Math.min(11,cw*.96/(t.length*.58)).toFixed(2)}" text-anchor="middle" fill="#0b1f33">${t}</text>`}}));
+  const st=Math.ceil(n/14);lab.forEach((l,i)=>{if(i%st==0)g+=`<text x="${L+cw*i+cw/2}" y="${H-10}" font-size="11" text-anchor="middle" fill="#60758a">${l}</text>`});
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%"><defs><linearGradient id="xg" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2dd4bf"/><stop offset="1" stop-color="#2563eb"/></linearGradient></defs>${g}</svg>`;
+}
+const xsec=(n,t,s,b)=>`<section class="s w12" id="sec${n}"><div class="h"><b>${n}</b><h2>${t}</h2><span>${s}</span></div>${b}</section>`;
+function xmonthly(rows,t){const m={};rows.forEach(r=>{const v=r[t.k];if(v===''||v==null||isNaN(+v))return;const k=String(r.record_date).slice(0,7),o=m[k]??={s:0,n:0};o.s+=+v;o.n++});return Object.keys(m).sort().map(k=>({k,n:m[k].n,v:t.g=='sum'?m[k].s:m[k].s/m[k].n}))}
+function xDraw(){
+  const ms=xmonthly(XD.daily,xk);
+  $('#xchips').innerHTML=XT.map(t=>`<button class="${t===xk?'on':''}" data-k="${t.k}">${t.n}</button>`).join('');
+  $('#xchart').innerHTML=ms.length?xbars([{v:ms.map(x=>x.v),c:'url(#xg)'}],ms.map(x=>xmon(x.k)),xk.d||0):'<div class="nd">ไม่มีข้อมูล</div>';
+  $('#xtab').innerHTML=`<tr><th>เดือน</th><th>${xk.u}${xk.g=='avg'?' (เฉลี่ย/วัน)':' (รวม)'}</th><th>เทียบเดือนก่อน</th><th>วันที่มีข้อมูล</th></tr>`+ms.map((x,i)=>{const p=i?ms[i-1].v:0,c=p?(x.v-p)/p*100:null;return `<tr><td>${xmon(x.k)}</td><td><b>${fm(x.v,xk.d||0)}</b></td><td class="${c==null?'':c>=0?'up':'dn'}">${c==null?'-':(c>=0?'▲ ':'▼ ')+fm(Math.abs(c),1)+'%'}</td><td>${x.n}</td></tr>`}).reverse().join('');
+}
+async function xtra(){
+  document.querySelectorAll('.xs').forEach(e=>e.remove());
+  const host=document.querySelector('main');if(!host)return;
+  const mk=h=>{const d=document.createElement('div');d.className='xs';d.style.display='contents';d.innerHTML=h;host.append(d)};
+  try{
+    if(!XD){const a='2025-10-01',b=iso(new Date());XD={daily:await get('daily',a,b)}}
+    if(!XD.daily.length){mk(xsec(19,'รายงานรายเดือน','Monthly Report','<div class="nd">ยังไม่มีข้อมูลรายเดือน</div>'));return}
+        mk(xsec(19,'รายงานรายเดือน','Monthly Report',`<div class="tg" id="xchips" style="margin-bottom:12px"></div><div id="xchart"></div><div style="overflow-x:auto;margin-top:12px"><table id="xtab"></table></div>`));
+    $('#xchips').onclick=e=>{const k=e.target.dataset.k;if(k){xk=XT.find(t=>t.k===k);xDraw()}};
+    xDraw();
+  }catch(e){mk(xsec(19,'รายงานรายเดือน','Monthly Report',`<div class="nd">โหลดข้อมูลไม่สำเร็จ: ${String(e.message).replace(/[<>]/g,'')}</div>`))}
+}
+async function load(){
+  const a=$('#from').value,b=$('#to').value;if(!a||!b||a>b){$('#msg').textContent='เลือกช่วงวันที่ให้ถูกต้อง';return}
+  tip.style.display='none';const len=Math.max(1,Math.round((new Date(b)-new Date(a))/864e5)+1),pa=addD(a,-len),pb=addD(a,-1),c=cfg(),live=c.u&&c.k;CMP={len,pa,pb};
+  $('#msg').textContent=live?'กำลังโหลดข้อมูล…':'กำลังแสดงข้อมูลตัวอย่าง — แก้ CONFIG ในไฟล์ หรือกด "ตั้งค่า" เพื่อเชื่อมต่อ Supabase';
+  try{
+    let all;
+    if(live){ // โหมดเชื่อมต่อฐานข้อมูลจริง
+      const r=await Promise.all(TB.map(t=>get(t,pa,b))); // ดึงตารางเดิมทั้งหมดพร้อมกัน
+      all={}; // อ็อบเจ็กต์เก็บข้อมูลทุกตาราง
+      TB.forEach((t,i)=>all[t]=r[i]); // จับคู่ชื่อตารางกับข้อมูลที่ดึงมา
+      IPDERR={};
+      for(const t of ['ward','ipd_pttype','bed_occupancy']){ // [เพิ่มใหม่] วนดึงตารางผู้ป่วยในทีละตาราง (แยกจากตารางหลัก)
+        try{all[t]=await get(t,pa,b);} // ดึงจาก hospital_ward_stats / hospital_ipd_pttype_stats
+        catch(e){all[t]=[];IPDERR[t]=e.message;} // ถ้าอ่านไม่ได้ ต้องไม่ทำให้ทั้งแดชบอร์ดพัง (การ์ดจะแสดงข้อความเตือนเอง)
+      }
+      $('#msg').textContent=''; // ล้างข้อความสถานะ "กำลังโหลด"
+    }
+    else all=demo(pa,b);
+    const cut=(o,f)=>{const x={};TB.forEach(t=>x[t]=o[t].filter(f));return x};
+    const cc=cut(all,r=>r.record_date>=a&&r.record_date<=b); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงวันที่ปัจจุบัน
+    const sel=(rows,x,y)=>rows?rows.filter(r=>r.record_date>=x&&r.record_date<=y):[]; // [เพิ่มใหม่] ฟังก์ชันกรองช่วงวันที่ของตารางผู้ป่วยใน (ไม่มีข้อมูล = อาร์เรย์ว่าง)
+    cc.ward=sel(all.ward,a,b); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงปัจจุบัน
+    cc.bed_occupancy=sel(all.bed_occupancy,a,b); // ข้อมูลเตียงรายหอ จาก hospital_bed_occupancy_stats
+    cc.ipd_pttype=sel(all.ipd_pttype,a,b); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงปัจจุบัน
+    const have=new Set(cc.daily.map(r=>r.record_date)).size; // นับจำนวนวันที่มีข้อมูลจริง
+    const pv=cut(all,r=>r.record_date>=pa&&r.record_date<=pb); // กรองทุกตารางหลักให้เหลือเฉพาะช่วงก่อนหน้า (ไว้เปรียบเทียบ)
+    pv.ward=sel(all.ward,pa,pb); // [เพิ่มใหม่] ข้อมูลหอผู้ป่วยช่วงก่อนหน้า
+    pv.bed_occupancy=sel(all.bed_occupancy,pa,pb);
+    pv.ipd_pttype=sel(all.ipd_pttype,pa,pb); // [เพิ่มใหม่] ข้อมูลสิทธิผู้ป่วยในช่วงก่อนหน้า
+    LAST=[cc,pv,a,b];render(cc,pv,a,b); // วาดทั้งหน้าจอ (รวมการ์ดใหม่)
+ xtra(); // ส่วนเพิ่ม: รายงานรายเดือน / KPI / รับ–จำหน่ายรายวอร์ด
+    banner(a,b,pa,pb,len,document.querySelector('[data-d="7"]').classList.contains('on'),have); // แสดงแถบสรุปช่วงวันที่ (โค้ดเดิม)
+    window.v3sync&&v3sync(b); // ซิงก์วันที่กับส่วนอื่น (โค้ดเดิม)
+  }catch(e){$('#msg').textContent=(AUTO?'ไม่สามารถโหลดข้อมูลได้ในขณะนี้ กรุณาลองใหม่ภายหลัง':'โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจ URL, key และสิทธิ์อ่านตาราง (RLS policy)')}
+}
+function logo(){const l=cfg().l;$('#logo').innerHTML=l?`<img src="${l.replace(/"/g,'')}" alt="โลโก้" onerror="this.parentNode.textContent='✚'">`:'✚'}
+async function latestDay(){const c=cfg();if(!c.u||!c.k)return iso(new Date());try{const r=await fetch(`${c.u}/rest/v1/hospital_daily_stats?select=record_date&order=record_date.desc&limit=1`,{headers:{apikey:c.k,Authorization:'Bearer '+c.k}});if(!r.ok)return iso(new Date());const j=await r.json();return j[0]&&/^\d{4}-\d{2}-\d{2}$/.test(j[0].record_date)?j[0].record_date:iso(new Date())}catch(e){return iso(new Date())}}
+async function setRange(n,btn){document.querySelectorAll('[data-d]').forEach(x=>x.classList.toggle('on',x===btn));const t=n===-1?new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}):(n&&n<=30?await latestDay():iso(new Date()));$('#to').value=t;$('#from').value=n===-1?t:(n?addD(t,-n+1):new Date().getFullYear()+'-01-01');load()} // n=-1 คือปุ่ม "วันนี้" (วันที่ปัจจุบันวันเดียว)
+document.querySelectorAll('[data-d]').forEach(x=>x.onclick=()=>setRange(+x.dataset.d,x));
+$('#to').value=iso(new Date());$('#from').value=addD($('#to').value,-6);
+$('#go').onclick=()=>{document.querySelectorAll('[data-d]').forEach(x=>x.classList.remove('on'));load()};
+$('#cfgb').onclick=()=>{const c=cfg();$('#u').value=c.u;$('#k').value=c.k;$('#lg').value=c.l;$('#dlg').showModal()};
+$('#save').onclick=()=>{store.setItem('sb_u',$('#u').value.trim());store.setItem('sb_k',$('#k').value.trim());store.setItem('sb_l',$('#lg').value.trim());$('#dlg').close();logo();load()};
+$('#demo').onclick=()=>{store.setItem('sb_u','');store.setItem('sb_k','');$('#dlg').close();load()};
+const tip=document.createElement('div');tip.id='tip';document.body.appendChild(tip);let onEl=null;
+function onPtr(e){
+  const el=e.target.closest?e.target.closest('[data-tip]'):null;if(onEl)onEl.classList.remove('on');
+  if(!el){tip.style.display='none';onEl=null;return}
+  el.classList.add('on');onEl=el;tip.innerHTML=el.dataset.tip;tip.style.display='block';
+  const r=tip.getBoundingClientRect();let l=e.clientX+16,t=e.clientY+16;
+  if(l+r.width>innerWidth-8)l=e.clientX-r.width-16;if(t+r.height>innerHeight-8)t=e.clientY-r.height-16;
+  tip.style.left=Math.max(8,l)+'px';tip.style.top=Math.max(8,t)+'px';
+}
+document.addEventListener('pointermove',onPtr);document.addEventListener('pointerdown',onPtr);
+document.addEventListener('scroll',()=>{tip.style.display='none'},true);
+
+/* ===== ส่วน 3D (โหลดเมื่อเลื่อนมาถึง) ===== */
+function init3D(){
+const TG={triage:10,doctor:20,consult:15,pharm:15,total:60,occ:85}; // เป้าหมายเวลา (นาที) / % เตียง
+const $=s=>document.querySelector('#v3 '+s),n=v=>+v||0,fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2});
+const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
+
+/* ---------- data ---------- */
+const sb=async p=>{const c=cfg(),r=await fetch(c.u+'/rest/v1/'+p,{headers:{apikey:c.k,Authorization:'Bearer '+c.k}});if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(e){}throw new Error(p.split('?')[0]+' HTTP '+r.status+(m?' — '+m:''))}return san(await r.json())};
+async function loadData(day){
+  if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||new Date().toISOString().slice(0,10),demo:1,q:demoQ(day||new Date().toISOString().slice(0,10)),er:48+R(10),
+    d:{opd_daily_count:260+R(40),ipd_current_beds:62,ipd_total_beds:80,ipd_new_admit_daily:18,ipd_discharged_daily:16,ipd_avg_length_of_stay:3.8,readmit_28days_pct:7.2,avg_wait_reg_to_triage:9,avg_wait_for_doctor:26,avg_doctor_consult_time:12,avg_wait_for_pharmacy:17,avg_total_process_time:58},
+    oh:Array.from({length:24},(_,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(h<7||h>20?R(3):12+R(20))})),
+    st:[[1,150],[2,22],[3,9],[4,14],[5,31],[6,3],[7,0]].map(a=>({stage_order:a[0],patient_count:a[1]})),
+    tr:[[1,2],[2,9],[3,22],[4,15],[5,5]].map(a=>({triage_level_id:a[0],triage_level_name:'Level '+a[0],patient_count:a[1]}))}}
+  {const r=await sb('hospital_daily_stats?select=record_date'+(day?'&record_date=lte.'+day:'')+'&order=record_date.desc&limit=1');day=r[0]&&r[0].record_date}
+  if(!day)throw new Error('ยังไม่มีข้อมูลในตาราง');
+  let qerr=null;const [d,st,tr,hr,oh,q]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`),sb(`hospital_service_stage_stats?record_date=eq.${day}`),sb(`hospital_er_triage_stats?record_date=eq.${day}`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`),loadQ(day).catch(e=>{qerr=e.message;return null})]);
+  return{day,d:d[0]||{},st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:oh||[],q,qerr};
+}
+function derive(D){
+  const d=D.d,sg=o=>n((D.st.find(r=>+r.stage_order===o)||{}).patient_count),opd=n(d.opd_daily_count);
+  const tri=val(d.avg_wait_reg_to_triage),doc=val(d.avg_wait_for_doctor),con=val(d.avg_doctor_consult_time),ph=val(d.avg_wait_for_pharmacy),tot=val(d.avg_total_process_time);
+  const used=n(d.ipd_current_beds),beds=n(d.ipd_total_beds),occ=beds?used/beds*100:null,trT=D.tr.reduce((s,r)=>s+n(r.patient_count),0);
+  const S=[
+   {id:'reg',name:'ลงทะเบียน',en:'Registration',v:opd,u:'ครั้ง/วัน',w:null,tg:null,cnt:opd,rows:[['ผู้ป่วยนอกวันนี้',fm(opd)+' ครั้ง'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]},
+   {id:'tri',name:'คัดกรอง',en:'Triage',v:tri,u:'นาที (รอคัดกรอง)',w:tri,tg:TG.triage,cnt:trT,rows:[['เวลารอหลังลงทะเบียน',tri==null?'-':fm(tri,1)+' นาที'],['เป้าหมาย','≤ '+TG.triage+' นาที'],...D.tr.sort((a,b)=>a.triage_level_id-b.triage_level_id).map(r=>[r.triage_level_name,fm(n(r.patient_count))+' ราย'])]},
+   {id:'doc',name:'พบแพทย์',en:'Doctor',v:doc,u:'นาที (รอพบแพทย์)',w:doc,tg:TG.doctor,cnt:sg(2),rows:[['เวลารอพบแพทย์',doc==null?'-':fm(doc,1)+' นาที'],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['กำลังตรวจรักษา',fm(sg(2))+' ราย']]},
+   {id:'trt',name:'ตรวจรักษา',en:'Treatment',v:con,u:'นาที (ตรวจโดยแพทย์)',w:con,tg:TG.consult,cnt:D.er,rows:[['เวลาตรวจเฉลี่ย',con==null?'-':fm(con,1)+' นาที'],['ผู้ป่วยฉุกเฉินวันนี้',fm(D.er)+' ครั้ง'],['Admit/สังเกตอาการ',fm(sg(3))+' ราย']]},
+   {id:'lab',name:'ห้องยา / Lab',en:'Pharmacy & Lab',v:ph,u:'นาที (รอรับยา)',w:ph,tg:TG.pharm,cnt:sg(4)+sg(5),rows:[['เวลารอรับยา',ph==null?'-':fm(ph,1)+' นาที'],['รอผลตรวจ',fm(sg(4))+' ราย'],['รอรับยา',fm(sg(5))+' ราย']]},
+   {id:'ipd',name:'ผู้ป่วยใน',en:'Inpatient',v:occ,u:'% ครองเตียง',w:occ,tg:TG.occ,cnt:used,pct:1,rows:[['เตียงครอง / ทั้งหมด',fm(used)+' / '+fm(beds)],['รับใหม่',fm(n(d.ipd_new_admit_daily))+' ราย'],['วันนอนเฉลี่ย',d.ipd_avg_length_of_stay==null?'-':fm(+d.ipd_avg_length_of_stay,1)+' วัน']]},
+   {id:'dis',name:'จำหน่าย / ติดตาม',en:'Discharge & Follow-up',v:tot,u:'นาที (ทั้งกระบวนการ)',w:tot,tg:TG.total,cnt:sg(1),rows:[['ตรวจเสร็จสิ้น',fm(sg(1))+' ราย'],['เวลารวมทั้งกระบวนการ',tot==null?'-':fm(tot,1)+' นาที'],['จำหน่ายผู้ป่วยใน',fm(n(d.ipd_discharged_daily))+' ราย'],['ส่งต่อ / เสียชีวิต',fm(sg(6))+' / '+fm(sg(7))],['Readmit 28 วัน',d.readmit_28days_pct==null?'-':fm(+d.readmit_28days_pct,1)+'%']]}];
+  S.forEach(s=>{s.ratio=s.w!=null&&s.tg?s.w/s.tg:null;s.st=s.ratio==null?'ok':s.ratio<=1?'ok':s.ratio<=1.3?'warn':'bad';s.h=s.ratio!=null?1.2+Math.min(s.ratio,1.8)*2.2:1.2+Math.min(s.cnt/300,1)*3});
+  return{S,opd,occ,tot,er:D.er};
+}
+
+/* ---------- 3D scene: ห้องโรงพยาบาลจำลอง (ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง) ---------- */
+const COL={ok:0x2fd08a,warn:0xf5b441,bad:0xff5d4a,na:0x8da4b8},CSS={ok:'#2fd08a',warn:'#f5b441',bad:'#ff5d4a',na:'#8da4b8'},STT={ok:'ปกติ',warn:'เฝ้าระวัง',bad:'เกินเป้าหมาย',na:'ยังไม่มีเวลาในระบบ'};
+const V=document.querySelector('#v3'),cv=$('#vc'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true});R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;
+const SC=new THREE.Scene();SC.background=new THREE.Color(0x0a1626);SC.fog=new THREE.Fog(0x0a1626,110,240);
+const CAM=new THREE.PerspectiveCamera(42,1,.1,300);
+SC.add(new THREE.HemisphereLight(0xffffff,0x6d7f90,.95));
+const sun=new THREE.DirectionalLight(0xffffff,.75);sun.position.set(-18,42,26);sun.castShadow=true;sun.shadow.mapSize.set(2048,2048);Object.assign(sun.shadow.camera,{left:-54,right:54,top:40,bottom:-40,near:1,far:160});SC.add(sun);
+const MC={},MT=(c,o)=>o?new THREE.MeshStandardMaterial({color:c,roughness:.7,...o}):(MC[c]||(MC[c]=new THREE.MeshStandardMaterial({color:c,roughness:.7})));
+const box=(w,h,d,c,x,y,z,par,o)=>{const m=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),MT(c,o));m.position.set(x,y,z);m.castShadow=true;m.receiveShadow=true;(par||SC).add(m);return m};
+/* พื้น / ผนัง */
+const fc=document.createElement('canvas');fc.width=fc.height=64;{const x=fc.getContext('2d');x.fillStyle='#d6dfe5';x.fillRect(0,0,64,64);x.strokeStyle='#bccad4';x.lineWidth=2;x.strokeRect(0,0,64,64)}
+const ftex=new THREE.CanvasTexture(fc);ftex.wrapS=ftex.wrapT=THREE.RepeatWrapping;ftex.repeat.set(42,21);
+const fl=new THREE.Mesh(new THREE.PlaneGeometry(84,42),new THREE.MeshStandardMaterial({map:ftex,roughness:.9}));fl.rotation.x=-Math.PI/2;fl.position.set(0,0,5);fl.receiveShadow=true;SC.add(fl);
+box(86,.6,44,0x13283b,0,-.31,5);
+
+
+/* พื้นโซน (ผังใหม่ ขยายพื้นที่): บัตรซ้ายหน้า · ซักประวัติกลางหน้า · ตำแหน่ง 1 เก้าอี้กลาง · ตำแหน่ง 2 ข้างเก้าอี้ขวา · ตำแหน่ง 3 หน้าห้องเก็บเงิน/ห้องยา · ห้องตรวจขวา · ทางออกซ้ายบน */
+box(22,.05,9,0xdceaf0,-31,.04,16);box(36,.05,8,0xe3e8f3,0,.04,17);box(36,.05,8,0xd9ebdf,0,.04,8.5);box(17,.05,36,0xe8f2e4,31.5,.04,4);box(36,.05,9,0xf0e8dc,3,.04,-11.5);
+box(10,.05,10,0xf5e9c8,11,.045,0);box(10,.05,10,0xf5e9c8,-5,.045,0);
+box(50,.04,.5,0x2fd08a,-14,.06,-7.2,null,{transparent:true,opacity:.4,emissive:0x2fd08a,emissiveIntensity:.4});box(3.2,.05,3.2,0x2fd08a,-40.2,.07,-12,null,{transparent:true,opacity:.5});
+/* เก้าอี้นั่งรอ 16 ตัว (ตำแหน่ง 1) */
+const CHS=[];[7,10].forEach(z=>[-10.5,-7.5,-4.5,-1.5,1.5,4.5,7.5,10.5].forEach(x=>{box(.9,.12,.9,0x3f9fd0,x,.5,z);box(.9,.7,.12,0x3f9fd0,x,.95,z-.45);box(.16,.5,.16,0x8a97a3,x,.25,z);CHS.push([x,z])}));
+/* เก้าอี้ฝั่งห้องตรวจ/ห้องยา/ห้องเก็บเงิน (แบบเดียวกับตำแหน่ง 1 แต่หมุนตามทิศที่หัน) */
+const chairAt=(x,z,ry)=>{const g=new THREE.Group();g.position.set(x,0,z);g.rotation.y=ry;SC.add(g);box(.9,.12,.9,0x3f9fd0,0,.5,0,g);box(.9,.7,.12,0x3f9fd0,0,.95,-.45,g);box(.16,.5,.16,0x8a97a3,0,.25,0,g)};
+const CHR=[],CHP=[],CHC=[]; // เก้าอี้รอหน้าห้องตรวจ (ห้องละ 2 ตัว) · หน้าห้องยา · หน้าห้องเก็บเงิน
+[17,11.8,6.6,1.4,-3.8,-9].forEach(zr=>[28.8,26.4].forEach(cx=>[-1.1,1.1].forEach(d=>{chairAt(cx,zr+d,Math.PI/2);CHR.push([cx,zr+d])}))); // ห้องละ 4 ตัว (2 แถว x 2) ถอยห่างจากประตูห้อง
+[[11,CHP],[-5,CHC]].forEach(([c0,arr])=>[-3.6,-1.2,1.2,3.6].forEach(z=>[-3,-1,1,3].forEach(dx=>{chairAt(c0+dx,z,Math.PI);arr.push([c0+dx,z])})));
+/* ป้ายเขียว */
+const signs=[];
+function paintSign(m){const{c,t,t1,t2}=m.userData,x=c.getContext('2d'),W=c.width,H=c.height;x.fillStyle='#1d6b34';x.fillRect(0,0,W,H);x.fillStyle='#fff';x.textAlign='center';x.font=`700 ${Math.round(H*.40)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t1,W/2,H*.52);x.fillRect(W*.18,H*.6,W*.64,3);x.font=`500 ${Math.round(H*.24)}px "IBM Plex Sans Thai",sans-serif`;x.fillText(t2,W/2,H*.88);t.needsUpdate=true}
+function sign(w,h,t1,t2,x,y,z,ry,posts){const c=document.createElement('canvas');c.width=512;c.height=Math.round(512*h/w);const t=new THREE.CanvasTexture(c),m=new THREE.Mesh(new THREE.PlaneGeometry(w,h),new THREE.MeshBasicMaterial({map:t}));m.userData={c,t,t1,t2};m.position.set(x,y,z);m.rotation.y=ry||0;SC.add(m);const m2=new THREE.Mesh(m.geometry,m.material);m2.position.set(x,y,z);m2.rotation.y=(ry||0)+Math.PI;SC.add(m2);signs.push(m);paintSign(m);
+  if(posts){const dx=Math.cos(ry||0)*w/2,dz=-Math.sin(ry||0)*w/2;[-1,1].forEach(s=>{const p=new THREE.Mesh(new THREE.CylinderGeometry(.07,.07,y,6),MT(0x8a97a3));p.position.set(x+dx*s,y/2,z+dz*s);SC.add(p)})}return m}
+sign(7,2,'ห้องบัตร','Registration',-30,6.4,12.2,0,1);
+sign(8,2,'ซักประวัติ','History talking',0,6.8,12.6,0,1);
+sign(7,2,'พื้นที่นั่งรอ','Waiting Area',0,5.8,3.2,0,1);
+sign(10,2,'ห้องตรวจ','Examination Rooms',41.8,6.6,5,-Math.PI/2,1);
+sign(7,2,'จ่ายยา','Pharmacy',11,6.4,-15.9,0,1);
+sign(7,2,'ห้องเก็บเงิน','Cashier',-5,6.4,-15.9,0,1);
+/* ฟิกเกอร์คน */
+const bodyG=new THREE.CylinderGeometry(.22,.28,.8,10),headG=new THREE.SphereGeometry(.22,12,10);
+const HM={};const MTc=c=>HM[c]||(HM[c]=MT(c));
+const SKIN=[0xf2c9a0,0xe6b88c,0xcf9a6e,0x9b6b47,0x6f4a32],HAIR=[0x1b1410,0x2b1d14,0x4a3222,0x7a5530,0xb8892b,0x8d8d92],SHIRT=[0xe85d75,0x3f9fd0,0x5fb760,0xf0b84a,0x9a7bd6,0xe9ecef,0xe07a3c,0x4aa8a0,0xd6457f,0x2f7fb8],PANT=[0x2d3a5a,0x3d3d44,0x5a4632,0x23405a,0x6b6b72,0x3a2f4a];
+const HG={thigh:new THREE.CylinderGeometry(.078,.066,.34,8),shin:new THREE.CylinderGeometry(.062,.05,.36,8),torsoM:new THREE.CylinderGeometry(.21,.18,.56,10),torsoF:new THREE.CylinderGeometry(.18,.15,.5,10),arm:new THREE.CylinderGeometry(.055,.047,.5,8),head:new THREE.SphereGeometry(.17,14,12),hair:new THREE.SphereGeometry(.19,14,10,0,Math.PI*2,0,Math.PI*.55),skirt:new THREE.CylinderGeometry(.16,.28,.3,12),neck:new THREE.CylinderGeometry(.055,.055,.1,8),pony:new THREE.SphereGeometry(.085,8,8),hand:new THREE.SphereGeometry(.055,8,6),shoe:new THREE.BoxGeometry(.11,.07,.2),eye:new THREE.SphereGeometry(.02,6,6)};
+/* คนหนึ่งคน: kind = 'm' ชาย | 'f' หญิง | 'c' เด็ก — มีหัว ผม ตา ลำตัว แขน มือ ขา (ต้นขา+หน้าแข้ง) รองเท้า หญิงมีกระโปรงและผมมัด */
+function human(shirt,kind,seed){
+  let sd=((seed==null?Math.random()*1e5:seed)|0)+7;const rr=()=>{sd=(sd*9301+49297)%233280;return sd/233280},pick=a=>a[Math.floor(rr()*a.length)];
+  const f=kind==='f',c=kind==='c',skin=MTc(pick(SKIN)),hairM=MTc(pick(HAIR)),top=MTc(shirt),pantC=pick(PANT),bot=MTc(pantC),shoeM=MTc(0x24242a),g=new THREE.Group(),hip=.7;
+  const add=(geo,mat,x,y,z,par)=>{const m=new THREE.Mesh(geo,mat);m.position.set(x,y,z);(par||g).add(m);return m};
+  const leg=x=>{const th=new THREE.Group();th.position.set(x,hip,0);add(HG.thigh,f?skin:bot,0,-.17,0,th);const sh=new THREE.Group();sh.position.y=-.34;add(HG.shin,f?skin:bot,0,-.18,0,sh);add(HG.shoe,shoeM,0,-.375,.04,sh);th.add(sh);g.add(th);return{th,sh}};
+  const arm=x=>{const a=new THREE.Group();a.position.set(x,hip+.5,0);add(HG.arm,top,0,-.25,0,a);add(HG.hand,skin,0,-.52,0,a);g.add(a);return a};
+  const legs=[leg(-.09),leg(.09)],arms=[arm(-.27),arm(.27)];
+  add(f?HG.torsoF:HG.torsoM,top,0,hip+.27,0).castShadow=true;
+  if(f)add(HG.skirt,MTc(pantC),0,hip+.02,0);
+  add(HG.neck,skin,0,hip+.6,0);
+  const hd=new THREE.Group();hd.position.set(0,hip+.78,0);g.add(hd);
+  add(HG.head,skin,0,0,0,hd);add(HG.hair,hairM,0,.01,-.01,hd);add(HG.eye,MTc(0x1a1a1a),-.06,.02,.155,hd);add(HG.eye,MTc(0x1a1a1a),.06,.02,.155,hd);
+  if(f){add(HG.pony,hairM,0,-.07,-.19,hd).scale.set(1,1.8,1);add(HG.hair,hairM,0,-.05,-.07,hd).scale.set(1,1.2,1)}
+  if(c)hd.scale.setScalar(1.22);
+  const sc=c?.6:f?.88:.94;g.scale.setScalar(sc);g.userData={legs,arms,s:sc};return g}
+const kindOf=n=>{n=Math.abs(n|0);return n%20===7?'c':(n%2?'m':'f')}; // เด็ก 1 ใน 20 = 5% (คนยืนรอคิวกำหนดตามตำแหน่ง)
+function person(c,x,z,par,ry,seed){const g=human(c,kindOf(seed|0),seed);g.position.set(x,0,z);g.rotation.y=ry||0;(par||SC).add(g);return g}
+
+/* ===== queue_call_log: called_at, station_id, station_name, queue_no ===== */
+const QLOG_TABLE='hospital_queue_call_log_stats'; // ตาราง/วิวที่อ่านคิว (ต้องอยู่ในรายการที่ตัวกลาง /api/sb อนุญาต)
+const QSID={}; // กำหนดเองได้: station_id → รหัสจุด เช่น {1:'reg',11:'hx1',21:'ex1',31:'ph',32:'cash'} (ถ้าไม่กำหนดจะแยกจาก station_name)
+const hsh=s=>{s=String(s==null?'':s);let h=7;for(let i=0;i<s.length;i++)h=(h*31+s.charCodeAt(i))>>>0;return h};
+const kindQ=q=>{const h=hsh(q);return h%20===7?'c':(h%2?'m':'f')}; // เลขคิวเดิม = ตัวการ์ตูนหน้าตาเดิมเสมอ
+function hmOf(s){s=String(s||'');const m=s.match(/(?:T|\s)(\d\d):(\d\d)/);if(!m)return '';if(/(Z|[+-]\d\d(:?\d\d)?)$/.test(s)){const d=new Date(s);if(!isNaN(d))return new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',hour12:false}).format(d)}return m[1]+':'+m[2]}
+const hourOf=s=>hmOf(s).slice(0,2);
+function stKey(r){const id=r.station_id,nm=String(r.station_name||'');if(QSID[id])return QSID[id];
+  const num=(nm.match(/\d+/)||[])[0],pn=num!=null?+num:+id;
+  if(/เก็บเงิน|การเงิน|cashier|cash/i.test(nm))return 'cash';
+  if(/จ่ายยา|ห้องยา|รับยา|เภสัช|pharm|drug/i.test(nm))return 'ph';
+  if(/ห้องตรวจ|exam|room/i.test(nm)){if(num!=null&&(pn<1||pn>6))return null;return 'ex'+((isFinite(pn)&&pn>0?pn-1:hsh(id))%6+1)}
+  if(/ซักประวัติ|คัดกรอง|triage|history|screen/i.test(nm)){if(num!=null&&(pn<1||pn>7))return null;return 'hx'+((isFinite(pn)&&pn>0?pn-1:hsh(id))%7+1)}
+  if(/บัตร|ลงทะเบียน|regist|card/i.test(nm))return 'reg';
+  return null}
+function aggLog(rows,pick){const hrs=Array(24).fill(0),unm={};
+  rows.forEach(r=>{r._k=stKey(r);r._h=hourOf(r.called_at);const hi=+r._h;if(r._h!==''&&hi>=0&&hi<24)hrs[hi]++;if(!r._k){const u=String(r.station_name||r.station_id);unm[u]=(unm[u]||0)+1}});
+  let hh=pick||new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),fb=0;
+  if(!pick&&!hrs[+hh]){const later=hrs.slice(+hh+1).some(c=>c),p=(()=>{for(let i=+hh-1;i>=0;i--)if(hrs[i])return i;return -1})();if(!later&&p>=0){hh=String(p).padStart(2,'0');fb=1}}
+  const byKey={},rh=rows.filter(r=>r._h===hh&&r._k);
+  rows.forEach(r=>{if(!r._k)return;const b=byKey[r._k]||(byKey[r._k]={h:[],d:0});b.d++;if(r._h===hh)b.h.push(r)});
+  const pool=rh.filter(r=>/^(ex|hx)\d$/.test(r._k));
+  return{hrs,hh,fb,sel:!!pick,byKey,unm,total:rows.length,rowsH:rows.filter(r=>r._h===hh),pool:pool.length?pool:rh}}
+const QTX={};
+function qtag(text){let m=QTX[text];if(!m){const c=document.createElement('canvas');c.width=256;c.height=96;const x=c.getContext('2d');x.fillStyle='#0f2236f2';x.beginPath();x.roundRect?x.roundRect(4,4,248,88,22):x.rect(4,4,248,88);x.fill();x.strokeStyle='#27c4cf';x.lineWidth=4;x.stroke();x.fillStyle='#fff';x.textAlign='center';x.textBaseline='middle';x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(text,128,50,230);m=QTX[text]=new THREE.SpriteMaterial({map:new THREE.CanvasTexture(c),transparent:true,depthTest:false})}
+  const s=new THREE.Sprite(m);s.scale.set(3.3,1.24,1);s.renderOrder=8;return s}
+function addTag(g,text){const t=qtag(String(text)),k=g.userData.s||1;t.scale.multiplyScalar(1/k);t.position.set(0,1.7+.85/k,0);g.add(t);return t} // ป้ายเลขคิวลอยเหนือหัว
+async function loadQ(day){const c=cfg(),rng=`called_at=gte.${day}T00:00:00%2B07:00&called_at=lt.${addD(day,1)}T00:00:00%2B07:00&order=called_at.asc`;
+  const pg=async f=>{const out=[];for(let o=0;o<80000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
+    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error(QLOG_TABLE+' HTTP '+r.status+(m?' — '+m:''))}
+    const j=san(await r.json());out.push(...j);if(j.length<1000)break}return out};
+  try{return await pg(`${QLOG_TABLE}?select=called_at,station_id,station_name,queue_no,hn,vn&${rng}`)} // ต้องมี hn, vn เพื่อแยก 1 คน = 1 vn
+  catch(e){if(!/HTTP 400/.test(e.message))throw e;return await pg(`${QLOG_TABLE}?select=called_at,station_id,station_name,queue_no&${rng}`)}} // ไม่มีคอลัมน์ hn/vn → แยกคนด้วย queue_no
+function demoQ(day){const R=x=>Math.floor(Math.random()*x),out=[],hh=t=>`${day}T${String(Math.floor(t/3600)).padStart(2,'0')}:${String(Math.floor(t%3600/60)).padStart(2,'0')}:${String(Math.floor(t%60)).padStart(2,'0')}+07:00`;
+  const add=(n,t,sid,nm)=>out.push({called_at:hh(t),station_id:sid,station_name:nm,queue_no:'A'+String(n).padStart(3,'0'),hn:'HN'+String(1000+n),vn:'VN'+String(n)});
+  for(let n=1;n<=220;n++){let t=7*3600+30*60+Math.floor((n/220)*12*3600*(.8+Math.random()*.2));
+    add(n,t,1,'ห้องบัตร');t+=120+R(300);const d=1+R(7);add(n,t,1+d,'ซักประวัติ '+d);t+=600+R(2400);const r=1+R(6);add(n,t,8+r,'ห้องตรวจ '+r);
+    t+=600+R(1500);if(Math.random()<.5){add(n,t,15,'ห้องเก็บเงิน');t+=300+R(600);add(n,t,14,'จ่ายยา')}else{add(n,t,14,'จ่ายยา');t+=300+R(600);if(Math.random()<.4)add(n,t,15,'ห้องเก็บเงิน')}}
+  return out.sort((a,b)=>a.called_at<b.called_at?-1:1)}
+/* ป้ายลอยเหนือจุดบริการ */
+function label(sx,sy){const c=document.createElement('canvas');c.width=512;c.height=170;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(sx,sy,1);s.renderOrder=9;s.userData={c,t};return s}
+function paint(sp,l1,l2,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,8,496,154,26):x.rect(8,8,496,154);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle='#fff';x.font='700 56px "IBM Plex Sans Thai",sans-serif';x.fillText(l1,256,72);x.fillStyle=col;x.font='700 50px "IBM Plex Sans Thai",sans-serif';x.fillText(l2,256,138);sp.userData.t.needsUpdate=true}
+/* รายการจุดบริการ 13 จุด */
+const ITEMS=[],pick=[],XD=[-13.5,-9,-4.5,0,4.5,9,13.5],XR=[17,11.8,6.6,1.4,-3.8,-9],ZD=17,RX=35,CASHP=1; // XR = ตำแหน่ง z ของห้องตรวจ 6 ห้อง (เรียงแนวตั้งด้านขวา) · CASHP = สัดส่วนผู้ป่วยที่ไปห้องเก็บเงิน
+function reg(o,pw,ph,pd,ly,lw,lh){const g=new THREE.Group();g.position.set(o.x,0,o.z);SC.add(g);o.g=g;o.i=ITEMS.length;
+  const pk=new THREE.Mesh(new THREE.BoxGeometry(pw,ph,pd),new THREE.MeshBasicMaterial({transparent:true,opacity:0,depthWrite:false}));pk.position.y=ph/2;pk.userData.i=o.i;g.add(pk);pick.push(pk);
+  const lb=label(lw,lh);lb.position.y=ly;g.add(lb);o.lb=lb;ITEMS.push(o);return g}
+const statMat=()=>new THREE.MeshStandardMaterial({color:0x2fd08a,emissive:0x2fd08a,emissiveIntensity:.6,roughness:.4});
+/* 0 ห้องบัตร */
+{const o={id:'reg',kind:'reg',name:'ห้องบัตร',en:'Registration',x:-30,z:17},g=reg(o,3.6,3,10.5,4.9,6,2);g.rotation.y=Math.PI/2;
+  box(1.4,1.5,10,0x5b3a29,0,.75,0,g);box(1.9,.14,10.4,0xf4f4f0,0,1.57,0,g);box(.1,.9,10,0x111820,.5,2.1,0,g,{transparent:true,opacity:.55});
+  
+  o.stat=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,10.4),statMat());o.stat.position.set(.95,1.4,0);g.add(o.stat);
+  [[-40,10],[-40,7.5]].forEach(([x,z])=>{const k=new THREE.Group();k.position.set(x,0,z);SC.add(k);box(.9,2.6,.9,0xf6f2e6,0,1.3,0,k);box(.06,.8,.7,0x2fb2a0,-.46,2.0,0,k,{emissive:0x2fb2a0,emissiveIntensity:.8});box(1.1,.15,1.1,0x1d6b34,0,.08,0,k)})}
+/* 1-7 โต๊ะซักประวัติ */
+XD.forEach((x,k)=>{const o={id:'hx'+(k+1),kind:'desk',no:k+1,name:'ซักประวัติ '+(k+1),en:'History talking · โต๊ะ '+(k+1),x,z:ZD},g=reg(o,3,3,3.4,3.7,3.5,1.18);
+  box(2.8,1.05,1.3,0xf3f1ea,0,.52,0,g);box(1.1,.85,.5,0xf4b6cb,0,1.5,-.15,g);box(2.8,.06,.06,0xffe45c,0,1.08,.66,g);
+  box(.9,.12,.9,0x3f9fd0,0,.55,-1.3,g);box(.9,.9,.12,0x3f9fd0,0,1.05,-1.8,g);
+  o.stat=new THREE.Mesh(new THREE.BoxGeometry(2.8,.12,.18),statMat());o.stat.position.set(0,.05,.9);g.add(o.stat)});
+/* 6-11 ห้องตรวจ */
+XR.forEach((x,k)=>{const o={id:'ex'+(k+1),kind:'room',no:k+1,name:'ห้องตรวจ '+(k+1),en:'Examination room '+(k+1),x:RX,z:x},g=reg(o,4.2,3.2,4.2,4.2,4.2,1.4);g.rotation.y=-Math.PI/2;
+  box(4.2,.1,4,0xe9f0f4,0,.05,0,g);box(4.2,3,.15,0xf7f9fb,0,1.5,-2,g);box(.15,3,4,0xf7f9fb,-2.1,1.5,0,g);box(.15,3,4,0xf7f9fb,2.1,1.5,0,g);
+  box(1.2,3,.15,0xf7f9fb,-1.5,1.5,2,g);box(1.2,3,.15,0xf7f9fb,1.5,1.5,2,g);
+  box(1,.5,2.2,0x8ec3d8,-1,.4,-.5,g);box(1,.8,.6,0xc79a5b,1.2,.4,-1.5,g);
+  o.stat=new THREE.Mesh(new THREE.BoxGeometry(2,.5,.18),statMat());o.stat.position.set(0,2.75,2);g.add(o.stat)});
+/* 12 ห้องยา (ขวา) · 13 ห้องเก็บเงิน (ซ้าย — สลับตำแหน่งแล้ว) ติดผนังหลัง หันหน้าเข้าหาตำแหน่ง 3 */
+[{id:'ph',kind:'ph',name:'รับยา',en:'Pharmacy · Dispensary',x:11,z:-13.5,c:[0xf4f4f0,0xdfe8e0,0x2fb27a]},{id:'cash',kind:'cash',name:'ห้องเก็บเงิน',en:'Cashier',x:-5,z:-13.5,c:[0xf6efdc,0xe9e0c8,0xf5a623]}].forEach(o=>{const g=reg(o,2.6,3.4,8.4,3.2,4,1.35);g.rotation.y=Math.PI/2;
+  box(1.8,1.2,8,o.c[0],0,.6,0,g);box(1.2,3.6,8,o.c[1],2.1,1.8,0,g);box(.15,1.5,2.2,o.c[2],-.95,1.9,0,g,{emissive:o.c[2],emissiveIntensity:.45});
+  o.stat=new THREE.Mesh(new THREE.BoxGeometry(.18,.18,8),statMat());o.stat.position.set(-.95,1.3,0);g.add(o.stat)});
+/* ทางเข้า-ออก */
+{const a=label(3.4,1.15);a.position.set(-41,2.2,14);paint(a,'ทางเข้า','Entrance','#27c4cf');SC.add(a);const b=label(3.4,1.15);b.position.set(-40,2.2,-12);paint(b,'ทางออก','Exit','#27c4cf');SC.add(b)}
+/* วงความหนาแน่นใต้จุดบริการ (สีตามจำนวนครั้งที่เรียกคิวในชั่วโมงที่เลือก) */
+const HPAD=ITEMS.map(o=>{const r=o.kind==='reg'?4.4:o.kind==='room'?2.9:o.kind==='desk'?2.4:3,m=new THREE.Mesh(new THREE.CircleGeometry(r,40),new THREE.MeshBasicMaterial({color:0x2fd08a,transparent:true,opacity:0,depthWrite:false}));m.rotation.x=-Math.PI/2;m.position.set(o.x,.13,o.z);SC.add(m);return m});
+const TP={};
+function tplate(k,x,y,z){const l=label(5.4,1.8);l.position.set(x,y,z);SC.add(l);TP[k]=l}
+tplate('reg',-30,4.4,12.2);tplate('desk',0,5.4,12.6);tplate('room',40.4,5.2,5);tplate('ph',11,4.8,-15.6);tplate('exit',-38.6,4.3,-12);
+function paintT(sp,txt,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,24,496,122,30):x.rect(8,24,496,122);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle=col;x.font='700 54px "IBM Plex Sans Thai",sans-serif';x.fillText(txt,256,102);sp.userData.t.needsUpdate=true}
+const selR=new THREE.Mesh(new THREE.RingGeometry(2.4,2.7,48),new THREE.MeshBasicMaterial({color:0xffffff,side:THREE.DoubleSide,transparent:true,opacity:.85}));selR.rotation.x=-Math.PI/2;selR.position.y=.12;selR.visible=false;SC.add(selR);
+/* คิวผู้ป่วย (1 รูป = unit ราย) */
+const qG=new THREE.Group();SC.add(qG);let unit=1;
+function qpos(o,k){const c=k%2,r=Math.floor(k/2);
+  if(o.kind==='desk')return[o.x+(c?.5:-.5),ZD-3.4-r*.85];
+  if(o.kind==='room')return[o.x-11.8-r*.85,o.z+(c?.55:-.55)];
+  if(o.kind==='ph'||o.kind==='cash')return[o.x+(c?.8:-.8),o.z+2.4+r*.85];
+  return[-35+k*1.2,14.5]}
+function drawCrowd(){while(qG.children.length)qG.remove(qG.children[0]);if(!LG||RP.on)return;
+  const mx=Math.max(1,...ITEMS.map(o=>(LG.byKey[o.id]||{h:[]}).h.length));unit=Math.max(1,Math.ceil(mx/10)); // 1 ตัวที่ยืนรอ = unit ครั้งที่เรียก
+  ITEMS.forEach(o=>{const rs=(LG.byKey[o.id]||{h:[]}).h,f=Math.min(10,Math.ceil(rs.length/unit));
+    for(let k=0;k<f;k++){const r=rs[rs.length-1-k],[x,z]=qpos(o,k),q=r.queue_no,g=human(SHIRT[hsh(q)%SHIRT.length],kindQ(q),hsh(q));
+      g.position.set(x,0,z);g.rotation.y=o.kind==='room'?Math.PI/2:(o.kind==='ph'||o.kind==='cash')?Math.PI:0;addTag(g,q);qG.add(g)}})}
+function renderQ(){const q=$('#vq');if(!LG){q.style.display='none';return}q.style.display='';const mx=Math.max(1,...LG.hrs),last=LG.rowsH.slice(-5).reverse();
+  q.innerHTML=`<div class="qh"><b>คิวที่เรียก ${LG.hh}:00 น.</b><span>${fm(LG.rowsH.length)} ครั้ง · ทั้งวัน ${fm(LG.total)}</span></div><div class="qb">${LG.hrs.map((c,h)=>{const s=String(h).padStart(2,'0');return `<i data-h="${s}" class="${s===LG.hh?'on':''}" style="height:${Math.max(c?8:2,c/mx*100)}%" title="${s}:00 · ${c} ครั้ง"></i>`}).join('')}</div><div class="qa"><span>00</span><span>06</span><span>12</span><span>18</span><span>23</span></div><div class="ql">${last.length?last.map(r=>`<div><span>${hmOf(r.called_at)} · ${r.station_name||r.station_id}</span><b>${r.queue_no}</b></div>`).join(''):'<div><span>ไม่มีการเรียกคิวในชั่วโมงนี้</span></div>'}</div><div class="lg2"><span><i style="background:#2fd08a"></i>เบาบาง</span><span><i style="background:#f5b441"></i>ปานกลาง</span><span><i style="background:#ff5d4a"></i>หนาแน่น</span></div>`;
+  q.querySelectorAll('.qb i').forEach(e=>e.onclick=()=>{$('#vhr').value=e.dataset.h;resetScene()})}
+/* ผู้ป่วยเดินในโรงพยาบาล */
+const pats=[],pm=new THREE.MeshStandardMaterial({color:0x27c4cf,roughness:.5,emissive:0x0a5a62,emissiveIntensity:.4});
+let RT=(()=>{try{return localStorage.getItem('v3rt')!=='0'}catch(e){return true}})(); // โหมดเวลาจริง (เปิดเป็นค่าเริ่มต้น)
+let baseEvery=6,W2={reg:2,c1:3,tri:3,ec:2,room:4,pc:2,pc1:2,cc:2,cash:3,pc2:2,rec:3}; // W2 = เวลานั่งรอ/รับบริการของแต่ละจุด (วินาที)
+let LG=null,lgc=0,M=null,spawnT=0,spawnEvery=1,dc=0,rcn=0,targetPop=20,WT={reg:2,desk:3,q:2,room:4,ph:3};
+const pmF=new THREE.MeshStandardMaterial({color:0xf5b441,roughness:.5,emissive:0x8a5a00,emissiveIntensity:.5});let flowT=0;
+function mk(P,m,j){const g=new THREE.Group(),b=new THREE.Mesh(bodyG,m),h=new THREE.Mesh(headG,m);b.position.y=.5;h.position.y=1.12;g.add(b,h);g.position.set(P[0][0],0,P[0][1]);SC.add(g);pats.push({g,P,i:1,w:0,j,sp:3+Math.random()*.8})}
+function spawnFlow(o){if(pats.length>=95)return;const j=(Math.random()-.5)*.5;let P;
+  if(o.kind==='desk')P=[[-19.5,11,0],[o.x,11,0],[o.x,5.6,1.5],[o.x,9.5,0]];
+  else if(o.kind==='room')P=[[-13.2,9.5,0],[-13.2,.5,0],[o.x,.5,0],[o.x,-5.8,1],[o.x,-9,2],[o.x,-5.8,0],[o.x,.5,0]];
+  else P=[[14,.5,0],[21.2,.5,0],[21.2,-1,1.5],[21.2,11,0]];
+  mk(P,pmF,j)}
+let simT=0,pn=0;
+/* ระบบคิว: GQ = คิวเรียกตัวต่อไปของแต่ละแผนก (เรียงตามลำดับมาถึง FIFO · เดินทีละตัว ห่างกัน ≥2 วินาที) · SO = จำนวนคนที่ใช้จุดบริการอยู่ · CAP = ช่องบริการสูงสุด (ห้องตรวจ/โต๊ะซักประวัติ = 1) · OC = จำนวนคนนั่งในเก้าอี้แต่ละตัว */
+const GQ={},SO={},OC={},CAP={reg:2,ph:3,ca:2};
+function spawn(){if(pats.length>=(RT?120:60))return;const j=(Math.random()-.5)*.5,row=LG&&LG.pool.length?LG.pool[lgc++%LG.pool.length]:null,isH=!!row&&/^hx\d$/.test(row._k||""),dk=isH?+row._k.slice(2)-1:null,ri=row&&/^ex\d$/.test(row._k||"")?+row._k.slice(2)-1:rcn++%6,zr=XR[ri],phX=11+(Math.random()-.5)*5,caX=-5+(Math.random()-.5)*5,sy=-10.9;dc++;
+  /* รูปแบบจุดหยุด T = [x,z,รอ(วิ),นั่ง?,ประตูคิว,ทิศหน้า,จองจุดบริการ,คืนจุดบริการ,รายการเก้าอี้(เลือกตัวว่างอัตโนมัติ),เริ่ม,จำนวน]
+     ทางเข้า → ห้องบัตร → เก้าอี้รอซักประวัติ → โต๊ะซักประวัติ → เก้าอี้หน้าห้องตรวจ → ห้องตรวจ → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา → เก้าอี้ห้องเก็บเงิน → เคาน์เตอร์ห้องเก็บเงิน → เก้าอี้ห้องยา → เคาน์เตอร์ห้องยา(รับยา) → ทางออก
+     ทุกแผนก: เรียกจากเก้าอี้ทีละคนตามคิว เดินทีละตัว และต้องมีช่องบริการว่างก่อน */
+  const P=[[-42.2,14,0],[-40.5,14,.01,0,'rg'],[-34+Math.random()*8,14.4,W2.reg,0,null,0,'reg','reg'],[0,0,W2.c1,1,'tri',0,null,null,'CHS'],[0,0,0],[0,0,W2.tri,1,null,0],
+    [0,0,W2.ec,1,'rm'+ri,Math.PI/2,null,null,'CHR',ri*4,4],[RX-3.8,zr,0,0,null,null,'r'+ri],[RX-.4,zr,W2.room,0,null,Math.PI/2,null,'r'+ri],[RX-3.8,zr,0],
+    [0,0,W2.pc,1,'ph1',Math.PI,null,null,'CHP'],[phX,sy,W2.pc1,0,null,Math.PI,'ph','ph'],[0,0,W2.cc,1,'ca',Math.PI,null,null,'CHC'],[caX,sy,W2.cash,0,'ca2',Math.PI,'ca','ca'],
+    [0,0,W2.pc2,1,'ph2',Math.PI,null,null,'CHP'],[phX,sy,W2.rec,0,null,Math.PI,'ph','ph'],[11,-7.2,0,0,'ex'],[-37,-7.2,0],[-41.5,-12,0]];
+  let P2=P;
+  if(row){const out=[[-13.2,9.5,0],[-13.2,-7.2,0],[-37,-7.2,0],[-41.5,-12,0]];
+    if(isH)P2=P.slice(0,6).concat(out); // station_name = ซักประวัติ N → เดินไปโต๊ะ N แล้วออก
+    else P2=P.slice(0,3).concat(P.slice(6)); // station_name = ห้องตรวจ N → เดินไปห้อง N ตรงๆ
+    P2[2][2]=6;P2[3][2]=6}
+  const kind=row?kindQ(row.queue_no):((pn++%20)===9?'c':(Math.random()<.5?'m':'f')),sd=row?hsh(row.queue_no):(Math.random()*1e5)|0,w=mkWalker(P2,j,kind,SHIRT[sd%SHIRT.length],sd);if(row){w.q=String(row.queue_no);w.dk=dk;addTag(w.g,w.q)}}
+/* สร้างตัวละครเดินหนึ่งตัวจากเส้นทาง P (ใช้ทั้งตอนเกิดใหม่และตอนกู้คืนสถานะ) */
+function mkWalker(P,j,kind,shirt,sd){const g=human(shirt,kind,sd);g.position.set(P[0][0],0,P[0][1]);SC.add(g);const p={g,P,i:1,w:0,j,sp:3+Math.random()*.8,kind,shirt,seed:sd,ph0:Math.random()*6};pats.push(p);return p}
+function sitP(p,on){p.sit=on?1:0;p.g.position.y=on?Math.max(0,.62-.7*(p.g.userData.s||1)):0} // นั่ง: ยกตัวเด็กให้ถึงเบาะ
+function pose(p,mv){const u=p.g.userData;if(!u.legs)return;
+  if(p.sit){u.legs.forEach(l=>{l.th.rotation.x=-1.5;l.sh.rotation.x=1.5});u.arms.forEach(a=>a.rotation.x=-.55);return}
+  if(mv){const ph=simT*p.sp*2.7+p.ph0,a=Math.sin(ph)*.65;u.legs[0].th.rotation.x=-a;u.legs[1].th.rotation.x=a;u.legs[0].sh.rotation.x=Math.max(0,Math.sin(ph+1.6))*.8;u.legs[1].sh.rotation.x=Math.max(0,-Math.sin(ph+1.6))*.8;u.arms[0].rotation.x=a*.75;u.arms[1].rotation.x=-a*.75;p.g.position.y=Math.abs(Math.cos(ph))*.03*(u.s||1)}
+  else{u.legs.forEach(l=>{l.th.rotation.x=0;l.sh.rotation.x=0});u.arms.forEach(a=>a.rotation.x=0);p.g.position.y=0}}
+function pickChair(p,T){const L=T[8]==='CHS'?CHS:T[8]==='CHP'?CHP:T[8]==='CHC'?CHC:CHR,a=T[9]||0,n=T[10]||L.length,oc=OC[T[8]]||(OC[T[8]]=L.map(()=>0));let b=a;for(let i=a;i<a+n;i++)if(oc[i]<oc[b])b=i; // เลือกเก้าอี้ว่างตัวแรก (เรียงจากหน้าไปหลัง)
+  oc[b]++;p.cl=T[8];p.ci=b;T[0]=L[b][0];T[1]=L[b][1];T.r=1}
+function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefined)p.tk=g.n++;
+  if(p.tk!==g.s||simT<g.t||(g.w&&g.w.mv&&p.gk!=='ex'))return false; // ถึงคิวของตัวเอง + ห่างจากตัวก่อน ≥2 วินาที + ตัวก่อนเดินถึงที่หมายแล้ว
+  if(p.gk==='tri'){let k=-1;if(p.dk!=null&&p.dk>=0&&p.dk<XD.length){if(!SO['d'+p.dk])k=p.dk}else for(let i=0;i<XD.length;i++)if(!SO['d'+i]){k=i;break}if(k<0)return false; // โต๊ะซักประวัติว่างโต๊ะแรก
+    SO['d'+k]=1;p.P[p.i]=[XD[k],ZD-3.8,0];p.P[p.i+1]=[XD[k],ZD-1.3,p.dk!=null?W2.tri||3:3,1,null,0,null,'d'+k]}
+  else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
+  g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
+function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
+function step(dt){simT+=dt;if(RP.on){rstep(dt);return}spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats.length<targetPop)spawn();spawnEvery=baseEvery*(.6+Math.random()*.8)} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
+  for(let k=pats.length-1;k>=0;k--){const p=pats[k];
+    if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk&&!tryGo(p)){p.w=.15;pose(p,false);continue}leave(p)}pose(p,false);continue}
+    const T=p.P[p.i];if(T[8]&&!T.r)pickChair(p,T);
+    const t=new THREE.Vector3(T[0]+(T[3]?0:p.j),0,T[1]),v=t.clone().sub(p.g.position);v.y=0;const d=v.length();
+    if(d<.2){p.mv=false;p.w=T[2]*(.6+Math.random()*.8);p.gk=T[4]||null;if(p.gk){const g=GQ[p.gk]||(GQ[p.gk]={n:0,s:0,t:0,w:null});p.tk=g.n++;if(p.w<=0)p.w=.01}if(T[5]!=null)p.g.rotation.y=T[5];if(T[3]&&p.w>0)sitP(p,1);p.i++;if(p.i>=p.P.length){p.mv=false;leave(p);SC.remove(p.g);pats.splice(k,1)}}
+    else{let dy=Math.atan2(v.x,v.z)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);p.g.position.addScaledVector(v.normalize(),Math.min(p.sp*dt,d));pose(p,true)}}}
+/* ===== คงสถานะผู้ป่วยที่เดินอยู่ข้ามการรีเฟรช: บันทึกตำแหน่ง/เส้นทางทุก 2 วินาที แล้วกู้คืนเมื่อเปิดใหม่ (อายุไม่เกิน 10 นาที) ===== */
+const WKEY='v3walk12',WTTL=6e5;let warmed=false;
+function saveW(){try{if(!pats.length)return;localStorage.setItem(WKEY,JSON.stringify({t:Date.now(),rt:RT?1:0,dc,rcn,spawnT,flowT,pats:pats.map(p=>({P:p.P,i:p.i,w:p.w,j:p.j,sp:p.sp,x:+p.g.position.x.toFixed(2),z:+p.g.position.z.toFixed(2),k:p.kind,sh:p.shirt,sd:p.seed,q:p.q||null,dk:p.dk==null?null:p.dk,s:p.sit?1:0}))}))}catch(e){}}
+function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');if(!o||Date.now()-o.t>WTTL||!Array.isArray(o.pats)||(o.rt?1:0)!==(RT?1:0))return false;
+  dc=o.dc|0;rcn=o.rcn|0;spawnT=+o.spawnT||0;flowT=+o.flowT||0;
+  o.pats.slice(0,95).forEach(q=>{if(!Array.isArray(q.P)||!q.P.length)return;const w=mkWalker(q.P,q.j,q.k||'m',q.sh||SHIRT[0],q.sd|0);w.g.position.set(q.x,0,q.z);w.i=q.i;w.w=q.w;w.sp=q.sp;if(q.dk!=null)w.dk=q.dk;if(q.q){w.q=q.q;addTag(w.g,q.q)}if(q.s)sitP(w,1)});
+  return pats.length>0}catch(e){return false}}
+function warmW(){if(warmed||RP.on)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
+/* ===== เล่นซ้ำเส้นทางจริงจากข้อมูล (queue_call_log): 1 คน = 1 vn (ถ้าไม่มี vn ใช้ hn/queue_no) · เดินตามลำดับจุดและเวลาเรียกคิวจริง
+   ไม่สุ่ม ไม่ผูกกับเวลาจริง · เร่ง/หน่วง/ข้ามเวลาได้ · ก่อนถูกเรียกจะรอที่เก้าอี้หน้าจุดถัดไป → ถูกเรียก = เดินไปจุดบริการ → เรียกจุดถัดไป = เดินต่อ ===== */
+const RP={on:false,visits:[],nx:0,t:0,t0:0,t1:0,play:true,speed:120,day:'',sig:'',pick:null,act:[],oT:0,uT:0};
+try{const sv=+localStorage.getItem('v3rps');if([30,60,120,300,600].includes(sv))RP.speed=sv}catch(e){}
+const GN={},GE={};
+function gnode(id,x,z){if(!GN[id]){GN[id]=[x,z];GE[id]=[]}return id}
+function gedge(a,b){const d=Math.hypot(GN[a][0]-GN[b][0],GN[a][1]-GN[b][1]);GE[a].push([b,d]);GE[b].push([a,d])}
+function glane(ids){for(let i=1;i<ids.length;i++)if(ids[i]!==ids[i-1])gedge(ids[i-1],ids[i])}
+const LZ1=12,LX1=-13.2,LX2=21.2,LZ3=-7.2,phSp=[9,10.5,12,13.5],caSp=[-7.5,-6,-4.5,-3];
+/* ทางเดินในโรงพยาบาล: ทางเข้า→ห้องบัตร→แนวหน้าโต๊ะ (z=12)→ทางเดินตั้งซ้าย/ขวา→ทางเดินล่าง (z=-7.2)→ทางออก */
+(function(){
+  ['ENT|-42.2|14','B|-40.5|14','R1|-26|13.2','J1|-19.5|12','J2|-13.2|12','J3|21.2|12','K1|-13.2|-7.2','K2|21.2|-7.2','X0|-37|-7.2','EXIT|-41.5|-12'].forEach(q=>{const a=q.split('|');gnode(a[0],+a[1],+a[2])});
+  glane(['ENT','B','R1','J1']);glane(['J2','K1']);glane(['X0','EXIT']);
+  const lane=(items,hor,fix)=>{const m=new Map();items.forEach(([id,c])=>m.set(id,c));const a=[...m.entries()].sort((p,q)=>p[1]-q[1]);a.forEach(([id,c])=>hor?gnode(id,c,fix):gnode(id,fix,c));glane(a.map(e=>e[0]))};
+  lane([['J1',-19.5],['J2',LX1],['J3',LX2],...XD.map(x=>['H1:'+x,x]),...CHS.map(c=>['H1:'+c[0],c[0]])],true,LZ1);
+  lane([['J3',LZ1],['K2',LZ3],...XR.map(z=>['V2:'+z,z])],false,LX2);
+  lane([['X0',-37],['K1',LX1],['K2',LX2],...caSp.map(x=>['H3:'+x,x]),...CHC.map(c=>['H3:'+c[0],c[0]]),...phSp.map(x=>['H3:'+x,x]),...CHP.map(c=>['H3:'+c[0],c[0]])],true,LZ3);
+})();
+function groute(a,b){if(a===b)return[a];const d={},pv={},q=new Set(Object.keys(GN));for(const k of q)d[k]=1e9;d[a]=0;
+  while(q.size){let u=null;for(const k of q)if(u===null||d[k]<d[u])u=k;if(u===b||d[u]>=1e9)break;q.delete(u);for(const [v,w] of GE[u])if(q.has(v)&&d[u]+w<d[v]){d[v]=d[u]+w;pv[v]=u}}
+  const r=[];let c=b;while(c!==undefined){r.unshift(c);c=pv[c]}return r[0]===a?r:[a,b]}
+const RCH={S:Array(CHS.length).fill(0),R:Array(CHR.length).fill(0),P:Array(CHP.length).fill(0),C:Array(CHC.length).fill(0)},RCL={S:CHS,R:CHR,P:CHP,C:CHC};
+function chairPick(kind,a,n){const oc=RCH[kind];let b=a;for(let i=a;i<a+n;i++)if(oc[i]<oc[b])b=i;oc[b]++;return b}
+/* ตำแหน่งหนึ่งจุด = {node: จุดต่อทางเดิน, tail: จุดเดินต่อจากทางเดิน, face, sit, st: จุดบริการที่นับคน, ch: เก้าอี้ที่จอง} */
+function mkLoc(p,key,wait){const m=/^(ex|hx)(\d+)$/.exec(key),h=p.seed;
+  if(key==='ENT')return{node:'ENT',tail:[],face:0};
+  if(key==='EXIT')return{node:'EXIT',tail:[],face:0,exit:1};
+  if(key==='reg')return{node:'R1',tail:[[-34+(h%80)/10,14.4]],face:0,st:'reg'};
+  if(m&&m[1]==='hx'){const k=+m[2]-1;if(wait){const i=chairPick('S',0,CHS.length),c=CHS[i];return{node:'H1:'+c[0],tail:[[c[0],c[1]]],face:0,sit:1,st:key,ch:['S',i]}}
+    const x=XD[k];return{node:'H1:'+x,tail:[[x,ZD-3.8],[x,ZD-1.3]],face:0,sit:1,st:key}}
+  if(m&&m[1]==='ex'){const r=+m[2]-1,zr=XR[r];if(wait){const i=chairPick('R',r*4,4),c=CHR[i];return{node:'V2:'+zr,tail:[[c[0],c[1]]],face:Math.PI/2,sit:1,st:key,ch:['R',i]}}
+    return{node:'V2:'+zr,tail:[[RX-3.8,zr],[RX-.4,zr]],face:Math.PI/2,st:key}}
+  if(key==='ph'){if(wait){const i=chairPick('P',0,CHP.length),c=CHP[i];return{node:'H3:'+c[0],tail:[[c[0],c[1]]],face:Math.PI,sit:1,st:key,ch:['P',i]}}
+    const x=phSp[h%phSp.length];return{node:'H3:'+x,tail:[[x,-10.9]],face:Math.PI,st:key}}
+  if(key==='cash'){if(wait){const i=chairPick('C',0,CHC.length),c=CHC[i];return{node:'H3:'+c[0],tail:[[c[0],c[1]]],face:Math.PI,sit:1,st:key,ch:['C',i]}}
+    const x=caSp[h%caSp.length];return{node:'H3:'+x,tail:[[x,-10.9]],face:Math.PI,st:key}}
+  return{node:'ENT',tail:[],face:0}}
+function mkPath(a,b){const pts=[];if(a.tail.length){for(let i=a.tail.length-2;i>=0;i--)pts.push(a.tail[i]);pts.push(GN[a.node])}
+  const r=groute(a.node,b.node);for(let i=1;i<r.length;i++)pts.push(GN[r[i]]);b.tail.forEach(t=>pts.push(t));return pts}
+/* เวลาไทย (วินาทีนับจากเที่ยงคืน) ของ called_at */
+function secOf(s){s=String(s||'');const m=s.match(/(?:T|\s)(\d\d):(\d\d)(?::(\d\d))?/);if(!m)return NaN;
+  if(/(Z|[+-]\d\d(:?\d\d)?)$/.test(s)){const d=new Date(s);if(!isNaN(d)){const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(d),g=t=>+p.find(x=>x.type===t).value;return (g('hour')%24)*3600+g('minute')*60+g('second')}}
+  return +m[1]*3600+ +m[2]*60+(+m[3]||0)}
+const DW={reg:120,hx:240,ex:480,ph:180,cash:120},dwOf=k=>DW[k.slice(0,2)==='hx'?'hx':k.slice(0,2)==='ex'?'ex':k]||180; // เวลาอยู่ที่จุดโดยประมาณ (วินาที) ก่อนเดินไปรอจุดถัดไป
+function schedule(c){const s=[];s.push({t:c[0].t-(c[0].k==='reg'?60:150),k:'ENT'});
+  c.forEach((x,i)=>{if(x.k!=='reg'){let tw=null;if(i===0)tw=x.t-120;else{const pr=c[i-1],gap=x.t-pr.t;if(gap>120)tw=pr.t+Math.min(dwOf(pr.k),gap-90)}
+      if(tw!=null&&tw<x.t-5)s.push({t:tw,k:x.k,w:1,q:x.q})} // นั่งรอที่เก้าอี้หน้าจุดที่กำลังจะถูกเรียก
+    s.push({t:x.t,k:x.k,q:x.q})}); // ถูกเรียกคิว → เดินไปจุดบริการ
+  const l=c[c.length-1];s.push({t:l.t+dwOf(l.k),k:'EXIT'});return s}
+function buildVisits(rows){const m=new Map();
+  rows.forEach(r=>{if(!r._k)return;const key=r.vn!=null&&r.vn!==''?'v'+r.vn:r.hn!=null&&r.hn!==''?'h'+r.hn:'q'+r.queue_no;let v=m.get(key);if(!v){v={id:key,q:String(r.queue_no),calls:[]};m.set(key,v)}v.calls.push({t:secOf(r.called_at),k:r._k,q:String(r.queue_no)})});
+  const out=[];m.forEach(v=>{v.calls.sort((a,b)=>a.t-b.t);const c=[];v.calls.forEach(x=>{if(!isFinite(x.t))return;if(c.length&&c[c.length-1].k===x.k)return;c.push(x)});if(!c.length)return;
+    v.q=c[0].q;v.seed=hsh(v.id);v.sched=schedule(c);v.t0=v.sched[0].t;v.t1=v.sched[v.sched.length-1].t;out.push(v)});
+  return out.sort((a,b)=>a.t0-b.t0)}
+function rnew(v){const sd=v.seed,g=human(SHIRT[sd%SHIRT.length],kindQ(v.q),sd);g.position.set(GN.ENT[0],0,GN.ENT[1]);SC.add(g);
+  const p={g,v,ti:0,loc:null,dest:null,wp:[],sp:5,ph0:Math.random()*6,seed:sd,sit:0};p.tag=addTag(g,v.q);RP.act.push(p);return p}
+const setTag=(p,t)=>{p.tag.material=qtag(t).material};
+function rclear(){RP.act.forEach(p=>SC.remove(p.g));RP.act.length=0;for(const k in RCH)RCH[k].fill(0)}
+function rremove(p){if(p.loc&&p.loc.ch)RCH[p.loc.ch[0]][p.loc.ch[1]]--;SC.remove(p.g);const i=RP.act.indexOf(p);if(i>=0)RP.act.splice(i,1)}
+function rarrive(p){p.loc=p.dest;p.g.rotation.y=p.loc.face||0;if(p.loc.sit)sitP(p,1);else p.g.position.y=0;pose(p,false);if(p.loc.exit)rremove(p)}
+function rgo(p,s){const old=p.loc;if(old&&old.ch){RCH[old.ch[0]][old.ch[1]]--;old.ch=null}if(p.sit)sitP(p,0);
+  const nl=mkLoc(p,s.k,s.w);if(s.q)setTag(p,s.q);p.dest=nl;p.wp=mkPath(old,nl).map(a=>[a[0],a[1]]);if(!p.wp.length)rarrive(p)}
+function rseek(T){rclear();const V=RP.visits;RP.nx=0;while(RP.nx<V.length&&V[RP.nx].t0<=T)RP.nx++;
+  for(let i=0;i<RP.nx;i++){const v=V[i];if(v.t1<=T)continue;let j=0;while(j+1<v.sched.length&&v.sched[j+1].t<=T)j++;
+    const p=rnew(v),s=v.sched[j];p.ti=j;const l=mkLoc(p,s.k,s.w);if(s.q)setTag(p,s.q);p.loc=l;p.dest=l;const e=l.tail.length?l.tail[l.tail.length-1]:GN[l.node];
+    p.g.position.set(e[0],0,e[1]);p.g.rotation.y=l.face||0;if(l.sit)sitP(p,1)}
+  rocc()}
+/* ความหนาแน่นสด: จำนวนคนที่อยู่/กำลังไปรอที่แต่ละจุด ณ เวลาที่เล่นอยู่ */
+function rocc(){const o={};RP.act.forEach(p=>{const st=p.dest&&p.dest.st;if(st)o[st]=(o[st]||0)+1});
+  ITEMS.forEach((it,k)=>{const n=o[it.id]||0;if(it._n===n)return;it._n=n;const dk=!n?'na':n<=2?'ok':n<=4?'warn':'bad';HPAD[k].material.color.setHex(COL[dk]);HPAD[k].material.opacity=n?.2+Math.min(1,n/6)*.4:0;paint(it.lb,it.name,n+' คน',CSS[dk])})}
+function rstep(dt){if(RP.play){RP.t+=dt*RP.speed;if(RP.t>=RP.t1+60){RP.t=RP.t1+60;RP.play=false}}
+  const T=RP.t,V=RP.visits;while(RP.nx<V.length&&V[RP.nx].t0<=T){const v=V[RP.nx++];if(v.t1<=T)continue;const p=rnew(v);p.loc=mkLoc(p,'ENT');p.dest=p.loc}
+  const spd=4*Math.min(3,Math.max(1,Math.sqrt(RP.speed/60)));
+  for(let k=RP.act.length-1;k>=0;k--){const p=RP.act[k];if(!p||!p.v)continue;p.sp=spd;
+    if(!p.wp.length){let j=p.ti;while(j+1<p.v.sched.length&&p.v.sched[j+1].t<=T)j++;if(j>p.ti){p.ti=j;rgo(p,p.v.sched[j]);if(!RP.act.includes(p))continue}}
+    if(p.wp.length){const pt=p.wp[0],dx=pt[0]-p.g.position.x,dz=pt[1]-p.g.position.z,d=Math.hypot(dx,dz);
+      if(d<.15){p.wp.shift();if(!p.wp.length)rarrive(p)}
+      else{let dy=Math.atan2(dx,dz)-p.g.rotation.y;dy=Math.atan2(Math.sin(dy),Math.cos(dy));p.g.rotation.y+=dy*Math.min(1,dt*9);const st=Math.min(spd*dt,d);p.g.position.x+=dx/d*st;p.g.position.z+=dz/d*st;pose(p,true)}}
+    else pose(p,false)}
+  RP.oT+=dt;if(RP.oT>.4){RP.oT=0;rocc()}RP.uT+=dt;if(RP.uT>.15){RP.uT=0;rui()}}
+const hms=t=>{t=Math.max(0,Math.floor(t))%86400;return String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
+let RUI=0;
+function rui(){const q=$('#vrp');if(!RP.on){q.style.display='none';return}
+  if(!RUI){RUI=1;q.innerHTML='<div class="rh"><b>เล่นซ้ำเส้นทางจริงจากข้อมูล</b><span id="rtm"></span></div><input type="range" id="rsl" step="1"><div class="rc"><button id="rpl"></button><button id="rrs" title="เริ่มใหม่">⟲</button><select id="rsp" title="ความเร็วเล่นซ้ำ (เวลาในข้อมูลต่อ 1 วินาทีจริง)">'+[[30,'0.5 นาที/วินาที'],[60,'1 นาที/วินาที'],[120,'2 นาที/วินาที'],[300,'5 นาที/วินาที'],[600,'10 นาที/วินาที']].map(a=>`<option value="${a[0]}">${a[1]}</option>`).join('')+'</select><span id="rin"></span></div>';
+    $('#rpl').onclick=()=>{if(!RP.play&&RP.t>=RP.t1+59){RP.t=RP.t0;rseek(RP.t)}RP.play=!RP.play;rui()};
+    $('#rrs').onclick=()=>{RP.t=RP.t0;RP.play=true;rseek(RP.t);rui()};
+    $('#rsl').oninput=e=>{RP.t=+e.target.value;rseek(RP.t);rui()};
+    $('#rsp').value=String(RP.speed);$('#rsp').onchange=e=>{RP.speed=+e.target.value;try{localStorage.setItem('v3rps',String(RP.speed))}catch(x){}}}
+  q.style.display='';const sl=$('#rsl');sl.min=Math.floor(RP.t0);sl.max=Math.ceil(RP.t1+60);if(document.activeElement!==sl)sl.value=Math.floor(RP.t);
+  $('#rtm').textContent=hms(RP.t)+' น.';$('#rpl').textContent=RP.play?'⏸ หยุด':'▶ เล่น';$('#rin').textContent='ในฉาก '+RP.act.length+' คน · ทั้งหมด '+fm(RP.visits.length)+' คน'}
+function rsetup(D,pick){const rows=D.q||[],sig=D.day+'|'+rows.length+'|'+(rows.length?rows[rows.length-1].called_at:''),newDay=D.day!==RP.day,pickCh=pick!==RP.pick;let ch=false;
+  if(sig!==RP.sig||newDay){RP.visits=buildVisits(rows);RP.sig=sig;RP.t0=RP.visits.length?Math.min(...RP.visits.map(v=>v.t0)):0;RP.t1=RP.visits.length?Math.max(...RP.visits.map(v=>v.t1)):0;ch=true}
+  RP.on=RP.visits.length>0;
+  if(newDay||pickCh){RP.day=D.day;RP.pick=pick;RP.t=pick?Math.min(Math.max(RP.t0,+pick*3600),RP.t1):RP.t0;RP.play=true;ch=true}
+  RP.t=Math.min(Math.max(RP.t,RP.t0),RP.t1+60);
+  const rb=$('#rtbtn');if(rb)rb.style.display=RP.on?'none':'';
+  if(RP.on){if(pats.length){pats.forEach(p=>SC.remove(p.g));pats.length=0}if(ch)rseek(RP.t);rui()}
+  else{rclear();rui()}}
+restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
+/* กล้อง */
+const HOME={th:.28,ph:.8,rad:66,t:[0,0,3]};let camTouched=false; // camTouched = ผู้ใช้ซูม/หมุนเองแล้ว (ไม่ปรับระยะกล้องอัตโนมัติอีก)
+let th=HOME.th,ph=HOME.ph,rad=HOME.rad,tgt=new THREE.Vector3(...HOME.t); // มุมกล้องเริ่มต้นคงที่ ไม่หมุนอัตโนมัติ
+function cam(){CAM.position.set(tgt.x+rad*Math.sin(ph)*Math.sin(th),tgt.y+rad*Math.cos(ph),tgt.z+rad*Math.sin(ph)*Math.cos(th));CAM.lookAt(tgt)}
+let drag=null,moved=0;const pts=new Map();
+cv.addEventListener('pointerdown',e=>{cv.setPointerCapture(e.pointerId);pts.set(e.pointerId,[e.clientX,e.clientY]);drag=[e.clientX,e.clientY];moved=0});
+cv.addEventListener('pointermove',e=>{
+  if(pts.size===2&&pts.has(e.pointerId)){const o=[...pts.entries()].find(a=>a[0]!==e.pointerId)[1],p=pts.get(e.pointerId),d0=Math.hypot(p[0]-o[0],p[1]-o[1]);pts.set(e.pointerId,[e.clientX,e.clientY]);camTouched=true;rad=Math.min(150,Math.max(16,rad*d0/Math.hypot(e.clientX-o[0],e.clientY-o[1])));moved=9;return}
+  if(pts.has(e.pointerId))pts.set(e.pointerId,[e.clientX,e.clientY]);
+  if(drag&&pts.size===1){const dx=e.clientX-drag[0],dy=e.clientY-drag[1];moved+=Math.abs(dx)+Math.abs(dy);if(moved>6){camTouched=true;th-=dx*.006;ph=Math.min(1.5,Math.max(.12,ph-dy*.005))}drag=[e.clientX,e.clientY]}
+  else hover(e)});
+cv.addEventListener('pointerup',e=>{pts.delete(e.pointerId);if(moved<6&&pts.size===0)clickAt(e);drag=null});
+cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey))return;e.preventDefault();camTouched=true;rad=Math.min(150,Math.max(16,rad*(1+e.deltaY*.001)))},{passive:false});
+const rc=new THREE.Raycaster(),mv=new THREE.Vector2();
+function hit(e){const b=cv.getBoundingClientRect();mv.set((e.clientX-b.left)/b.width*2-1,-((e.clientY-b.top)/b.height)*2+1);rc.setFromCamera(mv,CAM);const h=rc.intersectObjects(pick)[0];return h?h.object.userData.i:null}
+function hover(e){cv.style.cursor=hit(e)!=null?'pointer':'grab'}
+function clickAt(e){const i=hit(e);if(i!=null)select(i)}
+
+/* ---------- UI / ข้อมูล ---------- */
+/* เปิด/ปิดแถบเครื่องมือทั้งหมด (สถิติด้านบน รายการซ้าย รายละเอียดขวา คำแนะนำ ปุ่มซูม) */
+{const tb=()=>{try{return store.getItem('v3tb')==='0'}catch(e){return false}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
+ ap(tb());$('#vtg').onclick=()=>{const h=!V.classList.contains('tbh');ap(h);try{store.setItem('v3tb',h?'0':'1')}catch(e){}}}
+let sel=null,hT;const vl=$('#vlist');
+function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
+V.addEventListener('pointermove',showL);V.addEventListener('pointerdown',showL);showL();
+const stt=(w,tg)=>w==null?'ok':w<=tg?'ok':w<=tg*1.3?'warn':'bad';
+const split=(t,k)=>Array.from({length:k},(_,i)=>Math.floor(t/k)+(i<t%k?1:0));
+function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_daily),dis=n(d.ipd_discharged_daily),net=Math.max(opd-adm-dis,0);
+  const tri=val(d.avg_wait_reg_to_triage),doc=val(d.avg_wait_for_doctor),con=val(d.avg_doctor_consult_time),pha=val(d.avg_wait_for_pharmacy),tot=val(d.avg_total_process_time);
+  const dk=split(net,7),rm=split(net,6),mn=v=>v==null?'-':fm(v,1)+' นาที';
+  const info=ITEMS.map(o=>{
+    if(o.kind==='reg')return{cnt:opd,big:opd,st:'ok',u:'ราย (เปิดบัตรวันนี้)',rows:[['ผู้ป่วยนอกทั้งหมด',fm(opd)+' ราย'],['หัก: รับเป็นผู้ป่วยใน','− '+fm(adm)+' ราย'],['หัก: จำหน่ายออก','− '+fm(dis)+' ราย'],['คงเหลือเข้าระบบตรวจ',fm(net)+' ราย'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]};
+    if(o.kind==='desk')return{cnt:dk[o.no-1],tm:tri,big:tri==null?'-':fm(tri,1),st:tri==null?'na':stt(tri,TG.triage),u:'นาที (รอคัดกรอง/ซักประวัติ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน 7 โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
+    if(o.kind==='room')return{cnt:rm[o.no-1],tm:doc,big:doc==null?'-':fm(doc,1),st:doc==null?'na':stt(doc,TG.doctor),u:'นาที (รอพบแพทย์)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน 6 ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
+    if(o.kind==='cash'){const c=Math.round(net*CASHP);return{cnt:c,big:'-',st:'na',u:'ยังไม่มีเวลาในระบบ',rows:[['ผู้ใช้บริการชำระเงิน (ประมาณ)',fm(c)+' ราย'],['สัดส่วน',fm(CASHP*100)+'% ของผู้ป่วยนอก'],['เวลารอ','ยังไม่มีข้อมูลในระบบ']]}}
+    return{cnt:net,tm:pha,big:pha==null?'-':fm(pha,1),st:pha==null?'na':stt(pha,TG.pharm),u:'นาที (รอรับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
+  return{opd,adm,dis,net,info,per5:net/7,per6:net/6}}
+function select(i){sel=i;const o=ITEMS[i];
+  document.querySelectorAll('#vlist button').forEach((b,k)=>b.classList.toggle('on',k===i));
+  $('#vdet').innerHTML=`<h2>${o.name}</h2><small style="color:var(--mut)">${o.en}</small><div style="margin:10px 0 2px"><span class="chip" style="background:${CSS[o.st]}">${STT[o.st]}</span></div><div class="big">${o.big}</div><div style="color:var(--mut)">${o.u}</div><table>${o.rows.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>`;
+  tgt.set(o.x*.7,0,o.z*.6+1);selR.visible=true;selR.position.x=o.x;selR.position.z=o.z;selR.scale.setScalar(o.kind==='desk'?.75:o.kind==='room'?.9:1.4)}
+/* จำนวนคนในฉาก = service_count ของแถว OPD ที่ time_hour ตรงกับชั่วโมงปัจจุบัน (เวลาไทย) จากตาราง hospital_hourly_stats
+   */
+function hourOPD(D){const pick=document.querySelector('#vhr')?document.querySelector('#vhr').value:'',hh=pick||new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',hour12:false}).format(new Date()).slice(0,2),
+  rows=(D.oh||[]).map(r=>({h:String(r.time_hour||'').slice(0,2),c:n(r.service_count)}));
+  let r=rows.find(x=>x.h===hh);if(!r){const later=pick||rows.some(x=>x.h>hh),p=rows.filter(x=>x.h<hh).sort((a,b)=>a.h<b.h?1:-1)[0];r=later||!p?{h:hh,c:0}:{h:p.h,c:p.c,fb:1}}if(pick)r.sel=1;return r} // ชั่วโมงที่ไม่มีแถวแต่มีข้อมูลชั่วโมงหลังจากนั้น = 0 ราย · ถ้ายังไม่มีข้อมูลชั่วโมงนี้เลย (ข้อมูลยังไม่เข้า) ใช้ชั่วโมงล่าสุด
+function build(D){
+  M=derive(D);const m=model(D);M.m=m;
+  const hrO=hourOPD(D);M.hr=hrO;targetPop=Math.max(0,Math.min(60,Math.round(hrO.c)));
+  LG=D.q?aggLog(D.q,document.querySelector('#vhr').value):null;M.lg=LG;if(LG)targetPop=Math.min(60,LG.pool.length);
+  (m.info[0].rows||(m.info[0].rows=[])).push(['OPD ชั่วโมง '+hrO.h+':00'+(hrO.sel?' (เลือกเอง)':hrO.fb?' (ล่าสุด)':''),fm(hrO.c)+' ราย → แสดง '+fm(targetPop)+' ตัว']);
+  const mxL=LG?Math.max(1,...ITEMS.map(o=>(LG.byKey[o.id]||{h:[]}).h.length)):1;
+  ITEMS.forEach((o,k)=>{const f=m.info[k];o.tm=undefined;Object.assign(o,f);let dk=o.st;
+    if(LG){const bq=LG.byKey[o.id]||{h:[],d:0},l=bq.h[bq.h.length-1];o.qh=bq.h.length;o.cnt=o.qh;o.dr=o.qh/mxL;dk=!o.qh?'na':o.dr<.34?'ok':o.dr<.67?'warn':'bad';
+      o.rows=[['เรียกคิว ชั่วโมง '+LG.hh+':00',fm(o.qh)+' ครั้ง'],['เรียกคิวทั้งวัน',fm(bq.d)+' ครั้ง'],['คิวล่าสุดที่เรียก',l?l.queue_no+' · '+hmOf(l.called_at)+' น.':'-'],['ความหนาแน่น',fm(o.dr*100)+'% ของจุดที่แน่นที่สุด'],...f.rows];
+      HPAD[k].material.color.setHex(COL[dk]);HPAD[k].material.opacity=o.qh?.2+o.dr*.4:0}
+    else HPAD[k].material.opacity=0;
+    o.lbl=LG?fm(o.cnt)+' คิว ('+LG.hh+':00)':(o.kind==='reg'?fm(o.cnt)+' ราย':(o.tm==null?'รอข้อมูลเวลา':fm(o.tm,1)+' นาที'));o.flow=o.kind!=='reg'&&o.tm==null;const c=COL[o.st];o.stat.material.color.setHex(c);o.stat.material.emissive.setHex(c);
+    if(LG)paint(o.lb,o.name,fm(o.cnt)+' คิว',CSS[dk]);
+    else (o.kind==='desk'||o.kind==='room')?paintT(o.lb,o.name,CSS[o.st]):paint(o.lb,o.name,fm(o.cnt)+' ราย',CSS[o.st])});
+  if(LG)rsetup(D,document.querySelector('#vhr').value);else{RP.on=false;RP.sig='';RP.day='';rclear();rui();const rb=$('#rtbtn');if(rb)rb.style.display=''}
+  if(RP.on){ITEMS.forEach(it=>it._n=-1);rocc()}
+  drawCrowd();renderQ();
+  signs.forEach(paintSign);
+  {const d=D.d,tm=(v,t)=>v==null?'รอข้อมูลเวลา':t+' '+fm(v,1)+' นาที';
+   paintT(TP.reg,'เปิดบัตร '+fm(m.opd)+' ราย','#27c4cf');
+   paintT(TP.desk,tm(val(d.avg_wait_reg_to_triage),'รอคัดกรอง'),CSS[ITEMS[1].st]);
+   paintT(TP.room,tm(val(d.avg_wait_for_doctor),'รอพบแพทย์'),CSS[ITEMS[6].st]);
+   paintT(TP.ph,tm(val(d.avg_wait_for_pharmacy),'รอรับยา'),CSS[ITEMS[12].st]);
+{const tt=val(d.avg_total_process_time);paintT(TP.exit,tt==null?'รอข้อมูลเวลา':'เฉลี่ย '+fm(tt,1)+' นาที',tt==null?'#27c4cf':CSS[stt(tt,TG.total)])}}
+  
+  const tri=val(D.d.avg_wait_reg_to_triage),doc=val(D.d.avg_wait_for_doctor),con=val(D.d.avg_doctor_consult_time),pha=val(D.d.avg_wait_for_pharmacy);
+  WT={reg:2,desk:tri==null?9:Math.min(8,1.5+tri/3),q:doc==null?9:Math.min(8,1+doc/6),room:Math.min(9,2+(con||10)/3),ph:pha==null?9:Math.min(8,1.5+pha/4)}; // ไม่มีเวลา = ให้คนเดินไปยืนรอที่จุดบริการนานขึ้น แทนตัวสีเหลือง
+  {const mm=(v,d)=>v==null?d:v,pa=mm(pha,10);
+   W2=RT?{reg:60,c1:mm(tri,10)*60,tri:120,ec:mm(doc,5)*60,room:mm(con,5)*60,pc:pa*30,pc1:45,cc:pa*15,cash:90,pc2:pa*15,rec:60}
+        :{reg:WT.reg,c1:WT.desk,tri:3,ec:2,room:WT.room,pc:2,pc1:2,cc:2,cash:3,pc2:2,rec:WT.ph};
+   baseEvery=RT?(LG?(LG.pool.length?3600/LG.pool.length:1e9):hrO.c>0?3600/hrO.c:1e9):Math.min(8,Math.max(6,.5+120/Math.max(M.opd,40)*.6));spawnEvery=baseEvery} /* ไม่ให้คนมาถึงห้องยาเร็วกว่าอัตราเรียกทีละคน (~2 วินาที) จะได้ไม่แออัดที่เก้าอี้ */warmW();
+  $('#vlist').innerHTML=ITEMS.map((o,i)=>`<button data-i="${i}"><i style="background:${CSS[o.st]}"></i><span>${o.name}<small>${o.kind==='reg'?'เปิดบัตร ':''}${o.lbl}${o.flow?' · รอข้อมูลเวลา':''}</small></span></button>`).join('');
+  document.querySelectorAll('#vlist button').forEach(b=>b.onclick=()=>select(+b.dataset.i));
+  {const d=D.d,t=v=>{v=val(v);return v==null?'-':fm(v,1)};$('#vkc').innerHTML=`<div><i>ผู้ป่วยนอก (ราย)</i><b>${fm(m.opd)}</b></div><div><i>รอคัดกรอง เฉลี่ย (นาที)</i><b>${t(d.avg_wait_reg_to_triage)}</b></div><div><i>รอพบแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_doctor)}</b></div><div><i>ตรวจโดยแพทย์ เฉลี่ย (นาที)</i><b>${t(d.avg_doctor_consult_time)}</b></div><div><i>รอรับยา เฉลี่ย (นาที)</i><b>${t(d.avg_wait_for_pharmacy)}</b></div><div><i>เวลารวม เฉลี่ย (นาที)</i><b>${t(d.avg_total_process_time)}</b></div>`}
+  $('#vhint').textContent=`ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกจุดบริการเพื่อดูข้อมูล · รายการซ้ายซ่อนอัตโนมัติ ขยับเมาส์/แตะเพื่อแสดง · แถบสี เขียว/เหลือง/แดง = สถานะเวลารอ · เทา + คนยืนรอที่จุดบริการ = ยังไม่มีเวลาในระบบ`;
+  $('#vday').value=D.day;$('#vmsg').textContent=(D.demo?'แสดงข้อมูลตัวอย่าง — ตั้งค่า CONFIG ในไฟล์เพื่อใช้ข้อมูลจริง · ':'')+'OPD ชั่วโมง '+M.hr.h+':00'+(M.hr.sel?' (เลือกเอง)':M.hr.fb?' (ล่าสุด)':'')+' = '+fm(M.hr.c)+' ราย'+(RT?' → โหมดเวลาจริง: เข้าทุก ~'+(M.hr.c>0?fm(60/M.hr.c,1):'-')+' นาที นั่งรอตามเวลาจริง (ซักประวัติ '+fm(W2.c1/60,1)+' · ห้องตรวจ '+fm(W2.ec/60,1)+' · รับยา '+fm((W2.pc+W2.cc+W2.pc2)/60,1)+' นาที)':' → ในฉาก '+fm(targetPop)+' ตัว (จำลองเร็ว)');
+  if(D.qerr)$('#vmsg').textContent='โหลด '+QLOG_TABLE+' ไม่สำเร็จ ('+D.qerr+') — ใช้สถิติรายชั่วโมงแทน'+(/404|403/.test(D.qerr)?' · ต้องเพิ่ม '+QLOG_TABLE+' ในรายการตารางที่ตัวกลาง /api/sb อนุญาต':'');
+  else if(LG){const um=Object.keys(LG.unm);$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+QLOG_TABLE+' '+D.day+' ชั่วโมง '+LG.hh+':00'+(LG.sel?' (เลือกเอง)':LG.fb?' (ล่าสุด)':'')+' = '+fm(LG.rowsH.length)+' ครั้ง · คนยืนรอ 1 ตัว = '+fm(unit)+' ครั้ง'+(RT?' · เข้าทุก ~'+(LG.pool.length?fm(60/LG.pool.length,1):'-')+' นาที':'')+(um.length?' · ไม่รู้จักสถานี: '+um.slice(0,3).join(', '):'')}
+  if(RP.on)$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+QLOG_TABLE+' '+D.day+' · เล่นซ้ำเส้นทางจริงของ '+fm(RP.visits.length)+' คน (1 คน = 1 vn) เดินตามลำดับจุดและเวลาเรียกคิว'+(Object.keys(LG.unm).length?' · ไม่รู้จักสถานี: '+Object.keys(LG.unm).slice(0,3).join(', '):'');
+  if(sel!=null)select(sel)}
+
+async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
+$('#vgo').onclick=load;
+const resetScene=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})};
+$('#vhr').onchange=resetScene;
+const rtLook=()=>{$('#rtbtn').classList.toggle('on',RT);$('#rtbtn').textContent=RT?'⏱ เวลาจริง: เปิด':'⏱ จำลองเร็ว'};rtLook();
+$('#rtbtn').onclick=()=>{RT=!RT;try{localStorage.setItem('v3rt',RT?'1':'0')}catch(e){}rtLook();resetScene()}; // เลือกชั่วโมงใหม่ → เริ่มฉากใหม่ตามจำนวนคนของชั่วโมงนั้น
+$('#vzi').onclick=()=>{camTouched=true;rad=Math.max(16,rad*.85)};$('#vzo').onclick=()=>{camTouched=true;rad=Math.min(150,rad*1.18)};
+$('#vzr').onclick=()=>{camTouched=false;resize();rad=HOME.rad;th=HOME.th;ph=HOME.ph;tgt.set(...HOME.t);sel=null;selR.visible=false;document.querySelectorAll('#vlist button').forEach(b=>b.classList.remove('on'))};
+let lastSync=null;window.v3sync=d=>{if(d&&d!==lastSync){lastSync=d;$('#vday').value=d;load()}};
+document.fonts.ready.then(()=>{if(M)build({...window._D})});
+function resize(){const w=V.clientWidth||800,h=V.clientHeight||600;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix();if(!camTouched)HOME.rad=rad=Math.max(56,Math.min(150,128/(w/h)))} /* ระยะกล้องพอดีกับความกว้างกรอบ ฉากเต็มกรอบ */ if(window.ResizeObserver)new ResizeObserver(resize).observe(V);resize();let vis=true;if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting}).observe(V);
+const clock=new THREE.Clock();
+(function tick(){requestAnimationFrame(tick);if(!vis)return;const dt=Math.min(clock.getDelta(),.05),t=clock.elapsedTime;
+  cam();
+  selR.rotation.z=t*.8;if(sel!=null)selR.material.opacity=.6+Math.sin(t*4)*.25;
+  if(M)step(dt);R.render(SC,CAM)})();
+const _lb=loadData;loadData=async d=>{const r=await _lb(d);window._D=r;return r};
+load();setInterval(load,60000);
+
+}
+let v3on=0;
+function boot3D(){if(v3on)return;v3on=1;const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=init3D;s.onerror=()=>{document.querySelector('#vmsg').textContent='โหลด three.js ไม่สำเร็จ — ตรวจอินเทอร์เน็ต'};document.head.appendChild(s)}
+if(window.IntersectionObserver)new IntersectionObserver(es=>{if(es[0].isIntersecting)boot3D()},{rootMargin:'400px'}).observe(document.querySelector('#v3'));else boot3D();
+$('#to3d').onclick=()=>{document.querySelector('#s3d').scrollIntoView({behavior:'smooth'});boot3D()};
+if(AUTO)$('#cfgb').style.display='none';
+logo();setRange(7,document.querySelector('[data-d="7"]'));
+</script>
+<script>
+/* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
+(function(){const L=[['sec1','ภาพรวม'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
+n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
+const h=document.querySelector('header');h.after(n);
+n.onclick=e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();const t=document.getElementById(a.getAttribute('href').slice(1));if(t)t.scrollIntoView({behavior:'smooth'})};
+if(window.IntersectionObserver){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)n.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+x.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
+const watch=()=>L.forEach(([i])=>{const e=document.getElementById(i);if(e&&!e._w){e._w=1;io.observe(e)}});watch();new MutationObserver(watch).observe(document.body,{childList:true,subtree:true})}
+})();
+</script>
+<script>
+/* นาฬิกาเวลาปัจจุบัน (เขตเวลาไทย) สำหรับการ์ด 4 และ 3D */
+(function(){const f=new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.';document.querySelectorAll('.nowclk').forEach(e=>e.textContent=x)};t();setInterval(t,1000)})();
+</script>
+<script>
+/* ปรับขนาดตัวเลขในการ์ด KPI ให้พอดีกับความกว้างการ์ด (ตัวเลขย่อลงอัตโนมัติ / ข้อความยาวใช้ตัวเล็กลงและขึ้นบรรทัดใหม่) */
+(function(){
+ function fit(){document.querySelectorAll('main .k strong').forEach(el=>{
+  if(!el.clientWidth)return;
+  const txt=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim();
+  const isNum=/^[\d\s,.\-+%฿\/:]+$/.test(txt);
+  if(!isNum){el.style.whiteSpace='normal';el.style.fontSize='18px';el.style.lineHeight='1.3';return}
+  el.style.whiteSpace='nowrap';el.style.lineHeight='';let fs=28;el.style.fontSize=fs+'px';
+  while(el.scrollWidth>el.clientWidth+1&&fs>13){fs--;el.style.fontSize=fs+'px'}
+ })}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fit)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+ addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* จัดการ์ด KPI ภาพรวมให้แบ่งแถวเท่า ๆ กัน (เช่น 8 ใบ = 4+4, 7 ใบ = 4+3) และขยายเต็มความกว้างอัตโนมัติ */
+(function(){
+ const MIN=200; // ความกว้างขั้นต่ำต่อการ์ด (px)
+ function balance(){const MIN=innerWidth<560?150:200;document.querySelectorAll('#sec1 .kp').forEach(kp=>{
+  const n=kp.children.length,w=kp.clientWidth;if(!n||!w)return;
+  const maxCols=Math.max(1,Math.floor((w+14)/(MIN+14))),rows=Math.ceil(n/maxCols),cols=Math.ceil(n/rows);
+  const v=`repeat(${cols},minmax(0,1fr))`;if(kp.style.gridTemplateColumns!==v)kp.style.gridTemplateColumns=v})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(balance)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+ addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* ตอบสนองทุกอุปกรณ์: ห่อตารางให้เลื่อนแนวนอน + วาดกราฟใหม่เมื่อจอข้ามจุดเปลี่ยน (แคบ/กว้าง) */
+(function(){
+ function wrap(){document.querySelectorAll('main table').forEach(t=>{const p=t.parentElement;
+  if(!p||p.classList.contains('tw')||p.classList.contains('dpw')||getComputedStyle(p).overflowX==='auto')return;
+  const w=document.createElement('div');w.className='tw';t.replaceWith(w);w.append(t)})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(wrap)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});go();
+ let nar=innerWidth<640,t=0;
+ addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{const n=innerWidth<640;if(n!==nar){nar=n;if(typeof LAST!=='undefined'&&LAST&&typeof render==='function'){render(...LAST);if(typeof xtra==='function')xtra()}}},200)});
+})();
+</script>
+<script>
+/* ส่วนหัวคงที่: ย่อขนาดเมื่อเลื่อนลง + แจ้งความสูงให้แถบเมนูลัดเกาะต่อใต้ส่วนหัว */
+(function(){const h=document.querySelector('header'),r=document.documentElement;if(!h)return;
+ const set=()=>r.style.setProperty('--hh',h.offsetHeight+'px');
+ if(window.ResizeObserver)new ResizeObserver(set).observe(h);addEventListener('resize',set);
+ const on=()=>{const y=scrollY;if(y>80)h.classList.add('stuck');else if(y<20)h.classList.remove('stuck')};
+ addEventListener('scroll',on,{passive:true});on();set();
+})();
+</script>
+</body>
+</html>
