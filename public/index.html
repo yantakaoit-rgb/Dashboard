@@ -105,9 +105,13 @@ dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;backgroun
 .tg button:focus-visible{outline:2px solid var(--amber)} /* วงโฟกัสสีอำพันเมื่อใช้คีย์บอร์ด */
 .tg span{margin-left:auto;color:var(--mut);font-size:12px} /* ข้อความหน่วยชิดขวา สีจาง */
 @media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}} /* มือถือ: ช่องสรุปเรียงเป็นคอลัมน์เดียว */
-#vclock{display:none;position:absolute;left:12px;top:10px;z-index:5;background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:10px;padding:8px 14px;font-size:15px;line-height:1.4;pointer-events:none;min-width:190px}
-#vclock small{display:block;opacity:.75;font-size:12px}#vclock .pb{height:3px;background:#ffffff26;border-radius:2px;margin-top:6px;overflow:hidden}#vclock .pb i{display:block;height:100%;background:#27c4cf}
-#v3.tbh #vclock{display:block}#vclock:empty{display:none!important}#v3.tbh #vrp,#v3.tbh #vq,#v3.tbh #vmsg{display:none!important}
+#vclock{display:none;position:absolute;left:12px;top:10px;z-index:5;background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:10px;padding:8px 14px;font-size:15px;line-height:1.4;pointer-events:none;min-width:190px} /* กล่องนาฬิกา kiosk: ซ่อนไว้ก่อน ลอยมุมซ้ายบนของฉาก 3D คลิกทะลุได้ */
+#vclock small{display:block;opacity:.75;font-size:12px} /* ข้อความรองในกล่องนาฬิกา (ความเร็ว/จำนวนคน) ขึ้นบรรทัดใหม่ ตัวเล็ก จาง */
+#vclock .pb{height:3px;background:#ffffff26;border-radius:2px;margin-top:6px;overflow:hidden} /* รางแถบความคืบหน้าของวัน */
+#vclock .pb i{display:block;height:100%;background:#27c4cf} /* แถบสีที่ยาวขึ้นตามเวลาที่เล่น (ความกว้างตั้งจาก JS) */
+#v3.tbh #vclock{display:block} /* แสดงนาฬิกาเฉพาะตอนซ่อนแถบเครื่องมือ (โหมดอัตโนมัติ) */
+#vclock:empty{display:none!important} /* ถ้ากล่องว่าง (ไม่ได้เล่นซ้ำ) ให้ซ่อน ไม่ให้เหลือกรอบเปล่า */
+#v3.tbh #vrp,#v3.tbh #vq,#v3.tbh #vmsg{display:none!important} /* ซ่อนแผงเล่นซ้ำ/ป้ายคิว/ข้อความสถานะ ตอนซ่อนแถบเครื่องมือ */
 </style>
 <style id="reskin">
 /* ===== ดีไซน์ใหม่ (reskin) — ไม่แตะส่วน 3D (#v3 / #s3d) ===== */
@@ -203,11 +207,15 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <main id="app"></main>
 <div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
-<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><button id="vprev" title="วันที่มีข้อมูลก่อนหน้า" aria-label="วันก่อนหน้า">◀</button><input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><button id="vnext" title="วันที่มีข้อมูลถัดไป" aria-label="วันถัดไป">▶</button><select id="vhr" aria-label="เวลา (ชั่วโมง) ของข้อมูล 3D"><option value="">เวลาปัจจุบัน</option><option value="00">00:00</option><option value="01">01:00</option><option value="02">02:00</option><option value="03">03:00</option><option value="04">04:00</option><option value="05">05:00</option><option value="06">06:00</option><option value="07">07:00</option><option value="08">08:00</option><option value="09">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select><button id="rtbtn" title="โหมดเวลาจริง: นั่งรอตามเวลาจริงทุกห้อง">⏱ เวลาจริง</button><button id="vgo">โหลด</button></div></div>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span><button id="vprev" title="วันที่มีข้อมูลก่อนหน้า" aria-label="วันก่อนหน้า">◀</button><!-- ปุ่มไปวันที่มีข้อมูลก่อนหน้า -->
+<input type="date" id="vday" aria-label="วันที่ข้อมูล 3D"><!-- ช่องเลือกวันที่ของข้อมูล 3D -->
+<button id="vnext" title="วันที่มีข้อมูลถัดไป" aria-label="วันถัดไป">▶</button><!-- ปุ่มไปวันที่มีข้อมูลถัดไป -->
+<select id="vhr" aria-label="เวลา (ชั่วโมง) ของข้อมูล 3D"><option value="">เวลาปัจจุบัน</option><option value="00">00:00</option><option value="01">01:00</option><option value="02">02:00</option><option value="03">03:00</option><option value="04">04:00</option><option value="05">05:00</option><option value="06">06:00</option><option value="07">07:00</option><option value="08">08:00</option><option value="09">09:00</option><option value="10">10:00</option><option value="11">11:00</option><option value="12">12:00</option><option value="13">13:00</option><option value="14">14:00</option><option value="15">15:00</option><option value="16">16:00</option><option value="17">17:00</option><option value="18">18:00</option><option value="19">19:00</option><option value="20">20:00</option><option value="21">21:00</option><option value="22">22:00</option><option value="23">23:00</option></select><button id="rtbtn" title="โหมดเวลาจริง: นั่งรอตามเวลาจริงทุกห้อง">⏱ เวลาจริง</button><button id="vgo">โหลด</button></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <div class="p" id="vq" style="display:none"></div><div class="p" id="vrp" style="display:none"></div>
-<div id="vclock"></div><button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+<div id="vclock"></div><!-- กล่องนาฬิกา kiosk: วันที่/เวลา/จำนวนคน (ต้องว่างเปล่าตอนไม่ใช้ เพื่อให้ CSS :empty ซ่อนได้) -->
+<button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
 <dialog id="dlg">
@@ -709,7 +717,7 @@ document.addEventListener('scroll',()=>{tip.style.display='none'},true);
 /* ===== ส่วน 3D (โหลดเมื่อเลื่อนมาถึง) ===== */
 function init3D(){
 const AUTO3D={loop:true,pause:6}; // โหมดอัตโนมัติ (เมื่อซ่อนแถบเครื่องมือ): เล่นจบวัน → พัก pause วินาที → ไปวันถัดไปที่มีข้อมูล วนกลับวันแรกเมื่อครบ · ปิดวน: ใส่ ?loop=0 ท้าย URL หรือตั้ง loop:false
-if(/[?&]loop=0/.test(location.search))AUTO3D.loop=false;
+if(/[?&]loop=0/.test(location.search))AUTO3D.loop=false; // ใส่ ?loop=0 ท้าย URL เพื่อปิดการวนข้ามวัน
 const TG={triage:10,doctor:20,consult:15,pharm:15,cash:15,total:60,occ:85}; // เป้าหมายเวลา (นาที) / % เตียง
 const $=s=>document.querySelector('#v3 '+s),n=v=>+v||0,fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2});
 const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
@@ -722,22 +730,50 @@ async function loadData(day){
     oh:Array.from({length:24},(_,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(h<7||h>20?R(3):12+R(20))})),
     st:[[1,150],[2,22],[3,9],[4,14],[5,31],[6,3],[7,0]].map(a=>({stage_order:a[0],patient_count:a[1]})),
     tr:[[1,2],[2,9],[3,22],[4,15],[5,5]].map(a=>({triage_level_id:a[0],triage_level_name:'Level '+a[0],patient_count:a[1]}))}}
-  const req=day;
-  {let dd=null,fd=null,e1=null;
-   try{const r=await sb('hospital_daily_stats?select=record_date'+(day?'&record_date=lte.'+day:'')+'&order=record_date.desc&limit=1');dd=r[0]&&r[0].record_date}catch(e){e1=e}
-   try{const r=await sb(FLOW_TABLE+'?select=vstdate'+(day?'&vstdate=lte.'+day:'')+'&order=vstdate.desc&limit=1');fd=r[0]&&r[0].vstdate}catch(e){e1=e1||e}
-   day=[dd,fd].filter(Boolean).sort().pop();if(!day&&e1)throw e1}
-  if(!day)throw new Error('ยังไม่มีข้อมูลในตาราง');
-  if(!FLOWRNG||day>=FLOWRNG[1]){try{const [a,b]=await Promise.all([sb(FLOW_TABLE+'?select=vstdate&order=vstdate.asc&limit=1'),sb(FLOW_TABLE+'?select=vstdate&order=vstdate.desc&limit=1')]);if(a[0]&&b[0])FLOWRNG=[a[0].vstdate,b[0].vstdate]}catch(e){}} // ช่วงวันที่มีข้อมูลในตาราง (n8n ทยอยเติมทุก 15 นาที)
+  const req=day; // เก็บวันที่ที่ผู้ใช้ขอไว้ เพื่อแจ้งเตือนถ้าวันนั้นไม่มีข้อมูล
+  { // บล็อกหาวันที่จะแสดง
+    let dd=null,fd=null,e1=null; // dd=วันล่าสุดในตารางสถิติรายวัน, fd=วันล่าสุดในตารางเส้นทางผู้ป่วย, e1=error แรกที่เจอ
+    try{ // ลองอ่านตารางสถิติรายวัน
+      const r=await sb('hospital_daily_stats?select=record_date'+(day?'&record_date=lte.'+day:'')+'&order=record_date.desc&limit=1'); // วันล่าสุดที่ไม่เกินวันที่ขอ
+      dd=r[0]&&r[0].record_date // เก็บวันที่ถ้ามีข้อมูล
+    }catch(e){e1=e} // อ่านไม่ได้ก็จดไว้ ไม่หยุดทำงาน
+    try{ // ลองอ่านตาราง hospital_visit_flow_stats
+      const r=await sb(FLOW_TABLE+'?select=vstdate'+(day?'&vstdate=lte.'+day:'')+'&order=vstdate.desc&limit=1'); // วันล่าสุดที่ไม่เกินวันที่ขอ
+      fd=r[0]&&r[0].vstdate // เก็บวันที่ถ้ามีข้อมูล
+    }catch(e){e1=e1||e} // อ่านไม่ได้ก็จดไว้
+    day=[dd,fd].filter(Boolean).sort().pop(); // เลือกวันที่ใหม่กว่าของสองตาราง
+    if(!day&&e1)throw e1 // ไม่มีวันเลยและมี error → โยน error ให้หน้าจอแสดง
+  }
+  if(!day)throw new Error('ยังไม่มีข้อมูลในตาราง'); // ไม่มีข้อมูลทั้งสองตาราง
+  if(!FLOWRNG||day>=FLOWRNG[1]){ // ยังไม่รู้ช่วงวันที่ หรือกำลังดูวันล่าสุด (n8n อาจเติมวันใหม่เข้ามา)
+    try{ // ลองอ่านวันแรกและวันสุดท้ายในตาราง
+      const [a,b]=await Promise.all([sb(FLOW_TABLE+'?select=vstdate&order=vstdate.asc&limit=1'),sb(FLOW_TABLE+'?select=vstdate&order=vstdate.desc&limit=1')]); // ขอวันแรกสุดและล่าสุดพร้อมกัน
+      if(a[0]&&b[0])FLOWRNG=[a[0].vstdate,b[0].vstdate] // เก็บช่วงวันที่ [แรกสุด, ล่าสุด]
+    }catch(e){} // พลาดก็ข้าม ใช้ค่าเดิม
+  }
   /* ข้อมูลเส้นทางผู้ป่วย: อ่านจาก hospital_visit_flow_stats เป็นหลัก — ถ้าว่าง/อ่านไม่ได้ ค่อยถอยไปใช้ hospital_queue_call_log_stats */
-  let qerr=null,qsrc=FLOW_TABLE,flowErr=null;
-  const [d,st,tr,hr,oh,fr]=await Promise.all([sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`).catch(()=>[]),sb(`hospital_service_stage_stats?record_date=eq.${day}`).catch(()=>[]),sb(`hospital_er_triage_stats?record_date=eq.${day}`).catch(()=>[]),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`).catch(()=>[]),sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`).catch(()=>[]),loadFlow(day).catch(e=>{flowErr=e.message;return null})]);
-  let q=null,fa=null;
-  if(fr&&fr.length){q=flowToLog(fr,day);fa=flowStats(fr)}
-  else{qsrc=QLOG_TABLE;q=await loadQ(day).catch(e=>{qerr=e.message;return null});if(!q&&flowErr){qsrc=FLOW_TABLE;qerr=flowErr+' · '+qerr}}
-  const base=d[0]||{},dm=fa?{...base,...fa.d}:base;if(fa&&!n(base.opd_daily_count))dm.opd_daily_count=fa.n;
-  const todayTH=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'});
-  return{day,d:dm,st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:fa?fa.oh:(oh||[]),q,qerr,qsrc,fa,live:day===todayTH,req,rng:FLOWRNG};
+  let qerr=null,qsrc=FLOW_TABLE,flowErr=null; // qerr=ข้อความ error, qsrc=ชื่อตารางที่ใช้จริง, flowErr=error ของตารางเส้นทาง
+  const [d,st,tr,hr,oh,fr]=await Promise.all([ // ดึงข้อมูลทุกตารางพร้อมกัน
+    sb(`hospital_daily_stats?record_date=eq.${day}&limit=1`).catch(()=>[]), // สถิติรายวัน (พลาดให้เป็นว่าง)
+    sb(`hospital_service_stage_stats?record_date=eq.${day}`).catch(()=>[]), // สถิติแต่ละขั้นตอนบริการ
+    sb(`hospital_er_triage_stats?record_date=eq.${day}`).catch(()=>[]), // สถิติคัดกรอง ER
+    sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.ER`).catch(()=>[]), // สถิติ ER รายชั่วโมง
+    sb(`hospital_hourly_stats?record_date=eq.${day}&patient_type=eq.OPD&order=time_hour`).catch(()=>[]), // สถิติ OPD รายชั่วโมง
+    loadFlow(day).catch(e=>{flowErr=e.message;return null}) // เส้นทางผู้ป่วยรายคน (พลาดให้จด error แล้วคืน null)
+  ]);
+  let q=null,fa=null; // q=เหตุการณ์เรียกคิวที่แปลงแล้ว, fa=ค่าเฉลี่ยที่คำนวณจากตาราง
+  if(fr&&fr.length){ // ถ้าตารางเส้นทางมีข้อมูลของวันนั้น
+    q=flowToLog(fr,day); // แปลงเป็นเหตุการณ์ให้ฉาก 3D ใช้
+    fa=flowStats(fr) // คำนวณค่าเฉลี่ยเวลารอ
+  }else{ // ไม่มีข้อมูล → ถอยไปใช้ตารางบันทึกการเรียกคิวเดิม
+    qsrc=QLOG_TABLE; // จดว่าใช้ตารางเดิม
+    q=await loadQ(day).catch(e=>{qerr=e.message;return null}); // อ่านตารางเดิม ถ้าพลาดจด error ไว้
+    if(!q&&flowErr){qsrc=FLOW_TABLE;qerr=flowErr+' · '+qerr} // พลาดทั้งคู่ → รายงาน error ของตารางหลักรวมกับของตารางเดิม
+  }
+  const base=d[0]||{},dm=fa?{...base,...fa.d}:base; // base=สถิติรายวัน, dm=ค่าที่ทับด้วยค่าเฉลี่ยจากตารางเส้นทาง
+  if(fa&&!n(base.opd_daily_count))dm.opd_daily_count=fa.n; // ไม่มียอด OPD รายวัน → ใช้จำนวน vn แทน
+  const todayTH=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}); // วันที่วันนี้ตามเวลาไทย
+  return{day,d:dm,st,tr,er:hr.reduce((s,r)=>s+n(r.service_count),0),oh:fa?fa.oh:(oh||[]),q,qerr,qsrc,fa,live:day===todayTH,req,rng:FLOWRNG}; // ส่งข้อมูลทั้งหมดให้ฉาก 3D
 }
 function derive(D){
   const d=D.d,sg=o=>n((D.st.find(r=>+r.stage_order===o)||{}).patient_count),opd=n(d.opd_daily_count);
@@ -857,37 +893,100 @@ function demoQ(day){const R=x=>Math.floor(Math.random()*x),out=[],hh=t=>`${day}T
     t+=600+R(1500);if(Math.random()<.5){add(n,t,15,'ห้องเก็บเงิน');t+=300+R(600);add(n,t,14,'จ่ายยา')}else{add(n,t,14,'จ่ายยา');t+=300+R(600);if(Math.random()<.4)add(n,t,15,'ห้องเก็บเงิน')}}
   return out.sort((a,b)=>a.called_at<b.called_at?-1:1)}
 /* ===== hospital_visit_flow_stats: 1 แถว = 1 vn มีเวลาแต่ละขั้น (t_register → t_screen_start → t_exam_start → t_cashier → t_drug_finish) ===== */
-let FLOWRNG=null;const FLOW_TABLE='hospital_visit_flow_stats'; // ต้องอยู่ในรายการที่ตัวกลาง /api/sb อนุญาต (ถ้าใช้ตัวกลาง)
-async function loadFlow(day){const c=cfg(),out=[],f='select=vn,hn,oqueue,vstdate,cur_department,t_register,t_send_screen,t_screen_start,t_screen_end,t_exam_start,t_exam_end,t_cashier,t_drug_finish,wait_screen_min,dur_screen_min,wait_exam_min,dur_exam_min,wait_drug_min,wait_cash_min,total_min&vstdate=eq.'+day+'&order=t_register.asc';
-  for(let o=0;o<20000;o+=1000){const r=await fetch(c.u+'/rest/v1/'+FLOW_TABLE+'?'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}});
-    if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){}throw new Error(FLOW_TABLE+' HTTP '+r.status+(m?' — '+m:''))}
-    const j=san(await r.json());out.push(...j);if(j.length<1000)break}
-  return out}
+let FLOWRNG=null; // ช่วงวันที่มีข้อมูลในตาราง [วันแรก, วันล่าสุด] จำไว้เพื่อไม่ต้องถามซ้ำ
+const FLOW_TABLE='hospital_visit_flow_stats'; // ชื่อตารางเส้นทางผู้ป่วยรายคน (ต้องอยู่ในรายการที่ตัวกลาง /api/sb อนุญาต)
+async function loadFlow(day){ // ดึงแถวของวันที่ระบุทั้งหมด (แบ่งหน้าครั้งละ 1000 แถว)
+  const c=cfg(),out=[]; // c=ค่าเชื่อมต่อ Supabase, out=แถวที่ดึงมาสะสมไว้
+  const f='select=vn,hn,oqueue,vstdate,cur_department,t_register,t_send_screen,t_screen_start,t_screen_end,t_exam_start,t_exam_end,t_cashier,t_drug_finish,wait_screen_min,dur_screen_min,wait_exam_min,dur_exam_min,wait_drug_min,wait_cash_min,total_min&vstdate=eq.'+day+'&order=t_register.asc'; // เลือกคอลัมน์ที่ใช้ + กรองเฉพาะวันนั้น + เรียงตามเวลาลงทะเบียน
+  for(let o=0;o<20000;o+=1000){ // วนขอทีละ 1000 แถว สูงสุด 20,000 แถว
+    const r=await fetch(c.u+'/rest/v1/'+FLOW_TABLE+'?'+f,{headers:{apikey:c.k,Authorization:'Bearer '+c.k,'Range-Unit':'items',Range:`${o}-${o+999}`}}); // ขอแถวช่วง o ถึง o+999
+    if(!r.ok){ // ถ้าเซิร์ฟเวอร์ตอบ error
+      let m=''; // ข้อความรายละเอียดของ error
+      try{m=(await r.text()).replace(/\s+/g,' ').slice(0,140)}catch(e){} // อ่านเนื้อความ error แบบสั้น ๆ
+      throw new Error(FLOW_TABLE+' HTTP '+r.status+(m?' — '+m:'')) // โยน error พร้อมรหัสสถานะ
+    }
+    const j=san(await r.json()); // แปลง JSON และกรองอักขระอันตรายออก
+    out.push(...j); // เก็บแถวที่ได้
+    if(j.length<1000)break // ได้น้อยกว่า 1000 แถว = หน้าสุดท้ายแล้ว หยุดขอ
+  }
+  return out // คืนทุกแถวของวันนั้น
+}
 /* ค่าเฉลี่ยจริงของวัน (นาที) จากตาราง ใช้แทนค่าจาก hospital_daily_stats ใน KPI และสีสถานะของจุดบริการ */
-function flowStats(rows){const avg=k=>{const a=rows.map(r=>r[k]).filter(v=>v!=null&&v!==''&&isFinite(+v)).map(Number);return a.length?a.reduce((s,v)=>s+v,0)/a.length:null};
-  const d={avg_wait_reg_to_triage:avg('wait_screen_min'),avg_wait_for_doctor:avg('wait_exam_min'),avg_doctor_consult_time:avg('dur_exam_min'),avg_wait_for_pharmacy:avg('wait_drug_min'),avg_total_process_time:avg('total_min')};
-  Object.keys(d).forEach(k=>{if(d[k]==null)delete d[k]});
-  const hc=Array(24).fill(0);rows.forEach(r=>{const h=+String(r.t_register||'').slice(11,13);if(h>=0&&h<24)hc[h]++});
-  return{d,n:rows.length,cash:avg('wait_cash_min'),nCash:rows.filter(r=>r.t_cashier).length,oh:hc.map((c,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(c)}))}}
+function flowStats(rows){ // สรุปค่าเฉลี่ยจากทุกแถวของวัน
+  const avg=k=>{ // ฟังก์ชันหาค่าเฉลี่ยของคอลัมน์ k
+    const a=rows.map(r=>r[k]).filter(v=>v!=null&&v!==''&&isFinite(+v)).map(Number); // เอาเฉพาะค่าที่เป็นตัวเลข
+    return a.length?a.reduce((s,v)=>s+v,0)/a.length:null // หาค่าเฉลี่ย ถ้าไม่มีค่าเลยคืน null
+  };
+  const d={ // ค่าที่จะทับลงในสถิติรายวัน
+    avg_wait_reg_to_triage:avg('wait_screen_min'), // เวลารอคัดกรอง
+    avg_wait_for_doctor:avg('wait_exam_min'), // เวลารอพบแพทย์
+    avg_doctor_consult_time:avg('dur_exam_min'), // เวลาตรวจกับแพทย์
+    avg_wait_for_pharmacy:avg('wait_drug_min'), // เวลารอรับยา
+    avg_total_process_time:avg('total_min') // เวลารวมทั้งกระบวนการ
+  };
+  Object.keys(d).forEach(k=>{if(d[k]==null)delete d[k]}); // ตัดค่าที่คำนวณไม่ได้ออก จะได้ไม่ไปทับค่าเดิม
+  const hc=Array(24).fill(0); // ตัวนับผู้ป่วยลงทะเบียนรายชั่วโมง 24 ช่อง
+  rows.forEach(r=>{ // วนทุกแถว
+    const h=+String(r.t_register||'').slice(11,13); // ตัดเลขชั่วโมงจากข้อความเวลา
+    if(h>=0&&h<24)hc[h]++ // นับเข้าช่องชั่วโมงนั้น
+  });
+  return{ // คืนผลสรุป
+    d, // ค่าเฉลี่ยสำหรับ KPI
+    n:rows.length, // จำนวน vn ทั้งวัน
+    cash:avg('wait_cash_min'), // เวลารอชำระเงินเฉลี่ย
+    nCash:rows.filter(r=>r.t_cashier).length, // จำนวนคนที่ผ่านการเงินแล้ว
+    oh:hc.map((c,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(c)})) // จำนวนรายชั่วโมงในรูปแบบเดียวกับตารางสถิติรายชั่วโมง
+  }
+}
 /* แปลง 1 แถว/vn → เหตุการณ์ "เรียกคิว" ที่จุดต่าง ๆ ให้ aggLog/buildVisits ใช้ต่อได้ทันที
    · เลขโต๊ะซักประวัติ/ห้องตรวจ ตารางไม่มี → กระจายแบบโต๊ะที่ว่างนานที่สุดก่อน · ผู้ป่วยที่ยังอยู่ในโรงพยาบาล (วันนี้) จะนั่งรอที่จุดถัดไปแทนที่จะเดินออก */
-function flowToLog(rows,day){const todayTH=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}),live=day===todayTH;
-  const ts=s=>{const m=String(s||'').match(/(\d\d):(\d\d)(?::(\d\d))?/);return m?+m[1]*3600+ +m[2]*60+(+m[3]||0):NaN},cl=(v,a,b,d)=>isFinite(v)?Math.min(b,Math.max(a,v)):d;
-  const out=[],pend=[],hxL=[],exL=[],hxF=Array(7).fill(0),exF=Array(6).fill(0);
-  const alloc=(F,t,e)=>{let b=0;for(let i=1;i<F.length;i++)if(F[i]<F[b])b=i;F[b]=isFinite(e)?e:t+300;return b+1};
-  rows.forEach(r=>{const q=String(r.oqueue||String(r.vn||'').slice(-4)),base={hn:r.hn,vn:r.vn,queue_no:q},hs=r.t_screen_start||r.t_screen_end;
-    const add=(t,id,nm,dw)=>{if(t)out.push({...base,called_at:t,station_id:id,station_name:nm,_dw:dw})};
-    add(r.t_register,1,'ห้องบัตร',cl(ts(r.t_send_screen)-ts(r.t_register),45,180,90));
-    if(hs)hxL.push({base,t:ts(hs),raw:hs,e:ts(r.t_screen_end),dw:cl(ts(r.t_screen_end)-ts(r.t_screen_start),60,600,180)});
-    if(r.t_exam_start)exL.push({base,t:ts(r.t_exam_start),raw:r.t_exam_start,e:ts(r.t_exam_end),dw:cl(ts(r.t_exam_end)-ts(r.t_exam_start),120,1500,420)});
-    add(r.t_cashier,15,'ห้องเก็บเงิน',120);add(r.t_drug_finish,14,'จ่ายยา',120);
-    if(live&&r.cur_department!=='กลับบ้าน'&&!r.t_drug_finish){let k=null;
-      if(!hs&&!r.t_exam_start)k='hx'+(1+hsh(r.vn)%7);else if(!r.t_exam_start)k='ex'+(1+hsh(r.vn)%6);else if(r.t_cashier)k='ph';else if(r.t_exam_end)k='cash'; // k=null → ยังอยู่ในห้องตรวจ
-      pend.push({vn:r.vn,hn:r.hn,q,k})}});
-  hxL.sort((a,b)=>a.t-b.t).forEach(x=>{const n=alloc(hxF,x.t,x.e);out.push({...x.base,called_at:x.raw,station_id:1+n,station_name:'ซักประวัติ '+n,_dw:x.dw})});
-  exL.sort((a,b)=>a.t-b.t).forEach(x=>{const n=alloc(exF,x.t,x.e);out.push({...x.base,called_at:x.raw,station_id:8+n,station_name:'ห้องตรวจ '+n,_dw:x.dw})});
-  out.sort((a,b)=>a.called_at<b.called_at?-1:a.called_at>b.called_at?1:0);out.pend=pend;return out}
-
+function flowToLog(rows,day){ // แปลงแถวรายคนเป็นเหตุการณ์ที่แต่ละจุดบริการ
+  const todayTH=new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}); // วันที่วันนี้ตามเวลาไทย
+  const live=day===todayTH; // live=กำลังดูข้อมูลของวันนี้
+  const ts=s=>{ // แปลงข้อความเวลาเป็นวินาทีนับจากเที่ยงคืน
+    const m=String(s||'').match(/(\d\d):(\d\d)(?::(\d\d))?/); // ดึง ชั่วโมง:นาที:วินาที ออกมา
+    return m?+m[1]*3600+ +m[2]*60+(+m[3]||0):NaN // คำนวณเป็นวินาที ไม่มีเวลาคืน NaN
+  };
+  const cl=(v,a,b,d)=>isFinite(v)?Math.min(b,Math.max(a,v)):d; // จำกัดค่า v ให้อยู่ช่วง a..b ถ้าไม่ใช่ตัวเลขใช้ค่า d
+  const out=[],pend=[],hxL=[],exL=[]; // out=เหตุการณ์, pend=คนที่ยังอยู่ในโรงพยาบาล, hxL/exL=รายการรอจัดโต๊ะซักประวัติ/ห้องตรวจ
+  const hxF=Array(7).fill(0),exF=Array(6).fill(0); // เวลาที่โต๊ะซักประวัติ (7) และห้องตรวจ (6) ว่างล่าสุด
+  const alloc=(F,t,e)=>{ // เลือกโต๊ะ/ห้องที่ว่างนานที่สุด
+    let b=0; // ดัชนีที่เลือก
+    for(let i=1;i<F.length;i++)if(F[i]<F[b])b=i; // หาตัวที่เวลาว่างน้อยที่สุด
+    F[b]=isFinite(e)?e:t+300; // จดเวลาที่จะว่างอีกครั้ง (ไม่รู้เวลาจบให้ +5 นาที)
+    return b+1 // คืนเลขโต๊ะ/ห้อง (เริ่มที่ 1)
+  };
+  rows.forEach(r=>{ // วนทุกแถว (ทุก vn)
+    const q=String(r.oqueue||String(r.vn||'').slice(-4)); // หมายเลขคิว ถ้าไม่มีใช้ 4 หลักท้ายของ vn
+    const base={hn:r.hn,vn:r.vn,queue_no:q}; // ข้อมูลระบุตัวผู้ป่วยที่ทุกเหตุการณ์ใช้ร่วมกัน
+    const hs=r.t_screen_start||r.t_screen_end; // เวลาเริ่มซักประวัติ (ไม่มีใช้เวลาจบแทน)
+    const add=(t,id,nm,dw)=>{if(t)out.push({...base,called_at:t,station_id:id,station_name:nm,_dw:dw})}; // เพิ่มเหตุการณ์ถ้ามีเวลา (dw=วินาทีที่อยู่ที่จุดนั้น)
+    add(r.t_register,1,'ห้องบัตร',cl(ts(r.t_send_screen)-ts(r.t_register),45,180,90)); // ลงทะเบียน อยู่จนส่งไปคัดกรอง (45–180 วินาที)
+    if(hs)hxL.push({base,t:ts(hs),raw:hs,e:ts(r.t_screen_end),dw:cl(ts(r.t_screen_end)-ts(r.t_screen_start),60,600,180)}); // ซักประวัติ: เก็บไว้รอจัดโต๊ะ
+    if(r.t_exam_start)exL.push({base,t:ts(r.t_exam_start),raw:r.t_exam_start,e:ts(r.t_exam_end),dw:cl(ts(r.t_exam_end)-ts(r.t_exam_start),120,1500,420)}); // ตรวจ: เก็บไว้รอจัดห้อง
+    add(r.t_cashier,15,'ห้องเก็บเงิน',120); // การเงิน อยู่ 2 นาที
+    add(r.t_drug_finish,14,'จ่ายยา',120); // จ่ายยา อยู่ 2 นาที
+    if(live&&r.cur_department!=='กลับบ้าน'&&!r.t_drug_finish){ // วันนี้ ยังไม่กลับบ้านและยังไม่ได้ยา = ยังอยู่ในโรงพยาบาล
+      let k=null; // จุดที่กำลังรออยู่ (null = อยู่ในห้องตรวจ)
+      if(!hs&&!r.t_exam_start)k='hx'+(1+hsh(r.vn)%7); // ยังไม่ได้ซักประวัติ → รอที่โต๊ะซักประวัติ (สุ่มโต๊ะจาก vn)
+      else if(!r.t_exam_start)k='ex'+(1+hsh(r.vn)%6); // ซักประวัติแล้วแต่ยังไม่ตรวจ → รอหน้าห้องตรวจ
+      else if(r.t_cashier)k='ph'; // จ่ายเงินแล้วแต่ยังไม่ได้ยา → รอรับยา
+      else if(r.t_exam_end)k='cash'; // ตรวจเสร็จแต่ยังไม่จ่ายเงิน → รอชำระเงิน
+      pend.push({vn:r.vn,hn:r.hn,q,k}) // บันทึกว่าคนนี้ค้างอยู่ที่ไหน
+    }
+  });
+  hxL.sort((a,b)=>a.t-b.t).forEach(x=>{ // เรียงตามเวลาแล้วจัดโต๊ะซักประวัติทีละคน
+    const n=alloc(hxF,x.t,x.e); // เลือกโต๊ะที่ว่างนานที่สุด
+    out.push({...x.base,called_at:x.raw,station_id:1+n,station_name:'ซักประวัติ '+n,_dw:x.dw}) // เพิ่มเหตุการณ์ที่โต๊ะนั้น
+  });
+  exL.sort((a,b)=>a.t-b.t).forEach(x=>{ // เรียงตามเวลาแล้วจัดห้องตรวจทีละคน
+    const n=alloc(exF,x.t,x.e); // เลือกห้องที่ว่างนานที่สุด
+    out.push({...x.base,called_at:x.raw,station_id:8+n,station_name:'ห้องตรวจ '+n,_dw:x.dw}) // เพิ่มเหตุการณ์ที่ห้องนั้น
+  });
+  out.sort((a,b)=>a.called_at<b.called_at?-1:a.called_at>b.called_at?1:0); // เรียงเหตุการณ์ทั้งหมดตามเวลา
+  out.pend=pend; // แนบรายชื่อคนที่ยังค้างไว้กับอาร์เรย์
+  return out // คืนเหตุการณ์ทั้งหมด
+}
 /* ป้ายลอยเหนือจุดบริการ */
 function label(sx,sy){const c=document.createElement('canvas');c.width=512;c.height=170;const t=new THREE.CanvasTexture(c),s=new THREE.Sprite(new THREE.SpriteMaterial({map:t,transparent:true,depthTest:false}));s.scale.set(sx,sy,1);s.renderOrder=9;s.userData={c,t};return s}
 function paint(sp,l1,l2,col){const c=sp.userData.c,x=c.getContext('2d');x.clearRect(0,0,512,170);x.fillStyle='#0f2236ee';x.beginPath();x.roundRect?x.roundRect(8,8,496,154,26):x.rect(8,8,496,154);x.fill();x.strokeStyle=col;x.lineWidth=5;x.stroke();x.textAlign='center';x.fillStyle='#fff';x.font='700 56px "IBM Plex Sans Thai",sans-serif';x.fillText(l1,256,72);x.fillStyle=col;x.font='700 50px "IBM Plex Sans Thai",sans-serif';x.fillText(l2,256,138);sp.userData.t.needsUpdate=true}
@@ -987,14 +1086,33 @@ function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefi
   else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
   g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
 function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
-let endT=0,advancing=false;
-async function nextDay(){const cur=$('#vday').value||(window._D&&window._D.day);
-  try{let r=await sb(FLOW_TABLE+'?select=vstdate&vstdate=gt.'+cur+'&order=vstdate.asc&limit=1');if(!r[0])r=await sb(FLOW_TABLE+'?select=vstdate&order=vstdate.asc&limit=1'); // ถึงวันสุดท้ายแล้ววนกลับวันแรก
-    if(r[0]){$('#vday').value=r[0].vstdate;await load()}}catch(e){}}
-function autoNext(dt){if(!AUTO3D.loop||advancing||!V.classList.contains('tbh'))return;
-  if(RP.play||RP.t<RP.t1+59){endT=0;return}
-  endT+=dt;if(endT<AUTO3D.pause)return;endT=0;advancing=true;nextDay().finally(()=>{advancing=false})}
-function step(dt){simT+=dt;if(RP.on){rstep(dt);autoNext(dt);return}spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats.length<targetPop)spawn();spawnEvery=baseEvery*(.6+Math.random()*.8)} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
+let endAt=0,advancing=false; // endAt=เวลาจริงที่วันนี้เล่นจบ, advancing=กำลังโหลดวันถัดไป
+async function nextDay(){ // ไปวันถัดไปที่มีข้อมูล
+  const cur=$('#vday').value||(window._D&&window._D.day); // วันที่กำลังแสดง
+  try{ // กันเน็ตหลุดหรืออ่านตารางไม่ได้
+    let r=await sb(FLOW_TABLE+'?select=vstdate&vstdate=gt.'+cur+'&order=vstdate.asc&limit=1'); // หาวันถัดไปที่มีข้อมูล
+    if(!r[0])r=await sb(FLOW_TABLE+'?select=vstdate&order=vstdate.asc&limit=1'); // ไม่มีวันถัดไป → วนกลับวันแรกสุด
+    if(r[0]){ // ได้วันที่แล้ว
+      $('#vday').value=r[0].vstdate; // ใส่วันที่ในช่องวันที่
+      await load() // โหลดและเริ่มเล่นวันนั้น
+    }
+  }catch(e){} // พลาดก็ข้าม รอบหน้าลองใหม่
+}
+function autoNext(){ // เรียกทุกเฟรม: ตัดสินใจว่าถึงเวลาข้ามวันหรือยัง
+  if(!AUTO3D.loop||advancing||!V.classList.contains('tbh'))return; // ปิดการวน / กำลังโหลด / แถบเครื่องมือแสดงอยู่ → ไม่ข้ามเอง
+  if(RP.play||RP.t<RP.t1+59){endAt=0;return} // ยังเล่นไม่จบ → รีเซ็ตตัวจับเวลาพัก
+  if(!endAt)endAt=Date.now(); // เพิ่งเล่นจบ → เริ่มจับเวลาพัก (ใช้นาฬิกาจริง เครื่องช้าก็ไม่ค้าง)
+  if(Date.now()-endAt<AUTO3D.pause*1000)return; // ยังพักไม่ครบตามที่ตั้ง
+  endAt=0; // รีเซ็ตตัวจับเวลา
+  advancing=true; // กันเรียกซ้ำระหว่างโหลด
+  nextDay().finally(()=>{advancing=false}) // ไปวันถัดไป เสร็จแล้วปลดล็อก
+}
+function step(dt){simT+=dt; // ขยับฉากทุกเฟรม (dt=วินาทีจริงตั้งแต่เฟรมก่อน)
+  if(RP.on){ // โหมดเล่นซ้ำจากตาราง
+    rstep(dt); // ขยับผู้ป่วยตามเวลาในข้อมูล
+    autoNext(); // ตรวจว่าต้องข้ามวันไหม
+    return}
+  spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats.length<targetPop)spawn();spawnEvery=baseEvery*(.6+Math.random()*.8)} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];
     if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk&&!tryGo(p)){p.w=.15;pose(p,false);continue}leave(p)}pose(p,false);continue}
     const T=p.P[p.i];if(T[8]&&!T.r)pickChair(p,T);
@@ -1011,7 +1129,7 @@ function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');i
 function warmW(){if(warmed||RP.on)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 /* ===== เล่นซ้ำเส้นทางจริงจากข้อมูล (queue_call_log): 1 คน = 1 vn (ถ้าไม่มี vn ใช้ hn/queue_no) · เดินตามลำดับจุดและเวลาเรียกคิวจริง
    ไม่สุ่ม ไม่ผูกกับเวลาจริง · เร่ง/หน่วง/ข้ามเวลาได้ · ก่อนถูกเรียกจะรอที่เก้าอี้หน้าจุดถัดไป → ถูกเรียก = เดินไปจุดบริการ → เรียกจุดถัดไป = เดินต่อ ===== */
-const RP={on:false,visits:[],nx:0,t:0,t0:0,t1:0,play:true,speed:300,day:'',sig:'',pick:null,act:[],oT:0,uT:0};
+const RP={on:false,visits:[],nx:0,t:0,t0:0,t1:0,play:true,speed:300,day:'',sig:'',pick:null,act:[],oT:0,uT:0}; // สถานะเล่นซ้ำ: on=เปิดอยู่, visits=ผู้ป่วยทั้งวัน, t=เวลาในฉาก(วินาที), t0/t1=ต้น/จบวัน, play=กำลังเล่น, speed=ความเร็ว (ตั้งต้น 300 เท่า)
 try{const sv=+localStorage.getItem('v3rps');if([30,60,120,300,600].includes(sv))RP.speed=sv}catch(e){}
 const GN={},GE={};
 function gnode(id,x,z){if(!GN[id]){GN[id]=[x,z];GE[id]=[]}return id}
@@ -1053,19 +1171,63 @@ function secOf(s){s=String(s||'');const m=s.match(/(?:T|\s)(\d\d):(\d\d)(?::(\d\
   if(/(Z|[+-]\d\d(:?\d\d)?)$/.test(s)){const d=new Date(s);if(!isNaN(d)){const p=new Intl.DateTimeFormat('en-GB',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).formatToParts(d),g=t=>+p.find(x=>x.type===t).value;return (g('hour')%24)*3600+g('minute')*60+g('second')}}
   return +m[1]*3600+ +m[2]*60+(+m[3]||0)}
 const DW={reg:120,hx:240,ex:480,ph:180,cash:120},dwOf=k=>DW[k.slice(0,2)==='hx'?'hx':k.slice(0,2)==='ex'?'ex':k]||180; // เวลาอยู่ที่จุดโดยประมาณ (วินาที) ก่อนเดินไปรอจุดถัดไป
-function schedule(c,v){const s=[];s.push({t:c[0].t-(c[0].k==='reg'?60:150),k:'ENT'});
-  c.forEach((x,i)=>{if(x.k!=='reg'){let tw=null;if(i===0)tw=x.t-120;else{const pr=c[i-1],gap=x.t-pr.t;if(gap>120)tw=pr.t+Math.min(pr.dw||dwOf(pr.k),gap-90)}
-      if(tw!=null&&tw<x.t-5)s.push({t:tw,k:x.k,w:1,q:x.q})} // นั่งรอที่เก้าอี้หน้าจุดที่กำลังจะถูกเรียก
-    s.push({t:x.t,k:x.k,q:x.q})}); // ถูกเรียกคิว → เดินไปจุดบริการ
-  const l=c[c.length-1];
-  if(v&&v.open){if(v.pend)s.push({t:l.t+Math.min(l.dw||dwOf(l.k),90),k:v.pend,w:1,q:l.q});return s} // ยังอยู่ในโรงพยาบาล: ไม่เดินออก นั่งรอจุดถัดไป
-  s.push({t:l.t+(l.dw||dwOf(l.k)),k:'EXIT'});return s}
-function buildVisits(rows){const m=new Map(),PD=new Map();(rows.pend||[]).forEach(p=>PD.set('v'+p.vn,p));
-  rows.forEach(r=>{if(!r._k)return;const key=r.vn!=null&&r.vn!==''?'v'+r.vn:r.hn!=null&&r.hn!==''?'h'+r.hn:'q'+r.queue_no;let v=m.get(key);if(!v){v={id:key,q:String(r.queue_no),calls:[]};m.set(key,v)}v.calls.push({t:secOf(r.called_at),k:r._k,q:String(r.queue_no),dw:r._dw})});
-  const out=[];let tmax=0;m.forEach(v=>{v.calls.sort((a,b)=>a.t-b.t);const c=[];v.calls.forEach(x=>{if(!isFinite(x.t))return;if(c.length&&c[c.length-1].k===x.k)return;c.push(x)});if(!c.length)return;
-    v.q=c[0].q;v.seed=hsh(v.id);const pd=PD.get(v.id);if(pd){v.open=1;v.pend=pd.k}v.sched=schedule(c,v);v.t0=v.sched[0].t;v.t1=v.sched[v.sched.length-1].t;tmax=Math.max(tmax,c[c.length-1].t);out.push(v)});
-  out.forEach(v=>{if(v.open)v.t1=Math.max(v.t1,tmax)+300}); // คนที่ยังอยู่ในโรงพยาบาลค้างอยู่ในฉากจนจบข้อมูล
-  return out.sort((a,b)=>a.t0-b.t0)}
+function schedule(c,v){ // สร้างตารางเวลาเดินของผู้ป่วย 1 คน จากรายการเรียกคิว c (v=ข้อมูลผู้ป่วย)
+  const s=[]; // รายการจุดที่ผู้ป่วยต้องไปตามเวลา
+  s.push({t:c[0].t-(c[0].k==='reg'?60:150),k:'ENT'}); // เดินเข้ามาทางประตูก่อนเหตุการณ์แรก (60 วินาที ถ้าเริ่มที่ห้องบัตร ไม่งั้น 150)
+  c.forEach((x,i)=>{ // วนทุกครั้งที่ถูกเรียก
+    if(x.k!=='reg'){ // ห้องบัตรไม่ต้องนั่งรอ
+      let tw=null; // เวลาที่เริ่มนั่งรอ
+      if(i===0)tw=x.t-120; // เหตุการณ์แรกที่ไม่ใช่ห้องบัตร → มานั่งรอก่อน 2 นาที
+      else{ // มีจุดก่อนหน้า
+        const pr=c[i-1],gap=x.t-pr.t; // pr=จุดก่อนหน้า, gap=ช่องว่างเวลาระหว่างสองจุด
+        if(gap>120)tw=pr.t+Math.min(pr.dw||dwOf(pr.k),gap-90) // ห่างเกิน 2 นาที → นั่งรอหลังเสร็จจุดก่อนหน้า
+      }
+      if(tw!=null&&tw<x.t-5)s.push({t:tw,k:x.k,w:1,q:x.q}) // เพิ่มช่วงนั่งรอที่เก้าอี้หน้าจุดที่กำลังจะถูกเรียก
+    }
+    s.push({t:x.t,k:x.k,q:x.q}) // ถูกเรียกคิว → เดินไปจุดบริการ
+  });
+  const l=c[c.length-1]; // เหตุการณ์สุดท้าย
+  if(v&&v.open){ // ผู้ป่วยยังอยู่ในโรงพยาบาล
+    if(v.pend)s.push({t:l.t+Math.min(l.dw||dwOf(l.k),90),k:v.pend,w:1,q:l.q}); // นั่งรอที่จุดถัดไป
+    return s // ไม่เดินออก
+  }
+  s.push({t:l.t+(l.dw||dwOf(l.k)),k:'EXIT'}); // เสร็จแล้วเดินออกหลังอยู่ครบเวลา
+  return s // คืนตารางเวลา
+}
+function buildVisits(rows){ // รวมเหตุการณ์เป็นรายผู้ป่วย แล้วสร้างตารางเวลาเดิน
+  const m=new Map(),PD=new Map(); // m=ผู้ป่วยแยกตามรหัส, PD=ผู้ป่วยที่ยังค้างอยู่ในโรงพยาบาล
+  (rows.pend||[]).forEach(p=>PD.set('v'+p.vn,p)); // จัดรายชื่อคนที่ค้างตามรหัส vn
+  rows.forEach(r=>{ // วนทุกเหตุการณ์
+    if(!r._k)return; // จุดที่แมปไม่ได้ ข้าม
+    const key=r.vn!=null&&r.vn!==''?'v'+r.vn:r.hn!=null&&r.hn!==''?'h'+r.hn:'q'+r.queue_no; // รหัสผู้ป่วย: ใช้ vn ก่อน → hn → หมายเลขคิว
+    let v=m.get(key); // หาผู้ป่วยที่เคยสร้างไว้แล้ว
+    if(!v){v={id:key,q:String(r.queue_no),calls:[]};m.set(key,v)} // ยังไม่มีให้สร้างใหม่
+    v.calls.push({t:secOf(r.called_at),k:r._k,q:String(r.queue_no),dw:r._dw}) // เพิ่มเหตุการณ์ (เวลาเป็นวินาที, จุด, คิว, เวลาอยู่ที่จุด)
+  });
+  const out=[]; // ผู้ป่วยที่สร้างเสร็จแล้ว
+  let tmax=0; // เวลาเหตุการณ์ล่าสุดของทั้งวัน
+  m.forEach(v=>{ // วนทุกผู้ป่วย
+    v.calls.sort((a,b)=>a.t-b.t); // เรียงเหตุการณ์ตามเวลา
+    const c=[]; // เหตุการณ์ที่ใช้จริงหลังกรอง
+    v.calls.forEach(x=>{ // กรองเหตุการณ์
+      if(!isFinite(x.t))return; // เวลาไม่ถูกต้อง ข้าม
+      if(c.length&&c[c.length-1].k===x.k)return; // เรียกจุดเดิมซ้ำติดกัน ข้าม
+      c.push(x) // เก็บเหตุการณ์
+    });
+    if(!c.length)return; // ไม่เหลือเหตุการณ์เลย ข้ามผู้ป่วยคนนี้
+    v.q=c[0].q; // หมายเลขคิวที่แสดงบนตัวละคร
+    v.seed=hsh(v.id); // เมล็ดสุ่มคงที่ (หน้าตา/ตำแหน่งยืนเหมือนเดิมทุกครั้ง)
+    const pd=PD.get(v.id); // ผู้ป่วยคนนี้ยังค้างอยู่ในโรงพยาบาลไหม
+    if(pd){v.open=1;v.pend=pd.k} // ค้างอยู่ → ไม่เดินออก และจดจุดที่กำลังรอ
+    v.sched=schedule(c,v); // สร้างตารางเวลาเดิน
+    v.t0=v.sched[0].t; // เวลาเข้าฉาก
+    v.t1=v.sched[v.sched.length-1].t; // เวลาออกจากฉาก
+    tmax=Math.max(tmax,c[c.length-1].t); // จดเวลาเหตุการณ์ล่าสุดของทั้งวัน
+    out.push(v) // เก็บผู้ป่วย
+  });
+  out.forEach(v=>{if(v.open)v.t1=Math.max(v.t1,tmax)+300}); // คนที่ยังค้างจะอยู่ในฉากจนจบข้อมูล (+5 นาที)
+  return out.sort((a,b)=>a.t0-b.t0) // เรียงตามเวลาเข้าฉาก
+}
 function rnew(v){const sd=v.seed,g=human(SHIRT[sd%SHIRT.length],kindQ(v.q),sd);g.position.set(GN.ENT[0],0,GN.ENT[1]);SC.add(g);
   const p={g,v,ti:0,loc:null,dest:null,wp:[],sp:5,ph0:Math.random()*6,seed:sd,sit:0};p.tag=addTag(g,v.q);RP.act.push(p);return p}
 const setTag=(p,t)=>{p.tag.material=qtag(t).material};
@@ -1094,9 +1256,15 @@ function rstep(dt){if(RP.play){RP.t+=dt*RP.speed;if(RP.t>=RP.t1+60){RP.t=RP.t1+6
   RP.oT+=dt;if(RP.oT>.4){RP.oT=0;rocc()}RP.uT+=dt;if(RP.uT>.15){RP.uT=0;rui()}}
 const hms=t=>{t=Math.max(0,Math.floor(t))%86400;return String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
 let RUI=0;
-function rui(){const q=$('#vrp'),ck=$('#vclock');
-  if(ck){if(RP.on){const pc=Math.min(100,Math.max(0,(RP.t-RP.t0)/Math.max(1,RP.t1+60-RP.t0)*100)),dl=new Date(RP.day+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
-      ck.innerHTML=`<small>เล่นย้อนหลังอัตโนมัติ · ${RP.speed}×</small><b>${dl}</b> · ${hms(RP.t)} น.<small>ในฉาก ${RP.act.length} คน · ทั้งวัน ${fm(RP.visits.length)} คน</small><div class="pb"><i style="width:${pc}%"></i></div>`}else ck.innerHTML=''}
+function rui(){ // อัปเดตแผงเล่นซ้ำและนาฬิกา kiosk
+  const q=$('#vrp'),ck=$('#vclock'); // q=แผงควบคุมเล่นซ้ำ, ck=กล่องนาฬิกา
+  if(ck){ // มีกล่องนาฬิกา
+    if(RP.on){ // กำลังเล่นซ้ำ
+      const pc=Math.min(100,Math.max(0,(RP.t-RP.t0)/Math.max(1,RP.t1+60-RP.t0)*100)); // ความคืบหน้าของวันเป็น % (0–100)
+      const dl=new Date(RP.day+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'numeric'}); // วันที่แบบไทย (พ.ศ.)
+      ck.innerHTML=`<small>เล่นย้อนหลังอัตโนมัติ · ${RP.speed}×</small><b>${dl}</b> · ${hms(RP.t)} น.<small>ในฉาก ${RP.act.length} คน · ทั้งวัน ${fm(RP.visits.length)} คน</small><div class="pb"><i style="width:${pc}%"></i></div>`; // ใส่ข้อความ: ความเร็ว วันที่ เวลา จำนวนคน และแถบความคืบหน้า
+    }else ck.innerHTML='' // ไม่ได้เล่นซ้ำ → ล้างกล่อง (CSS :empty จะซ่อนกล่องเอง)
+  }
   if(!RP.on){q.style.display='none';return}
   if(!RUI){RUI=1;q.innerHTML='<div class="rh"><b>เล่นซ้ำเส้นทางจริงจากข้อมูล</b><span id="rtm"></span></div><input type="range" id="rsl" step="1"><div class="rc"><button id="rpl"></button><button id="rrs" title="เริ่มใหม่">⟲</button><select id="rsp" title="ความเร็วเล่นซ้ำ (เวลาในข้อมูลต่อ 1 วินาทีจริง)">'+[[30,'0.5 นาที/วินาที'],[60,'1 นาที/วินาที'],[120,'2 นาที/วินาที'],[300,'5 นาที/วินาที'],[600,'10 นาที/วินาที']].map(a=>`<option value="${a[0]}">${a[1]}</option>`).join('')+'</select><span id="rin"></span></div>';
     $('#rpl').onclick=()=>{if(!RP.play&&RP.t>=RP.t1+59){RP.t=RP.t0;rseek(RP.t)}RP.play=!RP.play;rui()};
@@ -1105,14 +1273,40 @@ function rui(){const q=$('#vrp'),ck=$('#vclock');
     $('#rsp').value=String(RP.speed);$('#rsp').onchange=e=>{RP.speed=+e.target.value;try{localStorage.setItem('v3rps',String(RP.speed))}catch(x){}}}
   q.style.display='';const sl=$('#rsl');sl.min=Math.floor(RP.t0);sl.max=Math.ceil(RP.t1+60);if(document.activeElement!==sl)sl.value=Math.floor(RP.t);
   $('#rtm').textContent=hms(RP.t)+' น.';$('#rpl').textContent=RP.play?'⏸ หยุด':'▶ เล่น';$('#rin').textContent='ในฉาก '+RP.act.length+' คน · ทั้งหมด '+fm(RP.visits.length)+' คน'}
-function rsetup(D,pick){const rows=D.q||[],sig=D.day+'|'+rows.length+'|'+(rows.length?rows[rows.length-1].called_at:'')+'|'+(rows.pend||[]).length,newDay=D.day!==RP.day,pickCh=pick!==RP.pick;let ch=false;
-  if(sig!==RP.sig||newDay){const atEnd=!RP.play&&RP.t>=RP.t1+59;RP.visits=buildVisits(rows);RP.sig=sig;RP.t0=RP.visits.length?Math.min(...RP.visits.map(v=>v.t0)):0;RP.t1=RP.visits.length?Math.max(...RP.visits.map(v=>v.t1)):0;ch=true;if(D.live&&atEnd)RP.play=true}
-  RP.on=RP.visits.length>0;
-  if(newDay||pickCh){RP.day=D.day;RP.pick=pick;RP.t=pick?Math.min(Math.max(RP.t0,+pick*3600),RP.t1):(D.live&&!V.classList.contains('tbh')?Math.max(RP.t0,RP.t1-3900):RP.t0);RP.play=true;ch=true}
-  RP.t=Math.min(Math.max(RP.t,RP.t0),RP.t1+60);
-  const rb=$('#rtbtn');if(rb)rb.style.display=RP.on?'none':'';
-  if(RP.on){if(pats.length){pats.forEach(p=>SC.remove(p.g));pats.length=0}if(ch)rseek(RP.t);rui()}
-  else{rclear();rui()}}
+function rsetup(D,pick){ // ตั้งค่าโหมดเล่นซ้ำเมื่อข้อมูลเปลี่ยน (D=ข้อมูลของวัน, pick=ชั่วโมงที่เลือก)
+  const rows=D.q||[]; // เหตุการณ์ของวัน
+  const sig=D.day+'|'+rows.length+'|'+(rows.length?rows[rows.length-1].called_at:'')+'|'+(rows.pend||[]).length; // ลายเซ็นข้อมูล ถ้าไม่เปลี่ยนไม่ต้องสร้างใหม่
+  const newDay=D.day!==RP.day,pickCh=pick!==RP.pick; // newDay=เปลี่ยนวัน, pickCh=เปลี่ยนชั่วโมงที่เลือก
+  let ch=false; // ch=ต้องย้ายตัวละครไปตำแหน่งตามเวลาปัจจุบันใหม่ไหม
+  if(sig!==RP.sig||newDay){ // ข้อมูลเปลี่ยน (n8n ส่งเพิ่ม) หรือเปลี่ยนวัน
+    const atEnd=!RP.play&&RP.t>=RP.t1+59; // เดิมเล่นจบไปแล้วหรือยัง
+    RP.visits=buildVisits(rows); // สร้างตารางเดินของผู้ป่วยทุกคนใหม่
+    RP.sig=sig; // จำลายเซ็นไว้เทียบรอบหน้า
+    RP.t0=RP.visits.length?Math.min(...RP.visits.map(v=>v.t0)):0; // เวลาเริ่มของวัน
+    RP.t1=RP.visits.length?Math.max(...RP.visits.map(v=>v.t1)):0; // เวลาจบของวัน
+    ch=true; // ต้องย้ายตัวละครใหม่
+    if(D.live&&atEnd)RP.play=true // วันนี้ที่เล่นจบแล้วแต่มีข้อมูลใหม่เข้ามา → เล่นต่อ
+  }
+  RP.on=RP.visits.length>0; // มีผู้ป่วยให้เล่นซ้ำไหม
+  if(newDay||pickCh){ // เปลี่ยนวันหรือชั่วโมงที่เลือก
+    RP.day=D.day; // จำวันที่
+    RP.pick=pick; // จำชั่วโมงที่เลือก
+    RP.t=pick?Math.min(Math.max(RP.t0,+pick*3600),RP.t1):(D.live&&!V.classList.contains('tbh')?Math.max(RP.t0,RP.t1-3900):RP.t0); // เริ่มที่ชั่วโมงที่เลือก; วันนี้ที่แสดงแถบเครื่องมือเริ่มก่อนเหตุการณ์ล่าสุด 1 ชม.; นอกนั้นเริ่มต้นวัน
+    RP.play=true; // เริ่มเล่น
+    ch=true // ต้องย้ายตัวละครใหม่
+  }
+  RP.t=Math.min(Math.max(RP.t,RP.t0),RP.t1+60); // กันเวลาเกินช่วงของข้อมูล
+  const rb=$('#rtbtn'); // ปุ่มโหมดจำลองเดิม
+  if(rb)rb.style.display=RP.on?'none':''; // ซ่อนปุ่มเมื่อกำลังเล่นซ้ำจากข้อมูลจริง
+  if(RP.on){ // โหมดเล่นซ้ำ
+    if(pats.length){pats.forEach(p=>SC.remove(p.g));pats.length=0} // ลบตัวละครสุ่มของโหมดจำลองเดิม
+    if(ch)rseek(RP.t); // ย้ายตัวละครไปตำแหน่งของเวลาปัจจุบัน
+    rui() // อัปเดตแผงควบคุมและนาฬิกา
+  }else{ // ไม่มีข้อมูลให้เล่นซ้ำ
+    rclear(); // ล้างตัวละครเล่นซ้ำ
+    rui() // อัปเดตหน้าจอ
+  }
+}
 restoreW();setInterval(saveW,2000);addEventListener('pagehide',saveW);document.addEventListener('visibilitychange',()=>{if(document.hidden)saveW()});
 /* กล้อง */
 const HOME={th:.28,ph:.8,rad:66,t:[0,0,3]};let camTouched=false; // camTouched = ผู้ใช้ซูม/หมุนเองแล้ว (ไม่ปรับระยะกล้องอัตโนมัติอีก)
@@ -1134,8 +1328,26 @@ function clickAt(e){const i=hit(e);if(i!=null)select(i)}
 
 /* ---------- UI / ข้อมูล ---------- */
 /* เปิด/ปิดแถบเครื่องมือทั้งหมด (สถิติด้านบน รายการซ้าย รายละเอียดขวา คำแนะนำ ปุ่มซูม) */
-{const tb=()=>{if(/[?&]tools=1/.test(location.search))return false;try{const v=store.getItem('v3tb');return v===null?true:v==='0'}catch(e){return true}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
- ap(tb());$('#vtg').onclick=()=>{const h=!V.classList.contains('tbh');ap(h);try{store.setItem('v3tb',h?'0':'1')}catch(e){}}}
+{ // บล็อกสลับการแสดง/ซ่อนแถบเครื่องมือ
+  const tb=()=>{ // คืน true ถ้าควรซ่อนแถบเครื่องมือ
+    if(/[?&]tools=1/.test(location.search))return false; // URL มี ?tools=1 → แสดงแถบ
+    try{ // อ่านค่าที่ผู้ใช้เคยเลือกไว้
+      const v=store.getItem('v3tb'); // '0'=ซ่อน, '1'=แสดง, null=ยังไม่เคยเลือก
+      return v===null?true:v==='0' // ยังไม่เคยเลือก → ซ่อน (โหมดอัตโนมัติ)
+    }catch(e){return true} // อ่านไม่ได้ → ซ่อน
+  };
+  const ap=h=>{ // ใช้สถานะซ่อน/แสดง (h=true คือซ่อน)
+    V.classList.toggle('tbh',h); // เปิด/ปิดคลาส tbh ที่ซ่อนแถบเครื่องมือ
+    $('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ'; // ข้อความบนปุ่มสลับ
+    $('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ' // คำอธิบายเมื่อชี้เมาส์
+  };
+  ap(tb()); // ใช้สถานะเริ่มต้นตอนเปิดหน้า
+  $('#vtg').onclick=()=>{ // กดปุ่มสลับ
+    const h=!V.classList.contains('tbh'); // สถานะใหม่ = ตรงข้ามกับปัจจุบัน
+    ap(h); // ใช้สถานะใหม่
+    try{store.setItem('v3tb',h?'0':'1')}catch(e){} // จำตัวเลือกของผู้ใช้ไว้
+  }
+}
 let sel=null,hT;const vl=$('#vlist');
 function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
 V.addEventListener('pointermove',showL);V.addEventListener('pointerdown',showL);showL();
@@ -1148,9 +1360,24 @@ function model(D){const d=D.d,opd=n(d.opd_daily_count),adm=n(d.ipd_new_admit_dai
     if(o.kind==='reg')return{cnt:opd,big:opd,st:'ok',u:'ราย (เปิดบัตรวันนี้)',rows:[['ผู้ป่วยนอกทั้งหมด',fm(opd)+' ราย'],['หัก: รับเป็นผู้ป่วยใน','− '+fm(adm)+' ราย'],['หัก: จำหน่ายออก','− '+fm(dis)+' ราย'],['คงเหลือเข้าระบบตรวจ',fm(net)+' ราย'],['ผู้ป่วย ER',fm(D.er)+' ครั้ง']]};
     if(o.kind==='desk')return{cnt:dk[o.no-1],tm:tri,big:tri==null?'-':fm(tri,1),st:tri==null?'na':stt(tri,TG.triage),u:'นาที (รอคัดกรอง/ซักประวัติ)',rows:[['คนที่ต้องซักประวัติ',fm(dk[o.no-1])+' ราย'],['สัดส่วน','1 ใน 7 โต๊ะ ('+fm(net?dk[o.no-1]/net*100:0,1)+'%)'],['เวลารอคัดกรอง',mn(tri)],['เป้าหมาย','≤ '+TG.triage+' นาที'],['ฐานคำนวณ','OPD − IPD − จำหน่าย = '+fm(net)]]};
     if(o.kind==='room')return{cnt:rm[o.no-1],tm:doc,big:doc==null?'-':fm(doc,1),st:doc==null?'na':stt(doc,TG.doctor),u:'นาที (รอพบแพทย์)',rows:[['คนที่ต้องเข้าตรวจ',fm(rm[o.no-1])+' ราย'],['สัดส่วน','1 ใน 6 ห้อง ('+fm(net?rm[o.no-1]/net*100:0,1)+'%)'],['เวลารอพบแพทย์',mn(doc)],['เป้าหมาย','≤ '+TG.doctor+' นาที'],['เวลาตรวจเฉลี่ย',mn(con)]]};
-    if(o.kind==='cash'){const c=Math.round(net*CASHP),fa=D.fa,cw=fa&&fa.cash!=null?fa.cash:null;
-      if(cw!=null)return{cnt:fa.nCash,tm:cw,big:fm(cw,1),st:stt(cw,TG.cash),u:'นาที (รอชำระเงิน)',rows:[['ผู้ชำระเงินวันนี้',fm(fa.nCash)+' ราย'],['เวลารอชำระเงิน',mn(cw)],['เป้าหมาย','≤ '+TG.cash+' นาที']]};
-      return{cnt:c,big:'-',st:'na',u:'ยังไม่มีเวลาในระบบ',rows:[['ผู้ใช้บริการชำระเงิน (ประมาณ)',fm(c)+' ราย'],['สัดส่วน',fm(CASHP*100)+'% ของผู้ป่วยนอก'],['เวลารอ','ยังไม่มีข้อมูลในระบบ']]}}
+    if(o.kind==='cash'){ // จุดห้องเก็บเงิน
+      const c=Math.round(net*CASHP),fa=D.fa,cw=fa&&fa.cash!=null?fa.cash:null; // c=จำนวนผู้ชำระโดยประมาณ, fa=ค่าเฉลี่ยจากตารางเส้นทาง, cw=เวลารอชำระเงินเฉลี่ย (นาที)
+      if(cw!=null)return{ // มีเวลารอจริงจากตาราง → แสดงค่าจริง
+        cnt:fa.nCash, // จำนวนผู้ชำระเงินวันนี้
+        tm:cw, // เวลารอ (นาที) ใช้กำหนดสี
+        big:fm(cw,1), // ตัวเลขใหญ่บนป้าย
+        st:stt(cw,TG.cash), // สถานะสีเทียบกับเป้าหมาย
+        u:'นาที (รอชำระเงิน)', // หน่วย/คำอธิบาย
+        rows:[['ผู้ชำระเงินวันนี้',fm(fa.nCash)+' ราย'],['เวลารอชำระเงิน',mn(cw)],['เป้าหมาย','≤ '+TG.cash+' นาที']] // แถวรายละเอียดในแผง
+      };
+      return{ // ไม่มีเวลาจริง → แสดงค่าประมาณเหมือนเดิม
+        cnt:c, // จำนวนโดยประมาณ
+        big:'-', // ไม่มีตัวเลขเวลา
+        st:'na', // สถานะเทา (ยังไม่มีเวลา)
+        u:'ยังไม่มีเวลาในระบบ', // ข้อความอธิบาย
+        rows:[['ผู้ใช้บริการชำระเงิน (ประมาณ)',fm(c)+' ราย'],['สัดส่วน',fm(CASHP*100)+'% ของผู้ป่วยนอก'],['เวลารอ','ยังไม่มีข้อมูลในระบบ']] // แถวรายละเอียดในแผง
+      }
+    }
     return{cnt:net,tm:pha,big:pha==null?'-':fm(pha,1),st:pha==null?'na':stt(pha,TG.pharm),u:'นาที (รอรับยา)',rows:[['ผู้รับยา',fm(net)+' ราย'],['เวลารอรับยา',mn(pha)],['เป้าหมาย','≤ '+TG.pharm+' นาที'],['เวลารวมทั้งกระบวนการ',mn(tot)],['เป้าหมายรวม','≤ '+TG.total+' นาที']]}});
   return{opd,adm,dis,net,info,per5:net/7,per6:net/6}}
 function select(i){sel=i;const o=ITEMS[i];
@@ -1201,18 +1428,32 @@ function build(D){
   if(D.qerr)$('#vmsg').textContent='โหลด '+(D.qsrc||QLOG_TABLE)+' ไม่สำเร็จ ('+D.qerr+') — ใช้สถิติรายชั่วโมงแทน'+(/404|403/.test(D.qerr)?' · ต้องเพิ่ม '+(D.qsrc||QLOG_TABLE)+' ในรายการตารางที่ตัวกลาง /api/sb อนุญาต':'');
   else if(LG){const um=Object.keys(LG.unm);$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+(D.qsrc||QLOG_TABLE)+' '+D.day+' ชั่วโมง '+LG.hh+':00'+(LG.sel?' (เลือกเอง)':LG.fb?' (ล่าสุด)':'')+' = '+fm(LG.rowsH.length)+' ครั้ง · คนยืนรอ 1 ตัว = '+fm(unit)+' ครั้ง'+(RT?' · เข้าทุก ~'+(LG.pool.length?fm(60/LG.pool.length,1):'-')+' นาที':'')+(um.length?' · ไม่รู้จักสถานี: '+um.slice(0,3).join(', '):'')}
   if(RP.on)$('#vmsg').textContent=(D.demo?'ข้อมูลตัวอย่าง · ':'')+(D.qsrc||QLOG_TABLE)+' '+D.day+' · เล่นซ้ำเส้นทางจริงของ '+fm(RP.visits.length)+' คน (1 คน = 1 vn) เดินตามเวลาจริงของแต่ละขั้นตอน'+(D.live&&D.q&&D.q.length?' · เหตุการณ์ล่าสุด '+hmOf(D.q[D.q.length-1].called_at)+' น.':'')+(Object.keys(LG.unm).length?' · ไม่รู้จักสถานี: '+Object.keys(LG.unm).slice(0,3).join(', '):'');
-  {const el=$('#vmsg'),dv=$('#vday');if(D.rng){dv.min=D.rng[0];dv.max=D.rng[1]>D.day?D.rng[1]:D.day}
-   if(D.req&&D.req!==D.day)el.textContent='ไม่มีข้อมูลวันที่ '+D.req+' — แสดงวันที่ '+D.day+' (ใกล้ที่สุด) · '+el.textContent;
-   if(D.rng)el.textContent+=' · ข้อมูลในตาราง '+D.rng[0]+' ถึง '+D.rng[1]+(D.live?' · อัปเดตอัตโนมัติ':'')}
+  { // บล็อกข้อความสถานะและช่วงวันที่
+    const el=$('#vmsg'),dv=$('#vday'); // el=ข้อความสถานะ, dv=ช่องวันที่
+    if(D.rng){dv.min=D.rng[0];dv.max=D.rng[1]>D.day?D.rng[1]:D.day} // จำกัดช่องวันที่ให้อยู่ในช่วงที่มีข้อมูล
+    if(D.req&&D.req!==D.day)el.textContent='ไม่มีข้อมูลวันที่ '+D.req+' — แสดงวันที่ '+D.day+' (ใกล้ที่สุด) · '+el.textContent; // วันที่ขอไม่มีข้อมูล → แจ้งว่าแสดงวันไหนแทน
+    if(D.rng)el.textContent+=' · ข้อมูลในตาราง '+D.rng[0]+' ถึง '+D.rng[1]+(D.live?' · อัปเดตอัตโนมัติ':'') // ต่อท้ายด้วยช่วงวันที่ในตาราง
+  }
   if(sel!=null)select(sel)}
 
 async function load(){$('#vmsg').textContent='กำลังโหลดข้อมูล…';try{build(await loadData($('#vday').value||document.querySelector('#to').value||null))}catch(e){$('#vmsg').textContent='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)'}}
-$('#vgo').onclick=load;
-async function nav(dir){const cur=$('#vday').value||(window._D&&window._D.day);if(!cur)return;
-  try{const r=await sb(FLOW_TABLE+'?select=vstdate&vstdate='+(dir<0?'lt.':'gt.')+cur+'&order=vstdate.'+(dir<0?'desc':'asc')+'&limit=1');
-    if(!r[0]){$('#vmsg').textContent=(dir<0?'ไม่มีข้อมูลก่อนวันที่ ':'ไม่มีข้อมูลหลังวันที่ ')+cur;return}
-    $('#vday').value=r[0].vstdate;load()}catch(e){$('#vmsg').textContent='เลื่อนวันที่ไม่สำเร็จ: '+e.message}}
-$('#vprev').onclick=()=>nav(-1);$('#vnext').onclick=()=>nav(1);$('#vday').onchange=load;
+$('#vgo').onclick=load; // ปุ่ม "โหลด" โหลดข้อมูลวันที่ที่เลือก
+async function nav(dir){ // เลื่อนไปวันที่มีข้อมูลก่อนหน้า (dir=-1) หรือถัดไป (dir=1)
+  const cur=$('#vday').value||(window._D&&window._D.day); // วันที่กำลังแสดง
+  if(!cur)return; // ยังไม่มีวันที่ ไม่ทำอะไร
+  try{ // กันเน็ตหลุด
+    const r=await sb(FLOW_TABLE+'?select=vstdate&vstdate='+(dir<0?'lt.':'gt.')+cur+'&order=vstdate.'+(dir<0?'desc':'asc')+'&limit=1'); // หาวันที่ใกล้ที่สุดที่มีข้อมูลในทิศที่เลือก
+    if(!r[0]){ // ไม่มีข้อมูลทางนั้นแล้ว
+      $('#vmsg').textContent=(dir<0?'ไม่มีข้อมูลก่อนวันที่ ':'ไม่มีข้อมูลหลังวันที่ ')+cur; // แจ้งผู้ใช้
+      return // หยุด
+    }
+    $('#vday').value=r[0].vstdate; // ใส่วันที่ที่พบ
+    load() // โหลดข้อมูลวันนั้น
+  }catch(e){$('#vmsg').textContent='เลื่อนวันที่ไม่สำเร็จ: '+e.message} // แจ้งเมื่อพลาด
+}
+$('#vprev').onclick=()=>nav(-1); // ปุ่ม ◀ ไปวันก่อนหน้า
+$('#vnext').onclick=()=>nav(1); // ปุ่ม ▶ ไปวันถัดไป
+$('#vday').onchange=load; // เลือกวันที่จากช่องวันที่ → โหลดทันที
 const resetScene=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})};
 $('#vhr').onchange=resetScene;
 const rtLook=()=>{$('#rtbtn').classList.toggle('on',RT);$('#rtbtn').textContent=RT?'⏱ เวลาจริง: เปิด':'⏱ จำลองเร็ว'};rtLook();
