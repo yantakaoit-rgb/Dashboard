@@ -105,6 +105,9 @@ dialog button{font:inherit;padding:8px 14px;border-radius:8px;border:0;backgroun
 .tg button:focus-visible{outline:2px solid var(--amber)} /* วงโฟกัสสีอำพันเมื่อใช้คีย์บอร์ด */
 .tg span{margin-left:auto;color:var(--mut);font-size:12px} /* ข้อความหน่วยชิดขวา สีจาง */
 @media(max-width:600px){#dpc .kp{grid-template-columns:1fr!important}} /* มือถือ: ช่องสรุปเรียงเป็นคอลัมน์เดียว */
+#vclock{display:none;position:absolute;left:12px;top:10px;z-index:5;background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:10px;padding:8px 14px;font-size:15px;line-height:1.4;pointer-events:none;min-width:190px}
+#vclock small{display:block;opacity:.75;font-size:12px}#vclock .pb{height:3px;background:#ffffff26;border-radius:2px;margin-top:6px;overflow:hidden}#vclock .pb i{display:block;height:100%;background:#27c4cf}
+#v3.tbh #vclock{display:block}#vclock:empty{display:none!important}#v3.tbh #vrp,#v3.tbh #vq,#v3.tbh #vmsg{display:none!important}
 </style>
 <style id="reskin">
 /* ===== ดีไซน์ใหม่ (reskin) — ไม่แตะส่วน 3D (#v3 / #s3d) ===== */
@@ -204,7 +207,7 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <div class="p" id="vq" style="display:none"></div><div class="p" id="vrp" style="display:none"></div>
-<button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
+<div id="vclock"></div><button id="vtg" aria-label="เปิด/ปิดแถบเครื่องมือ" title="เปิด/ปิดแถบเครื่องมือ">☰ ซ่อนแถบเครื่องมือ</button><div id="vz"><button id="vzi" aria-label="ซูมเข้า">＋</button><button id="vzo" aria-label="ซูมออก">−</button><button id="vzr" aria-label="รีเซ็ตมุมมอง">⟲</button></div></div></section></div>
 
 
 <dialog id="dlg">
@@ -705,6 +708,8 @@ document.addEventListener('scroll',()=>{tip.style.display='none'},true);
 
 /* ===== ส่วน 3D (โหลดเมื่อเลื่อนมาถึง) ===== */
 function init3D(){
+const AUTO3D={loop:true,pause:6}; // โหมดอัตโนมัติ (เมื่อซ่อนแถบเครื่องมือ): เล่นจบวัน → พัก pause วินาที → ไปวันถัดไปที่มีข้อมูล วนกลับวันแรกเมื่อครบ · ปิดวน: ใส่ ?loop=0 ท้าย URL หรือตั้ง loop:false
+if(/[?&]loop=0/.test(location.search))AUTO3D.loop=false;
 const TG={triage:10,doctor:20,consult:15,pharm:15,cash:15,total:60,occ:85}; // เป้าหมายเวลา (นาที) / % เตียง
 const $=s=>document.querySelector('#v3 '+s),n=v=>+v||0,fm=(v,d=0)=>v==null?'-':v.toLocaleString('th-TH',{maximumFractionDigits:2});
 const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
@@ -982,7 +987,14 @@ function tryGo(p){const g=GQ[p.gk],T=p.P[p.i];if(!g)return true;if(p.tk===undefi
   else if(T&&T[6]){if((SO[T[6]]||0)>=(CAP[T[6]]||1))return false;SO[T[6]]=(SO[T[6]]||0)+1}
   g.s++;g.t=simT+2;g.w=p;p.mv=true;return true}
 function leave(p){const T=p.P[p.i-1];if(T&&T[7])SO[T[7]]=Math.max(0,(SO[T[7]]||0)-1);if(p.cl){OC[p.cl][p.ci]--;p.cl=null}p.gk=null;if(p.sit)sitP(p,0)}
-function step(dt){simT+=dt;if(RP.on){rstep(dt);return}spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats.length<targetPop)spawn();spawnEvery=baseEvery*(.6+Math.random()*.8)} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
+let endT=0,advancing=false;
+async function nextDay(){const cur=$('#vday').value||(window._D&&window._D.day);
+  try{let r=await sb(FLOW_TABLE+'?select=vstdate&vstdate=gt.'+cur+'&order=vstdate.asc&limit=1');if(!r[0])r=await sb(FLOW_TABLE+'?select=vstdate&order=vstdate.asc&limit=1'); // ถึงวันสุดท้ายแล้ววนกลับวันแรก
+    if(r[0]){$('#vday').value=r[0].vstdate;await load()}}catch(e){}}
+function autoNext(dt){if(!AUTO3D.loop||advancing||!V.classList.contains('tbh'))return;
+  if(RP.play||RP.t<RP.t1+59){endT=0;return}
+  endT+=dt;if(endT<AUTO3D.pause)return;endT=0;advancing=true;nextDay().finally(()=>{advancing=false})}
+function step(dt){simT+=dt;if(RP.on){rstep(dt);autoNext(dt);return}spawnT+=dt;if(spawnT>spawnEvery){spawnT=0;if(RT||pats.length<targetPop)spawn();spawnEvery=baseEvery*(.6+Math.random()*.8)} // เกิดใหม่เฉพาะเมื่อคนในฉากน้อยกว่าจำนวนจากข้อมูลรายชั่วโมง
   for(let k=pats.length-1;k>=0;k--){const p=pats[k];
     if(p.w>0){p.w-=dt;if(p.w<=0){if(p.gk&&!tryGo(p)){p.w=.15;pose(p,false);continue}leave(p)}pose(p,false);continue}
     const T=p.P[p.i];if(T[8]&&!T.r)pickChair(p,T);
@@ -999,7 +1011,7 @@ function restoreW(){try{const o=JSON.parse(localStorage.getItem(WKEY)||'null');i
 function warmW(){if(warmed||RP.on)return;warmed=true;if(pats.length)return;const st=RT?9000:3000,dtw=RT?1:.1;for(let i=0;i<st;i++)step(dtw)} // ไม่มีสถานะเดิม: จำลองล่วงหน้า ~90 วินาที ให้มีคนเดินอยู่แล้ว ไม่เริ่มจากทางเข้าทีละคน
 /* ===== เล่นซ้ำเส้นทางจริงจากข้อมูล (queue_call_log): 1 คน = 1 vn (ถ้าไม่มี vn ใช้ hn/queue_no) · เดินตามลำดับจุดและเวลาเรียกคิวจริง
    ไม่สุ่ม ไม่ผูกกับเวลาจริง · เร่ง/หน่วง/ข้ามเวลาได้ · ก่อนถูกเรียกจะรอที่เก้าอี้หน้าจุดถัดไป → ถูกเรียก = เดินไปจุดบริการ → เรียกจุดถัดไป = เดินต่อ ===== */
-const RP={on:false,visits:[],nx:0,t:0,t0:0,t1:0,play:true,speed:120,day:'',sig:'',pick:null,act:[],oT:0,uT:0};
+const RP={on:false,visits:[],nx:0,t:0,t0:0,t1:0,play:true,speed:300,day:'',sig:'',pick:null,act:[],oT:0,uT:0};
 try{const sv=+localStorage.getItem('v3rps');if([30,60,120,300,600].includes(sv))RP.speed=sv}catch(e){}
 const GN={},GE={};
 function gnode(id,x,z){if(!GN[id]){GN[id]=[x,z];GE[id]=[]}return id}
@@ -1082,7 +1094,10 @@ function rstep(dt){if(RP.play){RP.t+=dt*RP.speed;if(RP.t>=RP.t1+60){RP.t=RP.t1+6
   RP.oT+=dt;if(RP.oT>.4){RP.oT=0;rocc()}RP.uT+=dt;if(RP.uT>.15){RP.uT=0;rui()}}
 const hms=t=>{t=Math.max(0,Math.floor(t))%86400;return String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')+':'+String(t%60).padStart(2,'0')};
 let RUI=0;
-function rui(){const q=$('#vrp');if(!RP.on){q.style.display='none';return}
+function rui(){const q=$('#vrp'),ck=$('#vclock');
+  if(ck){if(RP.on){const pc=Math.min(100,Math.max(0,(RP.t-RP.t0)/Math.max(1,RP.t1+60-RP.t0)*100)),dl=new Date(RP.day+'T00:00:00').toLocaleDateString('th-TH',{weekday:'short',day:'numeric',month:'short',year:'numeric'});
+      ck.innerHTML=`<small>เล่นย้อนหลังอัตโนมัติ · ${RP.speed}×</small><b>${dl}</b> · ${hms(RP.t)} น.<small>ในฉาก ${RP.act.length} คน · ทั้งวัน ${fm(RP.visits.length)} คน</small><div class="pb"><i style="width:${pc}%"></i></div>`}else ck.innerHTML=''}
+  if(!RP.on){q.style.display='none';return}
   if(!RUI){RUI=1;q.innerHTML='<div class="rh"><b>เล่นซ้ำเส้นทางจริงจากข้อมูล</b><span id="rtm"></span></div><input type="range" id="rsl" step="1"><div class="rc"><button id="rpl"></button><button id="rrs" title="เริ่มใหม่">⟲</button><select id="rsp" title="ความเร็วเล่นซ้ำ (เวลาในข้อมูลต่อ 1 วินาทีจริง)">'+[[30,'0.5 นาที/วินาที'],[60,'1 นาที/วินาที'],[120,'2 นาที/วินาที'],[300,'5 นาที/วินาที'],[600,'10 นาที/วินาที']].map(a=>`<option value="${a[0]}">${a[1]}</option>`).join('')+'</select><span id="rin"></span></div>';
     $('#rpl').onclick=()=>{if(!RP.play&&RP.t>=RP.t1+59){RP.t=RP.t0;rseek(RP.t)}RP.play=!RP.play;rui()};
     $('#rrs').onclick=()=>{RP.t=RP.t0;RP.play=true;rseek(RP.t);rui()};
@@ -1093,7 +1108,7 @@ function rui(){const q=$('#vrp');if(!RP.on){q.style.display='none';return}
 function rsetup(D,pick){const rows=D.q||[],sig=D.day+'|'+rows.length+'|'+(rows.length?rows[rows.length-1].called_at:'')+'|'+(rows.pend||[]).length,newDay=D.day!==RP.day,pickCh=pick!==RP.pick;let ch=false;
   if(sig!==RP.sig||newDay){const atEnd=!RP.play&&RP.t>=RP.t1+59;RP.visits=buildVisits(rows);RP.sig=sig;RP.t0=RP.visits.length?Math.min(...RP.visits.map(v=>v.t0)):0;RP.t1=RP.visits.length?Math.max(...RP.visits.map(v=>v.t1)):0;ch=true;if(D.live&&atEnd)RP.play=true}
   RP.on=RP.visits.length>0;
-  if(newDay||pickCh){RP.day=D.day;RP.pick=pick;RP.t=pick?Math.min(Math.max(RP.t0,+pick*3600),RP.t1):(D.live?Math.max(RP.t0,RP.t1-3900):RP.t0);RP.play=true;ch=true}
+  if(newDay||pickCh){RP.day=D.day;RP.pick=pick;RP.t=pick?Math.min(Math.max(RP.t0,+pick*3600),RP.t1):(D.live&&!V.classList.contains('tbh')?Math.max(RP.t0,RP.t1-3900):RP.t0);RP.play=true;ch=true}
   RP.t=Math.min(Math.max(RP.t,RP.t0),RP.t1+60);
   const rb=$('#rtbtn');if(rb)rb.style.display=RP.on?'none':'';
   if(RP.on){if(pats.length){pats.forEach(p=>SC.remove(p.g));pats.length=0}if(ch)rseek(RP.t);rui()}
@@ -1119,7 +1134,7 @@ function clickAt(e){const i=hit(e);if(i!=null)select(i)}
 
 /* ---------- UI / ข้อมูล ---------- */
 /* เปิด/ปิดแถบเครื่องมือทั้งหมด (สถิติด้านบน รายการซ้าย รายละเอียดขวา คำแนะนำ ปุ่มซูม) */
-{const tb=()=>{try{return store.getItem('v3tb')==='0'}catch(e){return false}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
+{const tb=()=>{if(/[?&]tools=1/.test(location.search))return false;try{const v=store.getItem('v3tb');return v===null?true:v==='0'}catch(e){return true}},ap=h=>{V.classList.toggle('tbh',h);$('#vtg').textContent=h?'☰ แสดงแถบเครื่องมือ':'✕ ซ่อนแถบเครื่องมือ';$('#vtg').title=h?'แสดงแถบเครื่องมือ':'ซ่อนแถบเครื่องมือ'};
  ap(tb());$('#vtg').onclick=()=>{const h=!V.classList.contains('tbh');ap(h);try{store.setItem('v3tb',h?'0':'1')}catch(e){}}}
 let sel=null,hT;const vl=$('#vlist');
 function showL(){vl.classList.remove('hid');clearTimeout(hT);hT=setTimeout(()=>{if(vl.matches(':hover'))showL();else vl.classList.add('hid')},4000)}
