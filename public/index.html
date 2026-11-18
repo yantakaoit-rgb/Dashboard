@@ -177,6 +177,24 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 #snav{top:var(--hh,0px);z-index:50}html{scroll-padding-top:calc(var(--hh,0px) + 56px)}.s{scroll-margin-top:calc(var(--hh,0px) + 64px)}
 @media(max-width:700px){header.stuck .brand{display:none}header.stuck{padding-left:12px;padding-right:12px}}
 #vtop select option{background:#12263a;color:#e8f1f8}
+/* ===== อาคารโรงพยาบาล 3 มิติ (#b3) ===== */
+#b3{--m:#8da4b8;--ln:#ffffff22;position:relative;height:min(78svh,720px);min-height:460px;border-radius:16px;overflow:hidden;background:#0a1626;color:#e8f1f8}
+#b3 canvas{position:absolute;inset:0;width:100%;height:100%;touch-action:pan-y;cursor:grab}
+#b3 .bp{position:absolute;background:#0f2236e6;border:1px solid var(--ln);border-radius:12px;backdrop-filter:blur(8px)}
+#b3k{top:10px;left:10px;right:10px;padding:8px 12px;display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+#b3k div{background:#ffffff0d;border-radius:9px;padding:4px 10px}#b3k i{font-style:normal;color:var(--m);font-size:11px;display:block}#b3k b{font-size:16px}
+#b3k a{margin-left:auto;color:#7fe0c0;font-size:12px;text-decoration:none}
+#b3l{left:10px;top:70px;width:210px;padding:6px;max-height:calc(100% - 140px);overflow:auto}
+#b3l button{display:flex;width:100%;gap:9px;align-items:center;text-align:left;font:inherit;font-size:13px;color:#e8f1f8;background:none;border:0;border-radius:8px;padding:7px 8px;cursor:pointer}
+#b3l button:hover,#b3l button.on{background:#ffffff1a}#b3l i{width:10px;height:10px;border-radius:3px;flex:none}#b3l small{display:block;color:var(--m);font-size:11px}
+#b3d{right:10px;top:70px;width:270px;padding:14px;max-height:calc(100% - 140px);overflow:auto;font-size:13.5px}
+#b3d .big{font-size:30px;font-weight:700;line-height:1.2}#b3d .r{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-bottom:1px solid var(--ln)}
+#b3t{left:50%;bottom:10px;transform:translateX(-50%);padding:6px 12px;display:flex;gap:8px;align-items:center;font-size:12.5px;white-space:nowrap}
+#b3t input{width:110px;accent-color:#14a3a8}
+#b3t button,#b3z button{font:inherit;font-size:13px;padding:5px 11px;border-radius:8px;border:1px solid var(--ln);background:#ffffff14;color:#e8f1f8;cursor:pointer}
+#b3t button.on,#b3t button[aria-pressed=true]{background:#fff;color:#0a1626;font-weight:600}
+#b3z{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;gap:6px}#b3z button{width:38px;height:38px;font-size:18px;padding:0;background:#0f2236}
+@media(max-width:900px){#b3{height:min(86svh,680px)}#b3l{top:auto;bottom:54px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#b3l button{min-width:140px}#b3d{top:auto;bottom:118px;left:10px;right:10px;width:auto;max-height:30%}#b3z{display:none}#b3t{max-width:calc(100% - 20px);overflow-x:auto}#b3k a{display:none}}
 </style>
 </head>
 <body>
@@ -584,6 +602,7 @@ function render(cur,prev,a,b){
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
+   sec('1.1','อาคารโรงพยาบาล 3 มิติ','3D Hospital Building · 7.3873°N 99.6667°E','<div id="b3slot"></div>','w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
@@ -595,6 +614,7 @@ function render(cur,prev,a,b){
    // [เพิ่มใหม่] การ์ดรายรับแยกตามแผนก/หอผู้ป่วย/สิทธิ (เป็นกล่องว่าง #dpc แล้ว dpRender() ค่อยเติมเนื้อหา)
    sec('8.1','รายรับแยกตามแผนก หอผู้ป่วย และสิทธิการรักษา','Revenue by Department, Ward & Patient Right','<div id="dpc"></div>','w12')+
    sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
+  window._b3D={ws:BO.ws,tot,used,occ,opd,er,days,wait,consult,proc,pharm:avg(d,r=>r.avg_wait_for_pharmacy),tri:tri.map(t=>[t[0],t[1]])};window.b3mount&&b3mount(); // อาคาร 3 มิติ
   // [เพิ่มใหม่] ส่งข้อมูลแผนก หอผู้ป่วย และสิทธิ (ช่วงปัจจุบัน/ก่อนหน้า) เข้าสู่การ์ด
   DPS={dept:cur.department||[],pt:cur.pttype||[],ward:cur.ward||[],ipt:cur.ipd_pttype||[]}; // ข้อมูลช่วงปัจจุบัน
   DPQ={dept:prev.department||[],pt:prev.pttype||[],ward:prev.ward||[],ipt:prev.ipd_pttype||[]}; // ข้อมูลช่วงก่อนหน้า
@@ -1397,7 +1417,7 @@ logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
 <script>
 /* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
-(function(){const L=[['sec1','ภาพรวม'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+(function(){const L=[['sec1','ภาพรวม'],['sec1_1','อาคาร 3D'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
 const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
 n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
 const h=document.querySelector('header');h.after(n);
@@ -1459,6 +1479,98 @@ const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.
  if(window.ResizeObserver)new ResizeObserver(set).observe(h);addEventListener('resize',set);
  const on=()=>{const y=scrollY;if(y>80)h.classList.add('stuck');else if(y<20)h.classList.remove('stuck')};
  addEventListener('scroll',on,{passive:true});on();set();
+})();
+</script>
+<script>
+/* ===== อาคารโรงพยาบาล 3 มิติ — วางใต้ "ภาพรวมโรงพยาบาล"
+   พิกัดโรงพยาบาล 7.387316, 99.666710 ใช้คำนวณตำแหน่งดวงอาทิตย์จริง (แสง/เงา/กลางวัน-กลางคืน)
+   ชั้นของตึกผู้ป่วยใน = หอผู้ป่วยแต่ละหอ สีตามอัตราครองเตียงเทียบ TARGET.occ ===== */
+(function(){
+const LAT=7.387315913378658,LON=99.66671031524545,RAD=Math.PI/180,cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+const root=document.createElement('div');root.id='b3';
+root.innerHTML='<canvas aria-label="แบบจำลอง 3 มิติอาคารโรงพยาบาล"></canvas><div class="bp" id="b3k"></div><div class="bp" id="b3l"></div><div class="bp" id="b3d"></div><div class="bp" id="b3t"><span id="b3s"></span><input type="range" id="b3h" min="0" max="24" step=".25" aria-label="เวลาในแบบจำลอง"><button id="b3n" class="on">เวลาจริง</button><button id="b3x" aria-pressed="false">แยกชั้น</button></div><div id="b3z"><button data-z="-1" aria-label="ซูมเข้า">＋</button><button data-z="1" aria-label="ซูมออก">−</button><button data-z="0" aria-label="รีเซ็ตมุมมอง">⟲</button></div>';
+const q=s=>root.querySelector(s);let B=null,booted=0,io=0;
+const dayStart=()=>Math.floor((Date.now()+252e5)/864e5)*864e5-252e5; // เที่ยงคืนเวลาไทย
+function sun(ms){const d=ms/864e5+2440587.5-2451545,g=(357.529+.98560028*d)*RAD,L=(280.459+.98564736*d+1.915*Math.sin(g)*1+.02*Math.sin(2*g))*RAD,e=(23.439-4e-7*d)*RAD,
+  ra=Math.atan2(Math.cos(e)*Math.sin(L),Math.cos(L)),dec=Math.asin(Math.sin(e)*Math.sin(L)),H=((18.697374558+24.06570982441908*d)*15+LON)*RAD-ra,la=LAT*RAD;
+  return{alt:Math.asin(Math.sin(la)*Math.sin(dec)+Math.cos(la)*Math.cos(dec)*Math.cos(H)),az:Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(la)-Math.tan(dec)*Math.cos(la))+Math.PI}}
+function skyC(a){const n=new THREE.Color(0x07111f),d=new THREE.Color(0xf0a15e),y=new THREE.Color(0x8fd0ec);return a<-6?n:a<4?n.lerp(d,(a+6)/10):a<20?d.lerp(y,(a-4)/16):y}
+function applyTime(){const t=B.live?(Date.now()-dayStart())/36e5:B.h,s=sun(dayStart()+t*36e5),a=s.alt/RAD,az=((s.az/RAD)%360+360)%360,nl=cl((4-a)/10,0,1),c=skyC(a);
+  B.S.background=c;B.S.fog=new THREE.Fog(c,70,150);
+  if(a>0){B.sunL.position.set(Math.sin(s.az)*Math.cos(s.alt),Math.sin(s.alt),-Math.cos(s.az)*Math.cos(s.alt)).multiplyScalar(60);B.sunL.color.set(0xffb070).lerp(new THREE.Color(0xffffff),cl(a/25,0,1));B.sunL.intensity=.2+.9*cl(Math.sin(s.alt)*2,0,1)}
+  else{B.sunL.position.set(-25,45,20);B.sunL.color.set(0x8aa4ff);B.sunL.intensity=.3}
+  B.amb.intensity=.3+.35*cl(a/20,0,1);B.nl=nl;B.wm.forEach(m=>m.emissiveIntensity=nl);
+  const hh=Math.floor(t),mm=Math.floor((t-hh)*60);
+  q('#b3s').textContent=String(hh).padStart(2,'0')+':'+String(mm).padStart(2,'0')+' น. · '+(a>0?'☀ สูง '+Math.round(a)+'° ทิศ '+Math.round(az)+'°':'🌙 กลางคืน');q('#b3h').value=t}
+function show(u){q('#b3d').innerHTML=u?`<h2 style="font-size:16px">${esc(u.n)}</h2><div class="big" style="color:${u.c}">${u.big}</div><div style="color:var(--m)">${u.sub}</div>${u.chip?`<span class="chip" style="background:${u.chip[1]};color:#06121f;font-weight:600;display:inline-block;margin:6px 0">${u.chip[0]}</span>`:''}${u.rows.map(r=>`<div class="r"><span>${esc(r[0])}</span><b>${r[1]}</b></div>`).join('')}`:'<div style="color:var(--m)">คลิกอาคารหรือชั้นเพื่อดูรายละเอียด</div>'}
+function select(m){if(B.ol){B.ol.parent&&B.ol.parent.remove(B.ol);B.ol=null}B.selId=m?m.userData.id:null;
+  if(m){B.ol=new THREE.LineSegments(new THREE.EdgesGeometry(m.geometry),new THREE.LineBasicMaterial({color:0xf5b441}));B.ol.scale.setScalar(1.012);m.add(B.ol)}
+  show(m?m.userData:null);root.querySelectorAll('#b3l button').forEach(b=>b.classList.toggle('on',!!m&&b.dataset.i===m.userData.id))}
+function build(D){
+  const G=B.g;while(G.children.length)G.children.pop().traverse(n=>{n.geometry&&n.geometry.dispose();n.material&&n.material.dispose()});
+  B.wm=[];B.pick=[];B.fl=[];B.ol=null;const keep=B.selId;
+  const bm=(c,w,h)=>{const a=B.T[0].clone(),b=B.T[1].clone();[a,b].forEach(t=>{t.wrapS=t.wrapT=THREE.RepeatWrapping;t.repeat.set(Math.max(1,Math.round(w/2.4)),Math.max(1,Math.round(h/1.1)));t.needsUpdate=true});
+    const m=new THREE.MeshLambertMaterial({color:new THREE.Color(c).lerp(new THREE.Color(0xffffff),.4),map:a,emissive:0xffd98a,emissiveMap:b,emissiveIntensity:B.nl||0});B.wm.push(m);return m};
+  const rf=new THREE.MeshLambertMaterial({color:0x44586b}),red=new THREE.MeshLambertMaterial({color:0xe2563c});
+  const box=(w,h,d,x,y,z,m,info)=>{const o=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);o.position.set(x,y+h/2,z);o.castShadow=o.receiveShadow=true;G.add(o);if(info){o.userData=info;B.pick.push(o)}return o};
+  const sO=o=>o==null?'#8aa0b3':o>TARGET.occ?'#e2563c':o>TARGET.occ-15?'#e9a23b':'#2f9e6b',it=[];
+  let ws=(D.ws||[]).slice(0,10);if(!ws.length)ws=[{n:'ผู้ป่วยใน (รวม)',tot:D.tot,used:D.used}];
+  const n=ws.length,fh=Math.min(1.8,Math.max(1,3.6/n));
+  ws.forEach((w,i)=>{const o=w.tot?(w.used||0)/w.tot*100:null,c=sO(o),y=i*(fh+.1),big=o==null?'-':fm(o,0)+'%';
+    const m=box(8,fh,7,0,y,0,bm(c,8,fh),{id:'w'+i,n:w.n,c,big,sub:'อัตราครองเตียง',chip:o==null?null:[o>TARGET.occ?'เกินเป้า':'อยู่ในเกณฑ์',c],
+      rows:[['เตียงทั้งหมด',fm(w.tot)],['ใช้งานเฉลี่ย',fm(w.used,1)],['ว่าง',fm(Math.max((w.tot||0)-(w.used||0),0),1)]].concat(w.male!=null?[['ชาย / หญิง',fm(w.male,1)+' / '+fm(w.female,1)]]:[])});
+    m.userData.y0=y;B.fl.push(m);it.push(['w'+i,c,w.n,o==null?'-':big+' ครองเตียง'])});
+  it.reverse();B.roof=box(8.4,.25,7.4,0,n*(fh+.1),0,rf);B.roof.userData={y0:n*(fh+.1)};
+  const oc=D.wait==null?'#8aa0b3':D.wait>TARGET.wait?'#e2563c':D.wait>TARGET.wait*.8?'#e9a23b':'#14a3a8';
+  box(10,2.2,8,-9,0,1.5,bm(oc,10,2.2),{id:'opd',n:'อาคารผู้ป่วยนอก (OPD)',c:oc,big:fm(D.opd),sub:'ครั้ง ในช่วงที่เลือก',chip:D.wait==null?null:[D.wait>TARGET.wait?'รอนานเกินเป้า':'เวลารออยู่ในเกณฑ์',oc],
+    rows:[['เฉลี่ยต่อวัน',fm(D.opd/D.days)+' ครั้ง'],['รอพบแพทย์',fm(D.wait,1)+' นาที (เป้า ≤ '+TARGET.wait+')'],['ตรวจโดยแพทย์',fm(D.consult,1)+' นาที'],['เวลารวมทั้งกระบวนการ',fm(D.proc,1)+' นาที']]});
+  box(10,2.2,8,9,0,1.5,bm('#ef6a55',10,2.2),{id:'er',n:'อุบัติเหตุ-ฉุกเฉิน (ER)',c:'#ef6a55',big:fm(D.er),sub:'ครั้ง ในช่วงที่เลือก',rows:[['เฉลี่ยต่อวัน',fm(D.er/D.days,1)+' ครั้ง']].concat((D.tri||[]).slice(0,5).map(t=>[t[0],fm(t[1])+' ราย']))});
+  box(4,1.6,4,0,0,6.5,bm('#7c6bd6',4,1.6),{id:'ph',n:'ห้องจ่ายยา',c:'#7c6bd6',big:fm(D.pharm,1),sub:'นาที รอรับยาเฉลี่ย',rows:[['รอรับยา',fm(D.pharm,1)+' นาที'],['เวลารวมทั้งกระบวนการ OPD',fm(D.proc,1)+' นาที']]});
+  box(10.3,.2,8.3,-9,2.2,1.5,rf);box(10.3,.2,8.3,9,2.2,1.5,rf);box(4.3,.2,4.3,0,1.6,6.5,rf);box(3,.12,.8,9,2.4,1.5,red);box(.8,.12,3,9,2.4,1.5,red);
+  it.push(['opd',oc,'ผู้ป่วยนอก OPD',fm(D.opd/D.days)+' ครั้ง/วัน'],['er','#ef6a55','ฉุกเฉิน ER',fm(D.er/D.days,1)+' ครั้ง/วัน'],['ph','#7c6bd6','ห้องจ่ายยา',fm(D.pharm,1)+' นาที']);
+  q('#b3l').innerHTML=it.map(x=>`<button data-i="${x[0]}"><i style="background:${x[1]}"></i><span>${esc(x[2])}<small>${x[3]}</small></span></button>`).join('');
+  q('#b3k').innerHTML=[['ครองเตียง',fm(D.occ,0)+'%'],['เตียงใช้/ทั้งหมด',fm(D.used)+' / '+fm(D.tot)],['OPD/วัน',fm(D.opd/D.days)],['ER/วัน',fm(D.er/D.days,1)]].map(x=>`<div><i>${x[0]}</i><b>${x[1]}</b></div>`).join('')+`<a href="https://www.google.com/maps?q=${LAT},${LON}" target="_blank" rel="noopener">📍 ${LAT.toFixed(5)}, ${LON.toFixed(5)}</a>`;
+  select(B.pick.find(m=>m.userData.id===keep)||null)}
+function init(){
+  const cv=q('canvas'),R=new THREE.WebGLRenderer({canvas:cv,antialias:true}),S=new THREE.Scene(),CAM=new THREE.PerspectiveCamera(40,1,.5,400);
+  R.setPixelRatio(Math.min(devicePixelRatio,2));R.shadowMap.enabled=true;
+  const amb=new THREE.AmbientLight(0xffffff,.5),sunL=new THREE.DirectionalLight(0xffffff,1),sc=sunL.shadow.camera;
+  sunL.castShadow=true;sunL.shadow.mapSize.set(1024,1024);sc.left=sc.bottom=-30;sc.right=sc.top=30;sc.near=1;sc.far=140;S.add(amb,sunL,sunL.target);
+  const mk=(w,l)=>{const c=document.createElement('canvas');c.width=c.height=64;const x=c.getContext('2d');x.fillStyle=w;x.fillRect(0,0,64,64);x.fillStyle=l;x.fillRect(8,18,20,28);x.fillRect(36,18,20,28);return new THREE.CanvasTexture(c)};
+  B={R,S,CAM,amb,sunL,g:new THREE.Group(),c:{th:.6,ph:1.05,r:40},tg:new THREE.Vector3(0,3,1.5),ex:0,exT:0,live:true,h:12,wm:[],pick:[],fl:[],vis:true,clk:new THREE.Clock(),ray:new THREE.Raycaster(),T:[mk('#ffffff','#4f6b82'),mk('#000000','#ffffff')]};S.add(B.g);
+  const gm=(c,w,d,x,z,y)=>{const m=new THREE.Mesh(new THREE.PlaneGeometry(w,d),new THREE.MeshLambertMaterial({color:c}));m.rotation.x=-Math.PI/2;m.position.set(x,y,z);m.receiveShadow=true;S.add(m)};
+  gm(0x2d4d3b,80,60,0,0,-.02);gm(0x39424e,80,6,0,15,0);gm(0x4a5560,30,7,0,8,.01);
+  [[-20,-6],[-20,6],[20,-6],[20,6],[-15,-12],[-8,-13],[0,-13],[8,-13],[15,-12],[-19,-14],[19,-14],[-22,0],[22,0]].forEach(([x,z])=>{
+    const t=new THREE.Mesh(new THREE.CylinderGeometry(.18,.25,1.2,6),new THREE.MeshLambertMaterial({color:0x6b4a2f})),c=new THREE.Mesh(new THREE.SphereGeometry(1.25,10,8),new THREE.MeshLambertMaterial({color:0x2f8f4f}));
+    t.position.set(x,.6,z);c.position.set(x,2,z);c.castShadow=true;S.add(t,c)});
+  const hit=e=>{const r=cv.getBoundingClientRect();B.ray.setFromCamera({x:(e.clientX-r.left)/r.width*2-1,y:-(e.clientY-r.top)/r.height*2+1},CAM);const h=B.ray.intersectObjects(B.pick)[0];return h&&h.object};
+  const zoom=s=>{B.c.r=s?cl(B.c.r*(s>0?1.15:.87),18,80):40;if(!s){B.c.th=.6;B.c.ph=1.05}};
+  let dn=null;
+  cv.onpointerdown=e=>{dn={x:e.clientX,y:e.clientY,mv:0};cv.setPointerCapture(e.pointerId);cv.style.cursor='grabbing'};
+  cv.onpointermove=e=>{if(dn){const dx=e.clientX-dn.x,dy=e.clientY-dn.y;dn.mv+=Math.abs(dx)+Math.abs(dy);dn.x=e.clientX;dn.y=e.clientY;B.c.th-=dx*.007;B.c.ph=cl(B.c.ph-dy*.005,.2,1.5)}else cv.style.cursor=hit(e)?'pointer':'grab'};
+  cv.onpointerup=e=>{cv.style.cursor='grab';if(dn&&dn.mv<5)select(hit(e));dn=null};cv.onpointercancel=()=>{dn=null};
+  cv.addEventListener('wheel',e=>{if(!e.ctrlKey)return;e.preventDefault();zoom(e.deltaY>0?1:-1)},{passive:false});
+  q('#b3z').onclick=e=>{const b=e.target.closest('button');if(b)zoom(+b.dataset.z)};
+  q('#b3l').onclick=e=>{const b=e.target.closest('button');if(b)select(B.pick.find(m=>m.userData.id===b.dataset.i))};
+  q('#b3h').oninput=e=>{B.live=false;B.h=+e.target.value;q('#b3n').classList.remove('on');applyTime()};
+  q('#b3n').onclick=()=>{B.live=true;q('#b3n').classList.add('on');applyTime()};
+  q('#b3x').onclick=e=>{B.exT=B.exT?0:1;e.currentTarget.setAttribute('aria-pressed',!!B.exT)};
+  setInterval(()=>B.live&&applyTime(),30000);
+  new ResizeObserver(()=>{const w=root.clientWidth,h=root.clientHeight;if(!w||!h)return;R.setSize(w,h,false);CAM.aspect=w/h;CAM.updateProjectionMatrix()}).observe(root);
+  applyTime();if(window._b3D)build(window._b3D);
+  (function tick(){requestAnimationFrame(tick);if(!B.vis)return;const dt=B.clk.getDelta(),c=B.c,t=B.tg,r=c.r*(CAM.aspect<1.1?1.5:1);
+    B.ex+=(B.exT-B.ex)*Math.min(1,dt*6);B.fl.forEach((m,i)=>m.position.y=m.userData.y0+m.geometry.parameters.height/2+B.ex*i*1.3);
+    if(B.roof)B.roof.position.y=B.roof.userData.y0+.125+B.ex*B.fl.length*1.3;
+    CAM.position.set(t.x+r*Math.sin(c.ph)*Math.sin(c.th),t.y+r*Math.cos(c.ph),t.z+r*Math.sin(c.ph)*Math.cos(c.th));CAM.lookAt(t);R.render(S,CAM)})()}
+function boot(){if(booted)return;booted=1;
+  const go=()=>{try{init()}catch(e){root.insertAdjacentHTML('beforeend','<div class="bp" style="left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 16px">แสดงผล 3D ไม่ได้บนอุปกรณ์นี้</div>')}},
+  err=()=>root.insertAdjacentHTML('beforeend','<div class="bp" style="left:50%;top:50%;transform:translate(-50%,-50%);padding:12px 16px">โหลด three.js ไม่สำเร็จ — ตรวจอินเทอร์เน็ต</div>');
+  if(window.THREE)return go();const ex=document.querySelector('script[src*="three"]');
+  if(ex){ex.addEventListener('load',go);ex.addEventListener('error',err);return}
+  const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=go;s.onerror=err;document.head.appendChild(s)}
+window.b3mount=function(){const D=window._b3D,slot=document.getElementById('b3slot');if(!D||!slot)return;slot.appendChild(root);
+  if(B)build(D);else if(!io){io=1;if(window.IntersectionObserver)new IntersectionObserver(es=>{const v=es[0].isIntersecting;if(B)B.vis=v;if(v)boot()},{rootMargin:'400px'}).observe(root);else boot()}};
+if(window._b3D)b3mount();
 })();
 </script>
 </body>
