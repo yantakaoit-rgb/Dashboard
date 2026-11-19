@@ -88,6 +88,8 @@ svg{touch-action:pan-y}.hit{fill:transparent;cursor:crosshair}.hit:hover,.hit.on
 #vdet{max-height:calc(100% - 290px)}
 #v3.tbh #vq{display:none!important}
 @media(max-width:900px){#vq{display:none!important}}
+.cltg{margin-left:10px;font:inherit;font-size:12px;font-weight:700;padding:5px 12px;border-radius:99px;border:0;background:var(--teal);color:#fff;cursor:pointer;white-space:nowrap;align-self:center}.cltg:hover{filter:brightness(1.1)}.cl3>*:not(.h){display:none!important}.cl3>.h{margin-bottom:0}
+.fsx{position:fixed!important;left:0!important;top:0!important;right:0!important;bottom:0!important;width:100%!important;height:100%!important;max-height:none!important;min-height:0!important;margin:0!important;border-radius:0!important;z-index:2147483000!important}html.fsx-lock{overflow:hidden!important}#vfs{font-weight:700}
 #vz{position:absolute;right:10px;bottom:10px;display:flex;flex-direction:column;align-items:center;gap:6px}#vz input[type=range]{writing-mode:vertical-lr;direction:rtl;height:110px;width:22px;margin:0;accent-color:#27c4cf;cursor:pointer}#vz output{font-family:inherit;font-size:11px;font-weight:700;line-height:1;color:#fff;background:#0f2236;border:1px solid #fff6;border-radius:6px;padding:3px 5px;min-width:42px;text-align:center}#vz button.on{background:#0b7a8a!important}@media(max-width:900px){#vz #vzw{display:none}#vz input[type=range]{height:80px}}
 @media(max-width:900px){#vlist{top:auto;bottom:46px;left:10px;right:10px;width:auto;display:flex;max-height:none;overflow-x:auto}#vlist button{min-width:120px}#vdet{top:auto;bottom:110px;left:10px;right:10px;width:auto;max-height:30%}#vhint{display:none}#vz{bottom:auto!important;top:70px}}
 dialog{border:0;border-radius:14px;padding:22px;width:min(480px,92vw)}dialog label{display:block;margin:10px 0 3px;font-size:12px;color:var(--mut)}
@@ -195,7 +197,7 @@ header.stuck .top{gap:8px 14px}header.stuck .logo{width:34px;height:34px;font-si
 <main id="app"></main>
 <div style="max-width:none;margin:0 auto;padding:0 clamp(8px,1.5vw,24px) 36px"><section class="s" id="s3d" style="padding:12px"><div class="h"><b>3D</b><h2>แบบจำลองห้องบริการ 3 มิติ</h2><span>ห้องบัตร → ซักประวัติ 7 โต๊ะ → ห้องตรวจ 6 ห้อง → จ่ายยา 1 ช่อง</span></div>
 <div id="v3"><canvas id="vc" aria-label="แบบจำลอง 3 มิติเส้นทางการรับบริการ"></canvas>
-<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span></div></div>
+<div class="p" id="vtop"><div id="vkc"></div><div class="c3"><button id="vcl3" title="ปิดการแสดงผล 3D">✕ ปิด 3D</button><button id="vfs" aria-pressed="false" title="ขยายเต็มจอ">⛶ เต็มจอ</button><span class="now" style="background:#ffffff14;color:#e8f1f8"><span class="nd0"></span><b class="nowclk"></b></span></div></div>
 <div class="p" id="vlist"></div><div class="p" id="vdet"><div style="color:#8da4b8">คลิกอาคารหรือรายการสถานีเพื่อดูรายละเอียด</div></div>
 <div class="p" id="vhint">ลากเพื่อหมุนได้รอบ 360° · Ctrl + ล้อเมาส์ หรือปุ่ม ＋ − เพื่อซูม · คลิกสถานีเพื่อดูข้อมูล</div><div class="p" id="vmsg"></div>
 <div class="p" id="vq" style="display:none"></div>
@@ -584,7 +586,7 @@ function render(cur,prev,a,b){
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
-   sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3873°N 99.6667°E','<div id="b3host"></div>','w12')+
+   sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
@@ -707,6 +709,47 @@ document.addEventListener('pointermove',onPtr);document.addEventListener('pointe
 document.addEventListener('scroll',()=>{tip.style.display='none'},true);
 
 /* ===== ส่วน 3D (โหลดเมื่อเลื่อนมาถึง) ===== */
+/* ===== ปุ่มย่อ/ขยายการแสดงผล 3D: ขยายเต็มจอ ⇄ ย่อกลับขนาดเดิม (ใช้ร่วมกันทั้งฉากห้องบริการและการ์ดอาคาร) =====
+   ย้ายกล่องไปไว้ชั้นนอกสุดของหน้าชั่วคราว (เหลือตัวกั้นที่ไว้ที่เดิม) จึงไม่ถูกการ์ดแม่บัง · กด Esc หรือกดปุ่มเดิมเพื่อย่อกลับ
+   ถ้าเบราว์เซอร์ไม่รองรับโหมดเต็มจอจริง (เช่น iPhone) จะขยายเต็มหน้าต่างแทน · el=กล่องที่จะขยาย, btn=ปุ่ม, back=ฟังก์ชันคืนที่วางสำรองถ้าตัวกั้นหาย */
+function fsBox(el,btn,back){
+  if(!el||!btn)return;
+  const root=document.documentElement,on=()=>el.classList.contains('fsx');
+  const paint=()=>{const f=on(),s=f?'ย่อกลับขนาดเดิม (Esc)':'ขยายเต็มจอ';btn.textContent=f?'⤡ ย่อกลับ':'⛶ เต็มจอ';btn.title=s;btn.setAttribute('aria-label',s);btn.setAttribute('aria-pressed',f?'true':'false')};
+  function enter(){if(on()||!el.parentNode)return;
+    const ph=document.createElement('div');ph.style.cssText='width:100%;height:'+el.offsetHeight+'px'; // ตัวกั้นที่ไว้ไม่ให้หน้าเลื่อนกระโดด
+    el.parentNode.insertBefore(ph,el);el._fsph=ph;document.body.appendChild(el);
+    el.classList.add('fsx');root.classList.add('fsx-lock');
+    if(root.requestFullscreen)root.requestFullscreen().catch(()=>{}); // เต็มจอจริงถ้าทำได้ ไม่ได้ก็ใช้เต็มหน้าต่าง
+    paint()}
+  function leave(){if(!on())return;
+    el.classList.remove('fsx');root.classList.remove('fsx-lock');
+    const ph=el._fsph;el._fsph=null;
+    if(ph&&ph.isConnected)ph.replaceWith(el);else{const h=back&&back();if(h)h.appendChild(el)} // ตัวกั้นหาย (หน้าถูกวาดใหม่) → ใช้ที่วางสำรอง
+    if(document.fullscreenElement&&document.exitFullscreen)document.exitFullscreen().catch(()=>{});
+    paint()}
+  btn.addEventListener('click',()=>on()?leave():enter());
+  document.addEventListener('fullscreenchange',()=>{if(!document.fullscreenElement&&on())leave()}); // กด Esc ออกจากเต็มจอจริง → ย่อกลับด้วย
+  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&on())leave()}); // โหมดเต็มหน้าต่าง
+  paint()}
+/* ===== ปุ่มย่อ/ขยาย = ปิด/เปิดการแสดงผล 3D (ติดที่หัวการ์ด ปุ่มอยู่ตลอดแม้ปิดอยู่) =====
+   ปิด → ซ่อนฉาก 3D ทั้งหมด เหลือแต่หัวการ์ด · ฉากหยุดวาดอัตโนมัติ (ประหยัด CPU/GPU) และถ้ายังไม่เคยเปิดจะไม่โหลด three.js
+   จำค่าที่เลือกไว้ในเบราว์เซอร์ (key) · sec=การ์ดที่มีหัว .h */
+function clBox(sec,key){
+  const h=sec&&sec.querySelector('.h');if(!h)return;
+  let b=h.querySelector('.cltg');
+  function set(c,save){ // c=true → ปิดการแสดงผล
+    sec.classList.toggle('cl3',c);
+    b.textContent=c?'▸ เปิดการแสดงผล 3D':'▾ ปิดการแสดงผล 3D';
+    b.title=c?'เปิดการแสดงผล 3D อีกครั้ง':'ปิดการแสดงผล 3D (ซ่อนฉาก ประหยัดเครื่อง)';
+    b.setAttribute('aria-expanded',c?'false':'true');
+    if(save)try{localStorage.setItem(key,c?'1':'0')}catch(e){}}
+  if(!b){b=document.createElement('button');b.type='button';b.className='cltg';h.appendChild(b)}
+  b.onclick=()=>set(!sec.classList.contains('cl3'),true);
+  sec._cl=set; // ให้ส่วนอื่นสั่งเปิด/ปิดได้ (เช่นปุ่ม 3D ▾ บนหัวหน้า)
+  let c0=false;try{c0=localStorage.getItem(key)==='1'}catch(e){}
+  set(c0,false)}
+clBox(document.getElementById('s3d'),'v3cl'); // การ์ดห้องบริการ 3 มิติ
 function init3D(){
 const LIVE3D={win:15,pad:60,speed:1}; // win=ความยาวช่วงย้อนหลังที่เล่นซ้ำ (นาที) · pad=ดึงข้อมูลก่อนช่วงเล่นเพิ่มกี่นาที (ใช้รู้ว่าใครนั่งรออยู่ตอนเริ่ม และตัดผู้ป่วยค้างเก่าที่เงียบไปนานออก) · speed=ความเร็วรีเพลย์ (1 = เวลาจริง: เล่นจบ 15 นาทีพอดีเมื่อเวลาจริงผ่านไป 15 นาที ช่วงถัดไปจึงต่อกันพอดี · 5 = วนเล่น 15 นาทีล่าสุดซ้ำทุก 3 นาที)
 const nowSec=()=>(Date.now()/1000+25200)%86400; // เวลาปัจจุบันเป็นวินาทีนับจากเที่ยงคืน (เวลาไทย UTC+7)
@@ -1404,6 +1447,8 @@ async function load(){ // โหลดข้อมูลของวันนี
 }
 const resetScene=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})};
 /* ===== เครื่องมือย่อ/ขยาย: ปุ่ม ＋ −, แถบเลื่อน, % ซูม, ดูทั้งหมด, ล้อเมาส์, แป้นพิมพ์ (+ − 0) ===== */
+fsBox(V,$('#vfs')); // ปุ่มขยายเต็มจอ ⇄ ย่อกลับ
+$('#vcl3').onclick=()=>{const s=document.querySelector('#s3d');if(s._cl){s._cl(true,true);s.scrollIntoView({block:'nearest'})}}; // ปุ่มปิดการแสดงผล 3D
 const ZMIN=16,ZMAX=150,zs=$('#vzs'),zp=$('#vzp'); // ระยะกล้องใกล้สุด/ไกลสุด (ชุดเดียวกับการลาก/บีบนิ้ว)
 let zdrag=false,zhov=false; // zdrag=กำลังลากแถบเลื่อน, zhov=เมาส์อยู่บนฉาก
 const zset=r=>{camTouched=true;rad=Math.min(ZMAX,Math.max(ZMIN,r))};
@@ -1432,7 +1477,7 @@ load();setInterval(load,60000); // ดึงข้อมูลใหม่ทุ
 let v3on=0;
 function boot3D(){if(v3on)return;v3on=1;const err=()=>{document.querySelector('#vmsg').textContent='โหลด three.js ไม่สำเร็จ — ตรวจอินเทอร์เน็ต'};if(window.loadThree){window.loadThree(init3D,err);return} /* ใช้ตัวโหลดร่วมกับการ์ดอาคาร 3 มิติ (โหลด three.js ครั้งเดียว) */ const s=document.createElement('script');s.src='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';s.onload=init3D;s.onerror=err;document.head.appendChild(s)}
 if(window.IntersectionObserver)new IntersectionObserver(es=>{if(es[0].isIntersecting)boot3D()},{rootMargin:'400px'}).observe(document.querySelector('#v3'));else boot3D();
-$('#to3d').onclick=()=>{document.querySelector('#s3d').scrollIntoView({behavior:'smooth'});boot3D()};
+$('#to3d').onclick=()=>{const s=document.querySelector('#s3d');if(s._cl&&s.classList.contains('cl3'))s._cl(false,true);s.scrollIntoView({behavior:'smooth'});boot3D()};
 if(AUTO)$('#cfgb').style.display='none';
 logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
@@ -1506,7 +1551,10 @@ const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.
 /* ===== อาคารโรงพยาบาล 3 มิติ (แสดงใต้ "ภาพรวมโรงพยาบาล") · สีและแท่งตามข้อมูลเตียงจริง · แสงอาทิตย์คำนวณจากพิกัด ===== */
 (function(){ // ครอบด้วยฟังก์ชัน ไม่ให้ตัวแปรชนกับสคริปต์อื่น
 'use strict'; // เข้มงวดเรื่องตัวแปร
-const LAT=7.387315913378658,LON=99.66671031524545; // พิกัดโรงพยาบาล (ละติจูด, ลองจิจูด)
+const LAT=7+23/60+14.78/3600,LON=99+40/60+1.72/3600; // พิกัดอ้างอิงของผัง = 7°23'14.78"N 99°40'01.72"E (≈ 7.387439, 99.667144) → ใช้เป็นจุดกำเนิด (0,0) ของผัง คำนวณตำแหน่งดวงอาทิตย์/ลิงก์แผนที่/หมุด
+const geo=(la,lo)=>({x:(lo-LON)*111320*Math.cos(LAT*Math.PI/180),z:-(la-LAT)*110574}); // แปลงละติจูด/ลองจิจูด → เมตรในผัง (x=ตะวันออก, z=ใต้ เหนืออยู่ทาง −z)
+const dms=(v,p,n)=>{const a=Math.abs(v),d=Math.floor(a),m=Math.floor((a-d)*60),s=((a-d)*60-m)*60;return d+'°'+String(m).padStart(2,'0')+"'"+s.toFixed(2).padStart(5,'0')+'"'+(v>=0?p:n)}; // เลขทศนิยม → องศา°ลิปดา'ฟิลิปดา"
+const COORD=()=>dms(LAT,'N','S')+' '+dms(LON,'E','W'); // ข้อความพิกัดแบบ DMS
 const THREE_URL='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; // ไลบรารี 3D เวอร์ชันเดียวกับฉากห้องบริการ
 const q=s=>document.querySelector(s); // ตัวช่วยเลือกองค์ประกอบ
 const fm=(v,d=0)=>Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d}); // จัดรูปแบบตัวเลขแบบไทย
@@ -1536,6 +1584,7 @@ const SPEC=[
   {id:'OB',name:'ตึกสูติกรรม (LR/หลังคลอด)',wards:['LR','PP'],x:-46,z:-4,w:20,d:11,fl:1,wall:'#fdf0f4'}, // ห้องคลอด + หลังคลอด
   {id:'MN',name:'ตึกมินิธัญญารักษ์',wards:['MN'],x:-4,z:-38,w:18,d:10,fl:1,wall:'#eef6f0'} // ตึกมินิธัญญารักษ์ ด้านหลัง
 ];
+SPEC.forEach(s=>{if(s.ll){const p=geo(s.ll[0],s.ll[1]);s.x=p.x;s.z=p.z}}); // อาคารที่ระบุ ll:[ละติจูด,ลองจิจูด] จะถูกวางตามพิกัดจริงโดยอัตโนมัติ
 const SLOTS=[[24,-40],[46,-40],[-26,-40],[66,-30]]; // ตำแหน่งสำรองสำหรับหอผู้ป่วยใหม่ที่ไม่อยู่ในผัง
 const FH=3.6; // ความสูงต่อชั้น (เมตร)
 const WALK=[[-2,16,-2,0.5,3],[-29,22,-25,22,3],[25,-6,37,-6,3],[-33,-4,-36,-4,3],[-46,-16,-46,-9.5,3],[-4,-33,-4,-12.5,3]]; // ทางเดินมีหลังคาเชื่อมอาคาร [x1,z1,x2,z2,กว้าง]
@@ -1584,14 +1633,14 @@ function css(){ // ฝังสไตล์ของการ์ด
 #b3 .b3v{position:relative;height:min(68svh,620px);min-height:360px;border-radius:16px;overflow:hidden;background:#0b1626}
 #b3 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
 #b3 canvas.dg{cursor:grabbing}#b3 canvas.pt{cursor:pointer}
-#b3 .b3chip{position:absolute;left:12px;top:12px;max-width:calc(100% - 100px);background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5;backdrop-filter:blur(6px)}
+#b3 .b3chip{position:absolute;left:12px;top:12px;max-width:calc(100% - 215px);background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5;backdrop-filter:blur(6px)}
 #b3 .b3chip b{font-weight:600}#b3 .b3chip a{color:#7fe0e6;text-decoration:none}#b3 .b3chip a:hover{text-decoration:underline}#b3 .b3chip small{display:block;opacity:.8;font-size:12px}
 #b3 .b3cmp{position:absolute;right:12px;top:12px;width:52px;height:52px;border-radius:50%;background:#0f2236d9;border:1px solid #ffffff26;display:grid;place-items:center;pointer-events:none}
 #b3 .b3cmp i{position:absolute;inset:6px;transition:transform .1s}#b3 .b3cmp i:before{content:"";position:absolute;left:50%;top:0;margin-left:-6px;border:6px solid transparent;border-bottom:16px solid #ff5d4a;border-top:0}
 #b3 .b3cmp b{position:absolute;top:2px;font-size:10px;color:#fff}
 #b3 .b3z{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px}
 #b3 .b3z button{width:38px;height:38px;border-radius:10px;border:1px solid #ffffff30;background:#0f2236d9;color:#fff;font-size:18px;cursor:pointer}
-#b3 .b3z button:hover{background:#1c3a57}#b3 .b3z{align-items:center}#b3 .b3z button.on{background:#0b7a8a}#b3 .b3zs{writing-mode:vertical-lr;direction:rtl;height:110px;width:22px;margin:0;accent-color:#27c4cf;cursor:pointer}#b3 .b3zp{font-family:inherit;font-size:11px;font-weight:700;line-height:1;color:#fff;background:#0f2236d9;border:1px solid #ffffff30;border-radius:6px;padding:3px 5px;min-width:40px;text-align:center}@media(pointer:coarse){#b3 .b3z [data-z=wheel]{display:none}#b3 .b3zs{height:80px}}
+#b3 .b3z button:hover{background:#1c3a57}#b3 .b3fs{position:absolute;right:72px;top:12px;height:38px;padding:0 12px;border-radius:10px;border:1px solid #ffffff30;background:#0f2236d9;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}#b3 .b3fs:hover{background:#1c3a57}#b3.fsx{display:flex;flex-direction:column;background:#0b1626}#b3.fsx .b3v{flex:1;height:auto;min-height:0;border-radius:0}#b3.fsx .b3p{display:none}#b3 .b3z{align-items:center}#b3 .b3z button.on{background:#0b7a8a}#b3 .b3zs{writing-mode:vertical-lr;direction:rtl;height:110px;width:22px;margin:0;accent-color:#27c4cf;cursor:pointer}#b3 .b3zp{font-family:inherit;font-size:11px;font-weight:700;line-height:1;color:#fff;background:#0f2236d9;border:1px solid #ffffff30;border-radius:6px;padding:3px 5px;min-width:40px;text-align:center}@media(pointer:coarse){#b3 .b3z [data-z=wheel]{display:none}#b3 .b3zs{height:80px}}
 #b3 .b3leg{position:absolute;left:12px;bottom:12px;display:flex;gap:12px;flex-wrap:wrap;background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:10px;padding:6px 10px;font-size:12px}
 #b3 .b3leg span{display:flex;align-items:center;gap:5px}#b3 .b3leg i{width:10px;height:10px;border-radius:50%;display:inline-block}
 #b3 .b3msg{position:absolute;inset:0;display:grid;place-items:center;color:#a9c2d6;font-size:14px;text-align:center;padding:20px;pointer-events:none}
@@ -1612,8 +1661,9 @@ function createDom(){ // สร้างกล่องการ์ด
   css(); // ฝังสไตล์
   wrap=document.createElement('div'); // กล่องนอกสุด
   wrap.id='b3'; // รหัสกล่อง
-  wrap.innerHTML=`<div class="b3v"><canvas id="b3c" aria-label="แบบจำลองอาคารโรงพยาบาล 3 มิติ"></canvas><div class="b3chip" id="b3chip"></div><div class="b3cmp" title="ทิศเหนือ"><i id="b3n"></i><b>N</b></div><div class="b3z"><button data-z="in" aria-label="ซูมเข้า" title="ซูมเข้า (กด +)">＋</button><input class="b3zs" type="range" min="0" max="100" value="50" step="1" aria-label="ระดับซูม" title="ลากเพื่อย่อ/ขยาย"><button data-z="out" aria-label="ซูมออก" title="ซูมออก (กด −)">−</button><output class="b3zp" title="ระดับซูม (100% = เห็นทั้งวิทยาเขต)">100%</output><button data-z="fit" aria-label="ดูทั้งหมด" title="ดูทั้งหมด เห็นทั้งวิทยาเขต (กด 0)">⤢</button><button data-z="wheel" aria-label="ใช้ล้อเมาส์ซูม" aria-pressed="false" title="เปิด/ปิด ใช้ล้อเมาส์ซูมได้เลย (ปกติต้องกด Ctrl ค้าง)">🖱</button><button data-z="home" aria-label="รีเซ็ตมุมมอง" title="รีเซ็ตมุมมองกลับค่าเริ่มต้น">⟲</button></div><div class="b3leg"><span><i style="background:${COL.ok}"></i>เบาบาง &lt; 70%</span><span><i style="background:${COL.mid}"></i>ปานกลาง 70–${occTarget()}%</span><span><i style="background:${COL.hi}"></i>หนาแน่น ≥ ${occTarget()}%</span><span><i style="background:${COL.na}"></i>ไม่มีข้อมูลเตียง</span></div><div class="b3msg" id="b3msg">กำลังโหลดแบบจำลอง 3 มิติ…</div></div><div class="b3p"><div class="b3d" id="b3info"></div><div class="b3l" id="b3list"></div></div>`; // โครงภายใน: ฉาก, ป้ายพิกัด, เข็มทิศ, ปุ่มซูม, คำอธิบายสี, ข้อความ, แผงรายละเอียด, รายการอาคาร
+  wrap.innerHTML=`<div class="b3v"><canvas id="b3c" aria-label="แบบจำลองอาคารโรงพยาบาล 3 มิติ"></canvas><div class="b3chip" id="b3chip"></div><div class="b3cmp" title="ทิศเหนือ"><i id="b3n"></i><b>N</b></div><button class="b3fs" aria-pressed="false" title="ขยายเต็มจอ">⛶ เต็มจอ</button><div class="b3z"><button data-z="in" aria-label="ซูมเข้า" title="ซูมเข้า (กด +)">＋</button><input class="b3zs" type="range" min="0" max="100" value="50" step="1" aria-label="ระดับซูม" title="ลากเพื่อย่อ/ขยาย"><button data-z="out" aria-label="ซูมออก" title="ซูมออก (กด −)">−</button><output class="b3zp" title="ระดับซูม (100% = เห็นทั้งวิทยาเขต)">100%</output><button data-z="fit" aria-label="ดูทั้งหมด" title="ดูทั้งหมด เห็นทั้งวิทยาเขต (กด 0)">⤢</button><button data-z="wheel" aria-label="ใช้ล้อเมาส์ซูม" aria-pressed="false" title="เปิด/ปิด ใช้ล้อเมาส์ซูมได้เลย (ปกติต้องกด Ctrl ค้าง)">🖱</button><button data-z="home" aria-label="รีเซ็ตมุมมอง" title="รีเซ็ตมุมมองกลับค่าเริ่มต้น">⟲</button></div><div class="b3leg"><span><i style="background:${COL.ok}"></i>เบาบาง &lt; 70%</span><span><i style="background:${COL.mid}"></i>ปานกลาง 70–${occTarget()}%</span><span><i style="background:${COL.hi}"></i>หนาแน่น ≥ ${occTarget()}%</span><span><i style="background:${COL.na}"></i>ไม่มีข้อมูลเตียง</span></div><div class="b3msg" id="b3msg">กำลังโหลดแบบจำลอง 3 มิติ…</div></div><div class="b3p"><div class="b3d" id="b3info"></div><div class="b3l" id="b3list"></div></div>`; // โครงภายใน: ฉาก, ป้ายพิกัด, เข็มทิศ, ปุ่มซูม, คำอธิบายสี, ข้อความ, แผงรายละเอียด, รายการอาคาร
   wrap.querySelector('#b3list').onclick=e=>{const b=e.target.closest('button');if(b)select(b.dataset.id,true)}; // กดรายการอาคาร → เลือกและโฟกัสกล้อง
+  if(window.fsBox)window.fsBox(wrap,wrap.querySelector('.b3fs'),()=>document.getElementById('b3host')); // ปุ่มขยายเต็มจอ ⇄ ย่อกลับ
   { // เครื่องมือย่อ/ขยาย: ＋ −, แถบเลื่อน, % ซูม, ดูทั้งหมด, ล้อเมาส์, แป้นพิมพ์ (+ − 0)
     const bar=wrap.querySelector('.b3z'),zs=bar.querySelector('.b3zs'),zp=bar.querySelector('.b3zp'),DMIN=40,DMAX=330; // ระยะกล้องใกล้สุด/ไกลสุด
     let sd=false,hv=false; // sd=กำลังลากแถบเลื่อน, hv=เมาส์อยู่บนการ์ด
@@ -1683,7 +1733,7 @@ function sunPos(date){ // คืนค่า {az: ทิศ (เรเดีย�
 const DIRS=['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ']; // ชื่อทิศ 8 ทาง
 
 /* ----- ฉาก 3D ----- */
-let T,renderer,scene,camera,cam,goal,sun,moon,hemi,amb,B=[],nightMats=[],ground,touched=false,need=true,hover=null,home; // ตัวแปรของฉาก
+let T,renderer,scene,camera,cam,goal,sun,moon,hemi,amb,B=[],nightMats=[],ground,touched=false,need=true,hover=null,home,pinOn=true,pinObj=null; // ตัวแปรของฉาก (pinOn=แสดงหมุดพิกัดอ้างอิง)
 const ray={}; // พื้นที่เก็บ Raycaster
 function rnd(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}} // ตัวสุ่มคงที่ (ได้ผลเหมือนเดิมทุกครั้ง)
 function bayCanvas(wall,emissive){ // วาดพื้นผิว 1 ช่องหน้าต่าง (1 ชั้น × 1 ช่วงเสา)
@@ -1845,9 +1895,21 @@ function buildScene(){ // สร้างฉากทั้งหมด (เร�
     lp.position.set(x,0,51);scene.add(lp) // วางเสา
   }
   nightMats.lamps=lampBulbs; // จำไว้ปรับตอนกลางคืน
+  { // หมุดพิกัดอ้างอิง (จุดกำเนิดของผัง) = ลำแสงแนวตั้งโปร่งใส + ป้ายพิกัด ไว้ตรวจว่าผังตรงตำแหน่งจริง
+    const g=new T.Group(),red='#ff3b30';
+    const beam=new T.Mesh(new T.CylinderGeometry(.16,.16,30,8),new T.MeshBasicMaterial({color:red,transparent:true,opacity:.5,depthWrite:false}));beam.position.y=15;g.add(beam); // ลำแสง
+    const ball=new T.Mesh(new T.SphereGeometry(.9,16,12),new T.MeshBasicMaterial({color:red}));ball.position.y=30.5;g.add(ball); // หัวหมุด
+    const ring=new T.Mesh(new T.RingGeometry(1.5,2.1,32),new T.MeshBasicMaterial({color:red,side:T.DoubleSide,transparent:true,opacity:.8}));ring.rotation.x=-Math.PI/2;ring.position.y=.2;g.add(ring); // วงที่พื้น
+    const c=document.createElement('canvas');c.width=640;c.height=130;const x=c.getContext('2d');
+    x.fillStyle='rgba(10,28,44,.92)';rr(x,4,4,632,122,24);x.fill();x.strokeStyle=red;x.lineWidth=4;rr(x,4,4,632,122,24);x.stroke();
+    x.textAlign='center';x.fillStyle='#fff';x.font='700 34px "Noto Sans Thai","Sarabun",system-ui,Tahoma,sans-serif';x.fillText('📍 พิกัดอ้างอิงของผัง',320,50);
+    x.fillStyle='#ffd0cc';x.font='600 33px "Noto Sans Thai","Sarabun",system-ui,Tahoma,sans-serif';x.fillText(COORD(),320,98); // ข้อความพิกัด DMS
+    const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false}));sp.scale.set(24,4.9,1);sp.position.y=36.5;sp.renderOrder=9;g.add(sp);
+    g.visible=pinOn;scene.add(g);pinObj=g}
   paint(models()); // สร้างอาคารทั้งหมดตามข้อมูล
   ray.r=new T.Raycaster();ray.v=new T.Vector2(); // ตัวยิงรังสีสำหรับคลิก
   sky(); // ตั้งแสงตามเวลาจริง
+  q('#b3chip').addEventListener('click',e=>{const a=e.target.closest('#b3pinb');if(!a)return;e.preventDefault();pinOn=!pinOn;if(pinObj)pinObj.visible=pinOn;a.textContent='📍 หมุด: '+(pinOn?'เปิด':'ปิด');need=true}); // เปิด/ปิดหมุดพิกัด
   bind(cv) // ผูกเหตุการณ์เมาส์/สัมผัส
 }
 const lerpC=(a,b,t)=>new T.Color(a).lerp(new T.Color(b),Math.max(0,Math.min(1,t))); // ผสมสี
@@ -1868,7 +1930,7 @@ function sky(){ // ตั้งแสง/สีท้องฟ้าตามต
   (nightMats.lamps||[]).forEach(b=>{b.material.emissiveIntensity=night*2}); // ไฟถนนติดตอนกลางคืน
   const t=now.toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'}); // เวลาไทย
   const dn=DIRS[Math.round(p.az/(Math.PI/4))%8]; // ชื่อทิศของดวงอาทิตย์
-  q('#b3chip').innerHTML=`<b>🏥 Hospital Yantakhao</b> · <a href="https://www.google.com/maps?q=${LAT},${LON}" target="_blank" rel="noopener">${LAT.toFixed(4)}°N ${LON.toFixed(4)}°E ↗</a><small>${alt>0?'☀':'🌙'} ${t} น. · ${alt>0?'ดวงอาทิตย์สูง '+Math.round(alt*180/Math.PI)+'° ทิศ'+dn:'กลางคืน — หน้าต่างและไฟถนนสว่าง'}</small>`; // ป้ายพิกัด + ลิงก์แผนที่ + ตำแหน่งดวงอาทิตย์
+  q('#b3chip').innerHTML=`<b>🏥 Hospital Yantakhao</b> · <a href="https://www.google.com/maps?q=${LAT},${LON}" target="_blank" rel="noopener">${COORD()} ↗</a><small><a href="#" id="b3pinb" title="เปิด/ปิดหมุดตำแหน่งอ้างอิงในฉาก">📍 หมุด: ${pinOn?'เปิด':'ปิด'}</a> · ${alt>0?'☀':'🌙'} ${t} น. · ${alt>0?'ดวงอาทิตย์สูง '+Math.round(alt*180/Math.PI)+'° ทิศ'+dn:'กลางคืน — หน้าต่างและไฟถนนสว่าง'}</small>`; // ป้ายพิกัด + ลิงก์แผนที่ + ตำแหน่งดวงอาทิตย์
   need=true // สั่งวาดใหม่
 }
 function bind(cv){ // ผูกการลาก/คลิก/ซูม
@@ -1927,7 +1989,9 @@ window.b3Mount=function(){ // แดชบอร์ดเรียกทุก�
   if(!host)return; // ไม่มีส่วนนี้ในหน้า
   DATA=window.__b3data||DATA; // ข้อมูลล่าสุดจากแดชบอร์ด
   if(!wrap)createDom(); // สร้างการ์ดครั้งแรก
-  if(wrap.parentNode!==host)host.appendChild(wrap); // ย้ายการ์ดเข้าที่ (แดชบอร์ดล้างหน้าทุกครั้งที่วาดใหม่)
+  if(window.clBox)window.clBox(host.closest('section'),'b3cl'); // ปุ่มปิด/เปิดการแสดงผล 3D ที่หัวการ์ด (หัวถูกสร้างใหม่ทุกครั้งที่วาดหน้า)
+  if(wrap.classList.contains('fsx')){if(wrap._fsph)host.appendChild(wrap._fsph)} // กำลังเต็มจออยู่: คงการ์ดไว้ แค่ย้ายตัวกั้นไปที่วางใหม่
+  else if(wrap.parentNode!==host)host.appendChild(wrap); // ย้ายการ์ดเข้าที่ (แดชบอร์ดล้างหน้าทุกครั้งที่วาดใหม่)
   refreshDom(); // อัปเดตข้อความ/รายการ/ป้ายในฉาก
   observe() // ผูกการโหลดฉาก 3D
 };
