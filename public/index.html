@@ -586,7 +586,7 @@ function render(cur,prev,a,b){
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
-   sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+
+   /* [ปิดการ์ดอาคาร] sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+ */
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
@@ -1483,7 +1483,7 @@ logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
 <script>
 /* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
-(function(){const L=[['sec1','ภาพรวม'],['secB','อาคาร'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+(function(){const L=[['sec1','ภาพรวม'],/* [ปิดการ์ดอาคาร] ['secB','อาคาร'], */['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
 const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
 n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
 const h=document.querySelector('header');h.after(n);
@@ -1630,7 +1630,7 @@ function css(){ // ฝังสไตล์ของการ์ด
   const s=document.createElement('style'); // แท็กสไตล์
   s.id='b3css'; // ตั้งรหัส
   s.textContent=`
-#b3 .b3v{position:relative;height:min(68svh,620px);min-height:360px;border-radius:16px;overflow:hidden;background:#0b1626} /* [ปิดฉาก3D] ซ่อนกรอบฉาก 3D (ลบท่อนหลังนี้ออกเมื่อจะเปิดกลับ) */#b3 .b3v{display:none}#b3 .b3p{margin-top:0}
+#b3 .b3v{position:relative;height:min(68svh,620px);min-height:360px;border-radius:16px;overflow:hidden;background:#0b1626}
 #b3 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
 #b3 canvas.dg{cursor:grabbing}#b3 canvas.pt{cursor:pointer}
 #b3 .b3chip{position:absolute;left:12px;top:12px;max-width:calc(100% - 215px);background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5;backdrop-filter:blur(6px)}
@@ -1993,7 +1993,7 @@ window.b3Mount=function(){ // แดชบอร์ดเรียกทุก�
   if(wrap.classList.contains('fsx')){if(wrap._fsph)host.appendChild(wrap._fsph)} // กำลังเต็มจออยู่: คงการ์ดไว้ แค่ย้ายตัวกั้นไปที่วางใหม่
   else if(wrap.parentNode!==host)host.appendChild(wrap); // ย้ายการ์ดเข้าที่ (แดชบอร์ดล้างหน้าทุกครั้งที่วาดใหม่)
   refreshDom(); // อัปเดตข้อความ/รายการ/ป้ายในฉาก
-  /* [ปิดฉาก3D] observe() */ // ผูกการโหลดฉาก 3D (ปิดไว้: ไม่สร้างฉาก 3D)
+  observe() // ผูกการโหลดฉาก 3D
 };
 setInterval(()=>{if(ready)sky()},60000); // ปรับแสงอาทิตย์ทุก 1 นาที
 if(window.__b3data&&document.getElementById('b3host'))window.b3Mount() // กรณีข้อมูลมาก่อนสคริปต์นี้
