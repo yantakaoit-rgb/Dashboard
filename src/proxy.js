@@ -27,13 +27,13 @@ export async function handleProxy(request, env = {}) {
   if (rest === 'ping') {
     const urlOk = /^https:\/\/[a-z0-9]+\.supabase\.co$/.test(base);
     const keyKind = key.startsWith('sb_') ? 'แบบ sb_ (publishable)' : key.startsWith('eyJ') ? 'แบบ JWT (anon)' : key ? 'รูปแบบไม่รู้จัก' : 'ยังไม่ได้ตั้งค่า';
-    return reply(200, `sb proxy OK | URL: ${base ? (urlOk ? 'รูปแบบถูกต้อง' : 'รูปแบบผิด (ต้องเป็น https://xxxx.supabase.co)') : 'ยังไม่ได้ตั้งค่า'} | KEY: ${keyKind}`);
+    return reply(200, `sb proxy v4 OK (src/proxy.js) | ตารางที่อนุญาต: hospital_*_stats, hospital_*_log (รวม hospital_visit_flow_stats, hospital_queue_call_log_stats) | URL: ${base ? (urlOk ? 'รูปแบบถูกต้อง' : 'รูปแบบผิด (ต้องเป็น https://xxxx.supabase.co)') : 'ยังไม่ได้ตั้งค่า'} | KEY: ${keyKind}`);
   }
 
   if (!base || !key) return reply(500, 'Server not configured: ตั้ง SUPABASE_URL และ SUPABASE_KEY ใน Environment variables ของแพลตฟอร์มที่ใช้ deploy แล้วหรือยัง');
 
   const m = rest.match(/^rest\/v1\/([^/]+)$/);
-  if (!m || !TABLE_RE.test(m[1])) return reply(404, 'Not Found: ตารางไม่ได้รับอนุญาต');
+  if (!m || !TABLE_RE.test(m[1])) return reply(404, 'Not Found: ตารางไม่ได้รับอนุญาต (' + String(m ? m[1] : rest).replace(/[^A-Za-z0-9_\/]/g, '').slice(0, 60) + ') — ต้องเป็นชื่อแบบ hospital_*_stats หรือ hospital_*_log');
 
   const headers = { apikey: key };
   if (!key.startsWith('sb_')) headers.Authorization = 'Bearer ' + key; // คีย์แบบใหม่ (sb_...) ไม่ใช่ JWT ห้ามส่งใน Authorization
