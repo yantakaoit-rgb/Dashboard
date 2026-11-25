@@ -586,7 +586,7 @@ function render(cur,prev,a,b){
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
-   /* [ปิดการ์ดอาคาร] sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+ */
+   sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
@@ -1483,7 +1483,7 @@ logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
 <script>
 /* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
-(function(){const L=[['sec1','ภาพรวม'],/* [ปิดการ์ดอาคาร] ['secB','อาคาร'], */['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+(function(){const L=[['sec1','ภาพรวม'],['secB','อาคาร'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
 const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
 n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
 const h=document.querySelector('header');h.after(n);

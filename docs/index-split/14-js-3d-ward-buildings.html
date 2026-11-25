@@ -1,0 +1,454 @@
+<script>
+/* ===== อาคารโรงพยาบาล 3 มิติ (แสดงใต้ "ภาพรวมโรงพยาบาล") · สีและแท่งตามข้อมูลเตียงจริง · แสงอาทิตย์คำนวณจากพิกัด ===== */
+(function(){ // ครอบด้วยฟังก์ชัน ไม่ให้ตัวแปรชนกับสคริปต์อื่น
+'use strict'; // เข้มงวดเรื่องตัวแปร
+const LAT=7+23/60+14.78/3600,LON=99+40/60+1.72/3600; // พิกัดอ้างอิงของผัง = 7°23'14.78"N 99°40'01.72"E (≈ 7.387439, 99.667144) → ใช้เป็นจุดกำเนิด (0,0) ของผัง คำนวณตำแหน่งดวงอาทิตย์/ลิงก์แผนที่/หมุด
+const geo=(la,lo)=>({x:(lo-LON)*111320*Math.cos(LAT*Math.PI/180),z:-(la-LAT)*110574}); // แปลงละติจูด/ลองจิจูด → เมตรในผัง (x=ตะวันออก, z=ใต้ เหนืออยู่ทาง −z)
+const dms=(v,p,n)=>{const a=Math.abs(v),d=Math.floor(a),m=Math.floor((a-d)*60),s=((a-d)*60-m)*60;return d+'°'+String(m).padStart(2,'0')+"'"+s.toFixed(2).padStart(5,'0')+'"'+(v>=0?p:n)}; // เลขทศนิยม → องศา°ลิปดา'ฟิลิปดา"
+const COORD=()=>dms(LAT,'N','S')+' '+dms(LON,'E','W'); // ข้อความพิกัดแบบ DMS
+const THREE_URL='https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'; // ไลบรารี 3D เวอร์ชันเดียวกับฉากห้องบริการ
+const q=s=>document.querySelector(s); // ตัวช่วยเลือกองค์ประกอบ
+const fm=(v,d=0)=>Number(v||0).toLocaleString('th-TH',{minimumFractionDigits:d,maximumFractionDigits:d}); // จัดรูปแบบตัวเลขแบบไทย
+const occTarget=()=>typeof TARGET!=='undefined'&&TARGET.occ?TARGET.occ:85; // เกณฑ์อัตราครองเตียงที่ถือว่าหนาแน่น (ใช้ค่าเดียวกับแดชบอร์ด)
+const COL={ok:'#2fd08a',mid:'#f5b441',hi:'#ff5d4a',na:'#8da4b8',opd:'#14a3a8',er:'#e2563c'}; // สีสถานะ: เบาบาง/ปานกลาง/หนาแน่น/ไม่มีข้อมูล/OPD/ER
+
+/* ----- ตัวโหลด three.js ที่ใช้ร่วมกับฉากห้องบริการ (โหลดครั้งเดียว) ----- */
+window.loadThree=window.loadThree||function(ok,err){ // ok=เรียกเมื่อโหลดเสร็จ, err=เรียกเมื่อพลาด
+  if(window.THREE){ok();return} // มีอยู่แล้ว ใช้ได้เลย
+  (window.__thq=window.__thq||[]).push([ok,err]); // เข้าคิวรอ
+  if(window.__thl)return; // กำลังโหลดอยู่แล้ว ไม่ต้องโหลดซ้ำ
+  window.__thl=1; // จดว่าเริ่มโหลดแล้ว
+  const s=document.createElement('script'); // สร้างแท็กสคริปต์
+  s.src=THREE_URL; // ที่อยู่ไลบรารี
+  s.onload=()=>{const a=window.__thq;window.__thq=[];a.forEach(x=>x[0]&&x[0]())}; // โหลดเสร็จ → เรียกทุกคนที่รออยู่
+  s.onerror=()=>{const a=window.__thq;window.__thq=[];window.__thl=0;a.forEach(x=>x[1]&&x[1]())}; // พลาด → แจ้งทุกคนที่รออยู่
+  document.head.appendChild(s) // เริ่มโหลด
+};
+
+/* ----- ผังอาคาร (เมตร: x=ตะวันออก, z=ทิศใต้, เหนืออยู่ทาง -z) · wards=รหัสหอผู้ป่วยในตาราง hospital_bed_occupancy_stats ----- */
+const SPEC=[
+  {id:'OPD',name:'ตึกผู้ป่วยนอก (OPD)',x:-2,z:24,w:46,d:16,fl:2,kind:'opd',wall:'#f3efe6'}, // อาคารผู้ป่วยนอก หน้าสุดของผัง
+  {id:'ER',name:'อุบัติเหตุ-ฉุกเฉิน (ER)',x:-40,z:22,w:22,d:15,fl:1,kind:'er',wall:'#fbeaea'}, // งานฉุกเฉิน ติดกับ OPD ทางซ้าย
+  {id:'W1',name:'ตึกผู้ป่วยใน 1',wards:['W1'],x:-4,z:-6,w:58,d:13,fl:3,wall:'#eef3f7'}, // ตึกผู้ป่วยในหลัก 3 ชั้น
+  {id:'W2',name:'ตึกผู้ป่วยใน 2',wards:['W2'],x:44,z:-10,w:14,d:34,fl:2,wall:'#eef3f7'}, // ตึกผู้ป่วยใน 2 ทางขวา
+  {id:'HW',name:'จิตเวชและยาเสพติด (HW)',wards:['HW'],x:-46,z:-22,w:24,d:12,fl:2,wall:'#f1eef7'}, // ตึกจิตเวช มุมซ้ายหลัง
+  {id:'OB',name:'ตึกสูติกรรม (LR/หลังคลอด)',wards:['LR','PP'],x:-46,z:-4,w:20,d:11,fl:1,wall:'#fdf0f4'}, // ห้องคลอด + หลังคลอด
+  {id:'MN',name:'ตึกมินิธัญญารักษ์',wards:['MN'],x:-4,z:-38,w:18,d:10,fl:1,wall:'#eef6f0'} // ตึกมินิธัญญารักษ์ ด้านหลัง
+];
+SPEC.forEach(s=>{if(s.ll){const p=geo(s.ll[0],s.ll[1]);s.x=p.x;s.z=p.z}}); // อาคารที่ระบุ ll:[ละติจูด,ลองจิจูด] จะถูกวางตามพิกัดจริงโดยอัตโนมัติ
+const SLOTS=[[24,-40],[46,-40],[-26,-40],[66,-30]]; // ตำแหน่งสำรองสำหรับหอผู้ป่วยใหม่ที่ไม่อยู่ในผัง
+const FH=3.6; // ความสูงต่อชั้น (เมตร)
+const WALK=[[-2,16,-2,0.5,3],[-29,22,-25,22,3],[25,-6,37,-6,3],[-33,-4,-36,-4,3],[-46,-16,-46,-9.5,3],[-4,-33,-4,-12.5,3]]; // ทางเดินมีหลังคาเชื่อมอาคาร [x1,z1,x2,z2,กว้าง]
+
+/* ----- ข้อมูล: รับจากแดชบอร์ด (window.__b3data) แล้วรวมเป็นรายอาคาร ----- */
+let DATA=null; // ข้อมูลล่าสุดจากแดชบอร์ด
+let SEL=null; // รหัสอาคารที่ถูกเลือก
+const status=o=>o==null?'na':o>=occTarget()?'hi':o>=70?'mid':'ok'; // แปลงอัตราครองเตียงเป็นสถานะสี
+function models(){ // สร้างรายการอาคารพร้อมข้อมูล (ใช้ทั้งฉาก 3D และรายการด้านล่าง)
+  const wm={},used=new Set(),out=[]; // wm=หอผู้ป่วยตามรหัส, used=รหัสที่จัดเข้าอาคารแล้ว
+  ((DATA&&DATA.wards)||[]).forEach(w=>{wm[w.code]=w}); // จัดหอผู้ป่วยตามรหัส
+  SPEC.forEach(sp=>{ // วนทุกอาคารในผัง
+    const m={spec:sp,id:sp.id,name:sp.name,ws:[]}; // m=ข้อมูลอาคารนี้
+    (sp.wards||[]).forEach(c=>{if(wm[c]){m.ws.push(wm[c]);used.add(c)}}); // เก็บหอผู้ป่วยที่อยู่ในอาคารนี้
+    out.push(m) // เพิ่มอาคาร
+  });
+  let k=0; // ตัวนับตำแหน่งสำรอง
+  Object.keys(wm).forEach(c=>{ // หอผู้ป่วยที่ไม่อยู่ในผัง
+    if(used.has(c)||k>=SLOTS.length)return; // จัดแล้วหรือที่เต็ม ข้าม
+    const w=wm[c],s=SLOTS[k++]; // ตำแหน่งสำรอง
+    out.push({spec:{id:'X_'+c,name:w.name||c,wards:[c],x:s[0],z:s[1],w:14,d:10,fl:1,wall:'#eef3f7'},id:'X_'+c,name:w.name||c,ws:[w]}) // สร้างอาคารใหม่ให้หอนี้
+  });
+  out.forEach(m=>{ // คำนวณยอดรวมของแต่ละอาคาร
+    m.total=m.ws.reduce((s,w)=>s+w.total,0); // เตียงทั้งหมด
+    m.used=m.ws.reduce((s,w)=>s+w.used,0); // เตียงที่ครอง
+    m.male=m.ws.reduce((s,w)=>s+w.male,0); // ผู้ป่วยชาย
+    m.female=m.ws.reduce((s,w)=>s+w.female,0); // ผู้ป่วยหญิง
+    m.occ=m.total>0?m.used/m.total*100:null; // อัตราครองเตียง (%)
+    m.st=m.spec.kind==='opd'?'opd':m.spec.kind==='er'?'er':status(m.occ); // สถานะสี
+    m.hasData=m.ws.length>0 // มีข้อมูลเตียงไหม
+  });
+  return out // คืนรายการอาคาร
+}
+function overall(ms){ // สรุปอัตราครองเตียงรวมทุกหอ
+  const t=ms.reduce((s,m)=>s+m.total,0),u=ms.reduce((s,m)=>s+m.used,0); // เตียงรวม / ที่ครองรวม
+  return{t,u,o:t>0?u/t*100:null} // คืนสรุป
+}
+
+/* ----- โครง HTML ของการ์ด (สร้างครั้งเดียว แล้วย้ายเข้า #b3host ทุกครั้งที่แดชบอร์ดวาดใหม่) ----- */
+let wrap=null,host=null,ready=false,vis=false; // wrap=กล่องการ์ด, host=ที่วาง, ready=ฉาก 3D พร้อม, vis=มองเห็นอยู่
+function css(){ // ฝังสไตล์ของการ์ด
+  if(q('#b3css'))return; // มีแล้ว
+  const s=document.createElement('style'); // แท็กสไตล์
+  s.id='b3css'; // ตั้งรหัส
+  s.textContent=`
+#b3 .b3v{position:relative;height:min(68svh,620px);min-height:360px;border-radius:16px;overflow:hidden;background:#0b1626}
+#b3 canvas{position:absolute;inset:0;width:100%;height:100%;display:block;touch-action:pan-y;cursor:grab}
+#b3 canvas.dg{cursor:grabbing}#b3 canvas.pt{cursor:pointer}
+#b3 .b3chip{position:absolute;left:12px;top:12px;max-width:calc(100% - 215px);background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:12px;padding:8px 12px;font-size:13px;line-height:1.5;backdrop-filter:blur(6px)}
+#b3 .b3chip b{font-weight:600}#b3 .b3chip a{color:#7fe0e6;text-decoration:none}#b3 .b3chip a:hover{text-decoration:underline}#b3 .b3chip small{display:block;opacity:.8;font-size:12px}
+#b3 .b3cmp{position:absolute;right:12px;top:12px;width:52px;height:52px;border-radius:50%;background:#0f2236d9;border:1px solid #ffffff26;display:grid;place-items:center;pointer-events:none}
+#b3 .b3cmp i{position:absolute;inset:6px;transition:transform .1s}#b3 .b3cmp i:before{content:"";position:absolute;left:50%;top:0;margin-left:-6px;border:6px solid transparent;border-bottom:16px solid #ff5d4a;border-top:0}
+#b3 .b3cmp b{position:absolute;top:2px;font-size:10px;color:#fff}
+#b3 .b3z{position:absolute;right:12px;bottom:12px;display:flex;flex-direction:column;gap:6px}
+#b3 .b3z button{width:38px;height:38px;border-radius:10px;border:1px solid #ffffff30;background:#0f2236d9;color:#fff;font-size:18px;cursor:pointer}
+#b3 .b3z button:hover{background:#1c3a57}#b3 .b3fs{position:absolute;right:72px;top:12px;height:38px;padding:0 12px;border-radius:10px;border:1px solid #ffffff30;background:#0f2236d9;color:#fff;font-family:inherit;font-size:13px;font-weight:700;cursor:pointer}#b3 .b3fs:hover{background:#1c3a57}#b3.fsx{display:flex;flex-direction:column;background:#0b1626}#b3.fsx .b3v{flex:1;height:auto;min-height:0;border-radius:0}#b3.fsx .b3p{display:none}#b3 .b3z{align-items:center}#b3 .b3z button.on{background:#0b7a8a}#b3 .b3zs{writing-mode:vertical-lr;direction:rtl;height:110px;width:22px;margin:0;accent-color:#27c4cf;cursor:pointer}#b3 .b3zp{font-family:inherit;font-size:11px;font-weight:700;line-height:1;color:#fff;background:#0f2236d9;border:1px solid #ffffff30;border-radius:6px;padding:3px 5px;min-width:40px;text-align:center}@media(pointer:coarse){#b3 .b3z [data-z=wheel]{display:none}#b3 .b3zs{height:80px}}
+#b3 .b3leg{position:absolute;left:12px;bottom:12px;display:flex;gap:12px;flex-wrap:wrap;background:#0f2236d9;color:#e8f1f8;border:1px solid #ffffff26;border-radius:10px;padding:6px 10px;font-size:12px}
+#b3 .b3leg span{display:flex;align-items:center;gap:5px}#b3 .b3leg i{width:10px;height:10px;border-radius:50%;display:inline-block}
+#b3 .b3msg{position:absolute;inset:0;display:grid;place-items:center;color:#a9c2d6;font-size:14px;text-align:center;padding:20px;pointer-events:none}
+#b3 .b3p{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:14px;margin-top:14px}
+@media(max-width:800px){#b3 .b3p{grid-template-columns:1fr}}
+#b3 .b3d{border:1px solid var(--line);border-radius:14px;padding:14px;background:#f7fafc;min-height:120px}
+#b3 .b3d .t{display:flex;align-items:center;gap:8px;font-size:15px;margin-bottom:10px}#b3 .b3d .t i{width:12px;height:12px;border-radius:50%}
+#b3 .b3d .g{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+#b3 .b3d .g div{background:#fff;border:1px solid var(--line);border-radius:10px;padding:8px 10px}#b3 .b3d small{display:block;color:var(--mut);font-size:12px}#b3 .b3d .g b{font-size:18px}
+#b3 .b3d p{margin:10px 0 0;color:var(--mut);font-size:12px}
+#b3 .b3l{display:flex;flex-direction:column;gap:6px}
+#b3 .b3l button{display:flex;align-items:center;gap:8px;text-align:left;border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 10px;font:inherit;font-size:13px;cursor:pointer}
+#b3 .b3l button:hover,#b3 .b3l button.on{border-color:var(--teal);background:#eefafa}#b3 .b3l button i{width:10px;height:10px;border-radius:50%;flex:none}#b3 .b3l button span{flex:1;min-width:0}#b3 .b3l button b{font-variant-numeric:tabular-nums}
+`; // กฎสไตล์ทั้งหมดของการ์ดอาคาร
+  document.head.appendChild(s) // ใส่ลงในหน้า
+}
+function createDom(){ // สร้างกล่องการ์ด
+  css(); // ฝังสไตล์
+  wrap=document.createElement('div'); // กล่องนอกสุด
+  wrap.id='b3'; // รหัสกล่อง
+  wrap.innerHTML=`<div class="b3v"><canvas id="b3c" aria-label="แบบจำลองอาคารโรงพยาบาล 3 มิติ"></canvas><div class="b3chip" id="b3chip"></div><div class="b3cmp" title="ทิศเหนือ"><i id="b3n"></i><b>N</b></div><button class="b3fs" aria-pressed="false" title="ขยายเต็มจอ">⛶ เต็มจอ</button><div class="b3z"><button data-z="in" aria-label="ซูมเข้า" title="ซูมเข้า (กด +)">＋</button><input class="b3zs" type="range" min="0" max="100" value="50" step="1" aria-label="ระดับซูม" title="ลากเพื่อย่อ/ขยาย"><button data-z="out" aria-label="ซูมออก" title="ซูมออก (กด −)">−</button><output class="b3zp" title="ระดับซูม (100% = เห็นทั้งวิทยาเขต)">100%</output><button data-z="fit" aria-label="ดูทั้งหมด" title="ดูทั้งหมด เห็นทั้งวิทยาเขต (กด 0)">⤢</button><button data-z="wheel" aria-label="ใช้ล้อเมาส์ซูม" aria-pressed="false" title="เปิด/ปิด ใช้ล้อเมาส์ซูมได้เลย (ปกติต้องกด Ctrl ค้าง)">🖱</button><button data-z="home" aria-label="รีเซ็ตมุมมอง" title="รีเซ็ตมุมมองกลับค่าเริ่มต้น">⟲</button></div><div class="b3leg"><span><i style="background:${COL.ok}"></i>เบาบาง &lt; 70%</span><span><i style="background:${COL.mid}"></i>ปานกลาง 70–${occTarget()}%</span><span><i style="background:${COL.hi}"></i>หนาแน่น ≥ ${occTarget()}%</span><span><i style="background:${COL.na}"></i>ไม่มีข้อมูลเตียง</span></div><div class="b3msg" id="b3msg">กำลังโหลดแบบจำลอง 3 มิติ…</div></div><div class="b3p"><div class="b3d" id="b3info"></div><div class="b3l" id="b3list"></div></div>`; // โครงภายใน: ฉาก, ป้ายพิกัด, เข็มทิศ, ปุ่มซูม, คำอธิบายสี, ข้อความ, แผงรายละเอียด, รายการอาคาร
+  wrap.querySelector('#b3list').onclick=e=>{const b=e.target.closest('button');if(b)select(b.dataset.id,true)}; // กดรายการอาคาร → เลือกและโฟกัสกล้อง
+  if(window.fsBox)window.fsBox(wrap,wrap.querySelector('.b3fs'),()=>document.getElementById('b3host')); // ปุ่มขยายเต็มจอ ⇄ ย่อกลับ
+  { // เครื่องมือย่อ/ขยาย: ＋ −, แถบเลื่อน, % ซูม, ดูทั้งหมด, ล้อเมาส์, แป้นพิมพ์ (+ − 0)
+    const bar=wrap.querySelector('.b3z'),zs=bar.querySelector('.b3zs'),zp=bar.querySelector('.b3zp'),DMIN=40,DMAX=330; // ระยะกล้องใกล้สุด/ไกลสุด
+    let sd=false,hv=false; // sd=กำลังลากแถบเลื่อน, hv=เมาส์อยู่บนการ์ด
+    const fitD=()=>{const v=wrap.querySelector('#b3c').parentNode;return v.clientWidth/(v.clientHeight||1)<1.2?230:160}; // ระยะที่เห็นทั้งวิทยาเขต (จอแคบถอยเพิ่ม)
+    const zset=d=>{cam.dist=Math.min(DMAX,Math.max(DMIN,d));touched=true;need=true};
+    const fit=()=>{cam.dist=fitD();goal.set(0,0,4);need=true}; // ดูทั้งหมด: คงมุมหมุนไว้
+    const d2v=d=>Math.round(Math.log(DMAX/d)/Math.log(DMAX/DMIN)*100),v2d=v=>DMAX*Math.pow(DMIN/DMAX,v/100); // ระยะ ⇄ ค่าแถบเลื่อน 0..100 (สเกลลอการิทึม)
+    wrap._wz=false; // ล้อเมาส์ซูมโดยไม่ต้องกด Ctrl
+    wrap._zs=()=>{if(!cam)return;const p=Math.round(fitD()/cam.dist*100)+'%';if(zp.textContent!==p)zp.textContent=p;if(!sd){const v=String(d2v(cam.dist));if(zs.value!==v)zs.value=v}}; // loop เรียกทุกครั้งที่วาด
+    zs.oninput=()=>{if(!ready)return;sd=true;zset(v2d(+zs.value))};zs.onchange=zs.onpointerup=()=>{sd=false};
+    bar.onclick=e=>{const b=e.target.closest('button');if(!b||!ready)return;const z=b.dataset.z;
+      if(z==='in')zset(cam.dist*.8);if(z==='out')zset(cam.dist/.8);if(z==='fit')fit();
+      if(z==='home'){home();touched=true;need=true}
+      if(z==='wheel'){wrap._wz=!wrap._wz;b.classList.toggle('on',wrap._wz);b.setAttribute('aria-pressed',wrap._wz)}};
+    wrap.addEventListener('pointerenter',()=>{hv=true});wrap.addEventListener('pointerleave',()=>{hv=false});
+    document.addEventListener('keydown',e=>{if(!hv||!ready||e.ctrlKey||e.metaKey||e.altKey||/INPUT|SELECT|TEXTAREA/.test(e.target.tagName||''))return;
+      if(e.key==='+'||e.key==='=')zset(cam.dist*.8);else if(e.key==='-'||e.key==='_')zset(cam.dist/.8);else if(e.key==='0')fit();else return;e.preventDefault()})
+  }
+}
+function refreshDom(){ // อัปเดตข้อความและรายการด้านล่างตามข้อมูล
+  if(!wrap)return; // ยังไม่มีกล่อง
+  const ms=models(),ov=overall(ms); // รายการอาคารและสรุปรวม
+  wrap.querySelector('#b3list').innerHTML=ms.map(m=>`<button data-id="${m.id}" class="${SEL===m.id?'on':''}"><i style="background:${COL[m.st]}"></i><span>${m.name}</span><b>${m.spec.kind?(m.spec.kind==='opd'?fm(DATA&&DATA.opdLast)+' ครั้ง':fm(DATA&&DATA.erLast)+' ครั้ง'):(m.occ==null?(m.used?m.used+' ราย':'-'):fm(m.occ,0)+'%')}</b></button>`).join(''); // รายการอาคาร: ชื่อ + ค่าหลัก
+  info(SEL?ms.find(m=>m.id===SEL):null,ms,ov); // แผงรายละเอียด
+  if(ready)paint(ms) // ปรับสีและป้ายในฉาก 3D
+}
+function info(m,ms,ov){ // แผงรายละเอียด (อาคารที่เลือก หรือภาพรวมทั้งโรงพยาบาล)
+  const el=wrap.querySelector('#b3info'); // กล่องแผง
+  const dt=DATA&&DATA.date?` · ข้อมูลวันที่ ${DATA.date}`:''; // ข้อความวันที่
+  if(!m){ // ยังไม่เลือกอาคาร → แสดงภาพรวม
+    el.innerHTML=`<div class="t"><b>ภาพรวมเตียงผู้ป่วยในทั้งโรงพยาบาล</b></div><div class="g"><div><small>เตียงที่ครอง</small><b>${fm(ov.u)} / ${fm(ov.t)}</b></div><div><small>อัตราครองเตียง</small><b>${ov.o==null?'-':fm(ov.o,1)+'%'}</b></div><div><small>เตียงว่าง</small><b>${fm(Math.max(ov.t-ov.u,0))}</b></div></div><p>คลิกอาคารในฉากหรือเลือกจากรายการเพื่อดูรายละเอียด${dt}</p>`; // สรุปรวม
+    return // จบ
+  }
+  const nm=`<div class="t"><i style="background:${COL[m.st]}"></i><b>${m.name}</b></div>`; // หัวเรื่อง
+  if(m.spec.kind){ // OPD หรือ ER
+    const last=m.spec.kind==='opd'?DATA&&DATA.opdLast:DATA&&DATA.erLast,sum=m.spec.kind==='opd'?DATA&&DATA.opd:DATA&&DATA.er; // ยอดล่าสุด/รวมช่วงที่เลือก
+    el.innerHTML=nm+`<div class="g"><div><small>ล่าสุด${DATA&&DATA.ld?' ('+DATA.ld+')':''}</small><b>${fm(last)} ครั้ง</b></div><div><small>รวมช่วงที่เลือก</small><b>${fm(sum)} ครั้ง</b></div><div><small>จำนวนชั้น</small><b>${m.spec.fl}</b></div></div>`; // ตัวเลขผู้ป่วย
+    return // จบ
+  }
+  el.innerHTML=nm+(m.hasData?`<div class="g"><div><small>เตียงที่ครอง</small><b>${fm(m.used)} / ${fm(m.total)}</b></div><div><small>อัตราครองเตียง</small><b>${m.occ==null?'ไม่กำหนดเตียง':fm(m.occ,1)+'%'}</b></div><div><small>เตียงว่าง</small><b>${m.total>0?fm(Math.max(m.total-m.used,0)):'-'}</b></div><div><small>ชาย / หญิง</small><b>${fm(m.male)} / ${fm(m.female)}</b></div></div><p>${m.ws.map(w=>w.name||w.code).join(' + ')} · ${m.spec.fl} ชั้น${dt}</p>`:`<p>ยังไม่มีข้อมูลเตียงของอาคารนี้${dt}</p>`) // ข้อมูลเตียงของอาคาร
+}
+function select(id,focus){ // เลือกอาคาร
+  SEL=SEL===id&&!focus?null:id; // กดซ้ำ = ยกเลิก (ยกเว้นเลือกจากรายการ)
+  if(!SEL&&ready)goal.set(0,0,4); // ยกเลิกการเลือก → กล้องกลับมามองกลางผัง
+  refreshDom(); // อัปเดตแผงและรายการ
+  if(ready){ // ฉาก 3D พร้อม
+    B.forEach(b=>{b.outline.visible=b.m.id===SEL}); // แสดงกรอบเหลืองรอบอาคารที่เลือก
+    const b=B.find(x=>x.m.id===SEL); // อาคารที่เลือก
+    if(b&&focus){goal.set(b.m.spec.x,0,b.m.spec.z);touched=true} // เลื่อนจุดมองไปที่อาคาร
+    need=true // สั่งวาดใหม่
+  }
+}
+
+/* ----- ดวงอาทิตย์: คำนวณตำแหน่งจากพิกัดและเวลาจริง (สูตรมาตรฐานทางดาราศาสตร์) ----- */
+function sunPos(date){ // คืนค่า {az: ทิศ (เรเดียน นับจากเหนือตามเข็ม), alt: มุมเงย}
+  const rad=Math.PI/180,days=date.valueOf()/864e5-0.5+2440588-2451545; // จำนวนวันนับจาก J2000
+  const M=rad*(357.5291+0.98560028*days); // มุมกลางของโลก
+  const C=rad*(1.9148*Math.sin(M)+0.02*Math.sin(2*M)+0.0003*Math.sin(3*M)); // สมการจุดศูนย์กลาง
+  const Lsun=M+C+rad*102.9372+Math.PI,e=rad*23.4397; // ลองจิจูดสุริยวิถี, ความเอียงของแกนโลก
+  const dec=Math.asin(Math.sin(e)*Math.sin(Lsun)); // เดคลิเนชัน
+  const ra=Math.atan2(Math.sin(Lsun)*Math.cos(e),Math.cos(Lsun)); // ไรต์แอสเซนชัน
+  const th=rad*(280.16+360.9856235*days)+rad*LON,H=th-ra,phi=rad*LAT; // เวลาดาราคติท้องถิ่น (ลองจิจูดตะวันออกเป็นบวก), มุมชั่วโมง, ละติจูด
+  const alt=Math.asin(Math.sin(phi)*Math.sin(dec)+Math.cos(phi)*Math.cos(dec)*Math.cos(H)); // มุมเงย
+  const az=Math.atan2(Math.sin(H),Math.cos(H)*Math.sin(phi)-Math.tan(dec)*Math.cos(phi))+Math.PI; // ทิศ นับจากเหนือ
+  return{az:(az+2*Math.PI)%(2*Math.PI),alt} // คืนผล
+}
+const DIRS=['เหนือ','ตะวันออกเฉียงเหนือ','ตะวันออก','ตะวันออกเฉียงใต้','ใต้','ตะวันตกเฉียงใต้','ตะวันตก','ตะวันตกเฉียงเหนือ']; // ชื่อทิศ 8 ทาง
+
+/* ----- ฉาก 3D ----- */
+let T,renderer,scene,camera,cam,goal,sun,moon,hemi,amb,B=[],nightMats=[],ground,touched=false,need=true,hover=null,home,pinOn=true,pinObj=null; // ตัวแปรของฉาก (pinOn=แสดงหมุดพิกัดอ้างอิง)
+const ray={}; // พื้นที่เก็บ Raycaster
+function rnd(seed){let s=seed>>>0;return()=>{s=(s*1664525+1013904223)>>>0;return s/4294967296}} // ตัวสุ่มคงที่ (ได้ผลเหมือนเดิมทุกครั้ง)
+function bayCanvas(wall,emissive){ // วาดพื้นผิว 1 ช่องหน้าต่าง (1 ชั้น × 1 ช่วงเสา)
+  const c=document.createElement('canvas'); // ผืนผ้าใบ
+  c.width=c.height=128; // ขนาด 128×128
+  const x=c.getContext('2d'); // ตัววาด
+  if(emissive){x.fillStyle='#000';x.fillRect(0,0,128,128);x.fillStyle='#ffd98a';x.fillRect(24,36,80,52);return c} // แบบเรืองแสงกลางคืน: เฉพาะหน้าต่าง
+  x.fillStyle=wall;x.fillRect(0,0,128,128); // สีผนัง
+  x.fillStyle='rgba(0,0,0,.10)';x.fillRect(0,116,128,12); // แนวพื้นชั้น
+  const g=x.createLinearGradient(0,36,0,88);g.addColorStop(0,'#a6cde0');g.addColorStop(1,'#4d7c96');x.fillStyle=g;x.fillRect(24,36,80,52); // กระจก
+  x.strokeStyle='#ffffffd0';x.lineWidth=4;x.strokeRect(24,36,80,52);x.beginPath();x.moveTo(64,36);x.lineTo(64,88);x.stroke(); // กรอบหน้าต่าง
+  return c // คืนผืนผ้าใบ
+}
+function facade(wall,ru,rv){ // สร้างวัสดุผนังที่มีหน้าต่าง ru×rv ช่อง
+  const mk=(cv)=>{const t=new T.CanvasTexture(cv);t.wrapS=t.wrapT=T.RepeatWrapping;t.repeat.set(ru,rv);t.anisotropy=4;return t}; // สร้างพื้นผิวแบบวนซ้ำ
+  const m=new T.MeshStandardMaterial({map:mk(bayCanvas(wall,false)),emissive:0xffffff,emissiveMap:mk(bayCanvas(wall,true)),emissiveIntensity:0,roughness:.85,metalness:0}); // วัสดุผนัง + หน้าต่างเรืองแสง
+  nightMats.push(m); // จดไว้ปรับความสว่างกลางคืน
+  return m // คืนวัสดุ
+}
+function box(w,h,d,col,x,y,z,cast=true){ // สร้างกล่องสี (ตัวช่วย)
+  const m=new T.Mesh(new T.BoxGeometry(w,h,d),new T.MeshStandardMaterial({color:col,roughness:.9})); // เมช + วัสดุ
+  m.position.set(x,y,z); // วางตำแหน่ง
+  m.castShadow=cast;m.receiveShadow=true; // เงา
+  return m // คืนเมช
+}
+function rr(x,a,b,w,h,r){x.beginPath();x.moveTo(a+r,b);x.arcTo(a+w,b,a+w,b+h,r);x.arcTo(a+w,b+h,a,b+h,r);x.arcTo(a,b+h,a,b,r);x.arcTo(a,b,a+w,b,r);x.closePath()} // วาดสี่เหลี่ยมมุมโค้ง
+function labelTex(title,sub,col){ // สร้างพื้นผิวป้ายลอยเหนืออาคาร
+  const c=document.createElement('canvas'); // ผืนผ้าใบ
+  c.width=512;c.height=150; // ขนาดป้าย
+  const x=c.getContext('2d'); // ตัววาด
+  x.fillStyle='rgba(10,28,44,.9)';rr(x,4,4,504,142,26);x.fill(); // พื้นป้าย
+  x.strokeStyle=col;x.lineWidth=4;rr(x,4,4,504,142,26);x.stroke(); // ขอบสีตามสถานะ
+  x.fillStyle=col;x.beginPath();x.arc(38,75,13,0,6.283);x.fill(); // จุดสถานะ
+  const f='"Noto Sans Thai","Sarabun",system-ui,Tahoma,sans-serif'; // ฟอนต์
+  let px=34;x.font='700 '+px+'px '+f;while(x.measureText(title).width>410&&px>20){px-=2;x.font='700 '+px+'px '+f} // ย่อชื่อให้พอดีป้าย
+  x.fillStyle='#fff';x.textBaseline='middle';x.fillText(title,64,52); // ชื่ออาคาร
+  x.font='500 27px '+f;x.fillStyle='#a9c2d6';x.fillText(sub,64,104); // บรรทัดรอง
+  const t=new T.CanvasTexture(c);t.anisotropy=4;return t // คืนพื้นผิว
+}
+function makeBuilding(m){ // สร้างอาคาร 1 หลังจากข้อมูลผัง
+  const sp=m.spec,H=sp.fl*FH,g=new T.Group(); // sp=ผัง, H=ความสูง, g=กลุ่มของอาคาร
+  g.position.set(sp.x,0,sp.z); // วางที่ตำแหน่งในผัง
+  const side=facade(sp.wall,Math.max(1,Math.round(sp.d/4)),sp.fl),front=facade(sp.wall,Math.max(1,Math.round(sp.w/4)),sp.fl); // ผนังข้าง/ผนังหน้า
+  const roof=new T.MeshStandardMaterial({color:'#9aa6ae',roughness:.9}),base=new T.MeshStandardMaterial({color:'#6b7680'}); // หลังคา/ฐาน
+  const body=new T.Mesh(new T.BoxGeometry(sp.w,H,sp.d),[side,side,roof,base,front,front]); // ตัวอาคาร (+x,-x,บน,ล่าง,+z,-z)
+  body.position.y=H/2;body.castShadow=true;body.receiveShadow=true; // ยกขึ้นจากพื้น + เงา
+  g.add(body); // ใส่ตัวอาคาร
+  const slab=box(sp.w+.8,.5,sp.d+.8,'#7d8890',0,H+.25,0); // แผ่นหลังคาเล็กน้อยยื่นออกมา
+  g.add(slab); // ใส่หลังคา
+  const r=rnd(sp.x*31+sp.z*17+7); // ตัวสุ่มของอาคารนี้
+  for(let i=0;i<3;i++)g.add(box(2.4,1.2,1.8,'#c9d0d5',(r()-.5)*sp.w*.7,H+1.1,(r()-.5)*sp.d*.5)); // เครื่องปรับอากาศบนหลังคา
+  const edge=new T.LineSegments(new T.EdgesGeometry(new T.BoxGeometry(sp.w+1,H+1,sp.d+1)),new T.LineBasicMaterial({color:0xffd34d})); // กรอบเหลืองตอนเลือก
+  edge.position.y=H/2;edge.visible=false;g.add(edge); // ซ่อนไว้ก่อน
+  let bar=null,fill=null; // แท่งแสดงอัตราครองเตียง
+  if(!sp.kind){ // เฉพาะหอผู้ป่วย
+    bar=new T.Group();bar.position.set(sp.w/2+1.6,0,sp.d/2-.2); // ตำแหน่งแท่งที่มุมหน้าขวา
+    const track=box(.9,H+3,.9,'#cfd8df',0,(H+3)/2,0,false); // รางแท่ง
+    const fg=new T.BoxGeometry(1.1,1,1.1);fg.translate(0,.5,0); // แท่งสีที่ยืดจากพื้น
+    fill=new T.Mesh(fg,new T.MeshStandardMaterial({color:COL.na,emissive:COL.na,emissiveIntensity:.25})); // วัสดุแท่ง
+    bar.add(track,fill);g.add(bar) // ใส่แท่ง
+  }
+  if(sp.kind==='opd'){ // เฉพาะตึก OPD: ชายคาทางเข้า
+    g.add(box(16,.5,9,'#c8d3da',0,4.6,sp.d/2+4)); // หลังคาชายคา
+    [[-7,4],[7,4]].forEach(p=>g.add(box(.6,4.4,.6,'#9fb0bb',p[0],2.2,sp.d/2+p[1]+.2))); // เสาชายคา
+    g.add(box(10,.2,7,'#5a6670',0,.1,sp.d/2+4,false)) // พื้นทางเข้า
+  }
+  if(sp.kind==='er'){ // เฉพาะตึก ER: ป้ายกากบาทแดง + ที่จอดรถพยาบาล
+    g.add(box(5,1.4,.7,'#e2332f',0,H+3,sp.d/2-1),box(1.4,5,.7,'#e2332f',0,H+3,sp.d/2-1)); // กากบาทบนหลังคา
+    g.add(box(11,.4,7.5,'#d9a3a0',-sp.w/2+2,4.9,sp.d/2+3.8)); // หลังคาจอดรถพยาบาล
+    [[-6.5,6],[-6.5,1],[3.5,6],[3.5,1]].forEach(p=>g.add(box(.5,4.9,.5,'#b88885',-sp.w/2+2+p[0]+1.5,2.45,sp.d/2+p[1]-.2))); // เสาหลังคา
+    const amb=new T.Group();amb.position.set(-sp.w/2+3.5,0,sp.d/2+3.8); // รถพยาบาล
+    amb.add(box(5,2,2.2,'#f4f7f9',0,1.4,0),box(1.8,1.5,2.1,'#f4f7f9',2.9,1.1,0),box(5,.35,2.25,'#e2332f',0,1.3,0));g.add(amb) // ตัวรถ + หัวรถ + แถบแดง
+  }
+  const sprite=new T.Sprite(new T.SpriteMaterial({map:labelTex(m.name,'',COL.na),transparent:true,depthTest:false})); // ป้ายลอย
+  sprite.scale.set(26,7.6,1);sprite.position.set(0,H+8,0);sprite.renderOrder=10;g.add(sprite); // ขนาด/ตำแหน่งป้าย
+  scene.add(g); // ใส่ในฉาก
+  body.userData.id=m.id; // ผูกรหัสอาคารกับตัวเมช (ใช้ตอนคลิก)
+  return{m,g,body,outline:edge,fill,bar,sprite,H} // คืนโครงสร้างอาคาร
+}
+function paint(ms){ // ปรับสีแท่ง/ป้ายตามข้อมูลล่าสุด และสร้างอาคารเพิ่มถ้ามีหอใหม่
+  ms.forEach(m=>{ // วนทุกอาคาร
+    let b=B.find(x=>x.m.id===m.id); // หาอาคารในฉาก
+    if(!b){b=makeBuilding(m);B.push(b);b.outline.visible=SEL===m.id} // ยังไม่มี → สร้าง
+    b.m=m; // อัปเดตข้อมูล
+    const col=COL[m.st]; // สีสถานะ
+    if(b.fill){ // มีแท่ง
+      const k=m.occ==null?1:Math.max(.04,Math.min(1,m.occ/100)); // สัดส่วนความสูงของแท่ง
+      b.fill.scale.y=(b.H+3)*k; // ยืดแท่ง
+      b.fill.material.color.set(col);b.fill.material.emissive.set(col) // เปลี่ยนสีแท่ง
+    }
+    const sub=m.spec.kind?(m.spec.kind==='opd'?'ผู้ป่วยนอก '+fm(DATA&&DATA.opdLast)+' ครั้ง':'ER '+fm(DATA&&DATA.erLast)+' ครั้ง'):(m.hasData?(m.total>0?'ครอง '+fm(m.used)+'/'+fm(m.total)+' · '+fm(m.occ,0)+'%':'ครอง '+fm(m.used)+' ราย'):'ไม่มีข้อมูลเตียง'); // ข้อความรองในป้าย
+    const key=m.name+'|'+sub+'|'+col; // ลายเซ็นป้าย ไม่เปลี่ยนไม่ต้องวาดใหม่
+    if(b.key!==key){ // ข้อความเปลี่ยน
+      b.key=key; // จำลายเซ็น
+      if(b.sprite.material.map)b.sprite.material.map.dispose(); // คืนหน่วยความจำพื้นผิวเก่า
+      b.sprite.material.map=labelTex(m.name,sub,col);b.sprite.material.needsUpdate=true // วาดป้ายใหม่
+    }
+  });
+  need=true // สั่งวาดใหม่
+}
+function buildScene(){ // สร้างฉากทั้งหมด (เรียกครั้งเดียวหลัง three.js พร้อม)
+  const cv=q('#b3c'); // ผืนผ้าใบ
+  renderer=new T.WebGLRenderer({canvas:cv,antialias:true}); // ตัววาด 3D
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1,2)); // ความคมชัด
+  renderer.shadowMap.enabled=true;renderer.shadowMap.type=T.PCFSoftShadowMap; // เงานุ่ม
+  scene=new T.Scene(); // ฉาก
+  scene.background=new T.Color('#bfe3f5');scene.fog=new T.Fog('#bfe3f5',260,620); // ท้องฟ้า + หมอกไกล
+  camera=new T.PerspectiveCamera(38,1.8,1,1400); // กล้อง
+  cam={az:.62,el:.5,dist:160,tgt:new T.Vector3(0,0,4)}; // มุมกล้อง: ทิศ, เงย, ระยะ, จุดมอง
+  goal=new T.Vector3(0,0,4); // จุดมองเป้าหมาย (เลื่อนนุ่ม ๆ)
+  home=()=>{cam.az=.62;cam.el=.5;cam.dist=160;goal.set(0,0,4)}; // รีเซ็ตมุมมอง
+  hemi=new T.HemisphereLight('#dff1ff','#6b8f5a',.8);scene.add(hemi); // แสงท้องฟ้า/พื้น
+  amb=new T.AmbientLight('#ffffff',.1);scene.add(amb); // แสงรอบทิศเบา ๆ
+  sun=new T.DirectionalLight('#fff3d6',1.05); // แสงอาทิตย์
+  sun.castShadow=true;sun.shadow.mapSize.set(2048,2048); // เปิดเงา
+  const sc=sun.shadow.camera;sc.left=-110;sc.right=110;sc.top=100;sc.bottom=-100;sc.near=10;sc.far=700;sun.shadow.bias=-.0004; // ขอบเขตเงาครอบทั้งโรงพยาบาล
+  scene.add(sun,sun.target); // ใส่แสงอาทิตย์
+  moon=new T.DirectionalLight('#8fb0ff',0);moon.position.set(-80,120,60);scene.add(moon); // แสงจันทร์ (เปิดตอนกลางคืน)
+  ground=new T.Mesh(new T.PlaneGeometry(1200,1200),new T.MeshStandardMaterial({color:'#5f9450',roughness:1})); // พื้นหญ้า (ใหญ่กว่าผังมาก จนขอบกลืนไปกับหมอก)
+  ground.rotation.x=-Math.PI/2;ground.receiveShadow=true;scene.add(ground); // วางราบ + รับเงา
+  const road=(x,z,w,d)=>{const m=box(w,.12,d,'#4b545c',x,.06,z,false);scene.add(m)}; // ตัวช่วยสร้างถนน
+  road(0,56,260,9);road(-2,44,9,22); // ถนนหน้าโรงพยาบาล + ถนนเข้าตึก OPD
+  for(let x=-120;x<120;x+=10)scene.add(box(4,.14,.35,'#f2f2f2',x,.13,56,false)); // เส้นประกลางถนน
+  scene.add(box(40,.1,24,'#59626a',70,.05,38,false)); // ลานจอดรถ
+  for(let i=0;i<9;i++)scene.add(box(.3,.12,10,'#f2f2f2',54+i*4,.12,38,false)); // เส้นช่องจอด
+  const cr=rnd(11),carCols=['#d8dde1','#2f5d8a','#b53a32','#222a30','#e9e2d0','#4a7a55']; // ตัวสุ่ม + สีรถ
+  for(let i=0;i<8;i++){ // รถในลานจอด
+    const cx=56+i*4,cz=cr()<.5?34:42,car=new T.Group(),c=carCols[Math.floor(cr()*carCols.length)]; // ตำแหน่ง + สี
+    if(cr()<.35)continue; // บางช่องว่าง
+    car.add(box(1.8,1.2,4,c,0,.8,0),box(1.6,.9,2.2,'#2a3640',0,1.7,-.1)); // ตัวรถ + ห้องโดยสาร
+    car.position.set(cx,0,cz);scene.add(car) // วางรถ
+  }
+  WALK.forEach(w=>{ // ทางเดินมีหลังคาเชื่อมอาคาร
+    const len=Math.hypot(w[2]-w[0],w[3]-w[1]),ang=Math.atan2(w[3]-w[1],w[2]-w[0]),g=new T.Group(); // ความยาว/มุม
+    g.add(box(len,.3,w[4],'#cfd6db',0,.15,0,false),box(len,.3,w[4]+.8,'#8b979f',0,3.2,0),box(len,2.6,.25,'#a7c4d6',0,1.7,w[4]/2),box(len,2.6,.25,'#a7c4d6',0,1.7,-w[4]/2)); // พื้น + หลังคา + ผนังกระจก
+    g.position.set((w[0]+w[2])/2,0,(w[1]+w[3])/2);g.rotation.y=-ang;scene.add(g) // วางและหมุนตามแนว
+  });
+  const tr=rnd(5),spots=[]; // ตัวสุ่มต้นไม้
+  const inside=(x,z,mg)=>SPEC.some(s=>Math.abs(x-s.x)<s.w/2+mg&&Math.abs(z-s.z)<s.d/2+mg)||(z>48&&z<64)||(x>48&&x<92&&z>24&&z<52)||(Math.abs(x+2)<7&&z>30&&z<52); // ตำแหน่งที่ห้ามปลูก (อาคาร ถนน ลานจอด)
+  for(let i=0;i<260&&spots.length<70;i++){ // ลองสุ่มตำแหน่งต้นไม้
+    const x=(tr()-.5)*230,z=(tr()-.5)*165; // ตำแหน่งสุ่ม
+    if(inside(x,z,6))continue; // ชนอาคาร/ถนน ข้าม
+    spots.push([x,z]) // เก็บตำแหน่ง
+  }
+  spots.forEach(p=>{ // วางต้นไม้
+    const h=3+tr()*2.5,t=new T.Group(); // ความสูง + กลุ่มต้นไม้
+    t.add(box(.5,h,.5,'#6b4a2f',0,h/2,0),new T.Mesh(new T.SphereGeometry(2+tr()*1.4,8,6),new T.MeshStandardMaterial({color:tr()<.5?'#3f8a4a':'#2f7a3f',roughness:1}))); // ลำต้น + พุ่มใบ
+    t.children[1].position.y=h+1.4;t.children[1].castShadow=true;t.position.set(p[0],0,p[1]);scene.add(t) // ยกพุ่มใบ + วางต้นไม้
+  });
+  const sg=new T.Group(); // ป้ายหน้าโรงพยาบาล
+  const sc2=document.createElement('canvas');sc2.width=1024;sc2.height=200;const sx=sc2.getContext('2d'); // ผืนผ้าใบป้าย
+  sx.fillStyle='#0f8f96';sx.fillRect(0,0,1024,200);sx.fillStyle='#fff';sx.font='700 80px "Noto Sans Thai",system-ui,sans-serif';sx.textAlign='center';sx.textBaseline='middle';sx.fillText('Hospital Yantakhao',512,100); // ข้อความป้าย
+  const signMat=new T.MeshBasicMaterial({map:new T.CanvasTexture(sc2)}); // วัสดุป้าย
+  const sign=new T.Mesh(new T.PlaneGeometry(20,3.9),signMat);sign.position.set(-22,4.2,50.8);sg.add(sign,box(.5,4,.5,'#555',-31,2,50.8),box(.5,4,.5,'#555',-13,2,50.8));scene.add(sg); // แผ่นป้าย + เสา
+  const lampBulbs=[]; // หลอดไฟถนน
+  for(let x=-100;x<=100;x+=25){ // เสาไฟริมถนน
+    const lp=new T.Group();lp.add(box(.25,6,.25,'#444',0,3,0));
+    const bulb=new T.Mesh(new T.SphereGeometry(.6,8,6),new T.MeshStandardMaterial({color:'#fff7d6',emissive:'#ffe9a8',emissiveIntensity:0}));bulb.position.y=6.2;lp.add(bulb);lampBulbs.push(bulb); // หลอดไฟ
+    lp.position.set(x,0,51);scene.add(lp) // วางเสา
+  }
+  nightMats.lamps=lampBulbs; // จำไว้ปรับตอนกลางคืน
+  { // หมุดพิกัดอ้างอิง (จุดกำเนิดของผัง) = ลำแสงแนวตั้งโปร่งใส + ป้ายพิกัด ไว้ตรวจว่าผังตรงตำแหน่งจริง
+    const g=new T.Group(),red='#ff3b30';
+    const beam=new T.Mesh(new T.CylinderGeometry(.16,.16,30,8),new T.MeshBasicMaterial({color:red,transparent:true,opacity:.5,depthWrite:false}));beam.position.y=15;g.add(beam); // ลำแสง
+    const ball=new T.Mesh(new T.SphereGeometry(.9,16,12),new T.MeshBasicMaterial({color:red}));ball.position.y=30.5;g.add(ball); // หัวหมุด
+    const ring=new T.Mesh(new T.RingGeometry(1.5,2.1,32),new T.MeshBasicMaterial({color:red,side:T.DoubleSide,transparent:true,opacity:.8}));ring.rotation.x=-Math.PI/2;ring.position.y=.2;g.add(ring); // วงที่พื้น
+    const c=document.createElement('canvas');c.width=640;c.height=130;const x=c.getContext('2d');
+    x.fillStyle='rgba(10,28,44,.92)';rr(x,4,4,632,122,24);x.fill();x.strokeStyle=red;x.lineWidth=4;rr(x,4,4,632,122,24);x.stroke();
+    x.textAlign='center';x.fillStyle='#fff';x.font='700 34px "Noto Sans Thai","Sarabun",system-ui,Tahoma,sans-serif';x.fillText('📍 พิกัดอ้างอิงของผัง',320,50);
+    x.fillStyle='#ffd0cc';x.font='600 33px "Noto Sans Thai","Sarabun",system-ui,Tahoma,sans-serif';x.fillText(COORD(),320,98); // ข้อความพิกัด DMS
+    const sp=new T.Sprite(new T.SpriteMaterial({map:new T.CanvasTexture(c),transparent:true,depthTest:false}));sp.scale.set(24,4.9,1);sp.position.y=36.5;sp.renderOrder=9;g.add(sp);
+    g.visible=pinOn;scene.add(g);pinObj=g}
+  paint(models()); // สร้างอาคารทั้งหมดตามข้อมูล
+  ray.r=new T.Raycaster();ray.v=new T.Vector2(); // ตัวยิงรังสีสำหรับคลิก
+  sky(); // ตั้งแสงตามเวลาจริง
+  q('#b3chip').addEventListener('click',e=>{const a=e.target.closest('#b3pinb');if(!a)return;e.preventDefault();pinOn=!pinOn;if(pinObj)pinObj.visible=pinOn;a.textContent='📍 หมุด: '+(pinOn?'เปิด':'ปิด');need=true}); // เปิด/ปิดหมุดพิกัด
+  bind(cv) // ผูกเหตุการณ์เมาส์/สัมผัส
+}
+const lerpC=(a,b,t)=>new T.Color(a).lerp(new T.Color(b),Math.max(0,Math.min(1,t))); // ผสมสี
+function sky(){ // ตั้งแสง/สีท้องฟ้าตามตำแหน่งดวงอาทิตย์จริง
+  if(!ready&&!scene)return; // ฉากยังไม่พร้อม
+  const now=new Date(),p=sunPos(now),alt=p.alt; // ตำแหน่งดวงอาทิตย์ตอนนี้
+  const dist=300,ca=Math.cos(Math.max(alt,.12)); // ระยะแสง (กันแสงต่ำเกินไปจนเงายาวผิดปกติ)
+  sun.position.set(Math.sin(p.az)*ca*dist,Math.sin(Math.max(alt,.12))*dist,-Math.cos(p.az)*ca*dist); // ทิศแสงจากทิศ/มุมเงยจริง (เหนืออยู่ทาง -z)
+  const day=Math.max(0,Math.min(1,(alt+.05)/.35)),night=Math.max(0,Math.min(1,(.06-alt)/.2)); // day=ความเป็นกลางวัน, night=ความเป็นกลางคืน
+  sun.intensity=alt>0?.15+.5*Math.min(1,alt/.5):0; // แสงอาทิตย์แรงตามมุมเงย (ไม่แรงเกินจนสีซีด)
+  sun.color.set(lerpC('#ff9a52','#fff3d6',alt/.5)); // สีแสง: ส้มตอนเช้า/เย็น ขาวนวลตอนกลางวัน
+  moon.intensity=.35*night; // แสงจันทร์กลางคืน
+  hemi.intensity=.14+.3*day; // แสงฟ้า
+  const skyc=lerpC(lerpC('#0b1626','#f2a46a',1-night*1),'#bfe3f5',day); // ท้องฟ้า: คืน→เย็น→วัน
+  scene.background=skyc;scene.fog.color.copy(skyc); // ตั้งสีท้องฟ้า/หมอก
+  ground.material.color.set(lerpC('#22332a','#5f9450',day)); // สีหญ้าตามแสง
+  nightMats.forEach(m=>{m.emissiveIntensity=night*1.1}); // หน้าต่างสว่างตอนกลางคืน
+  (nightMats.lamps||[]).forEach(b=>{b.material.emissiveIntensity=night*2}); // ไฟถนนติดตอนกลางคืน
+  const t=now.toLocaleTimeString('th-TH',{timeZone:'Asia/Bangkok',hour:'2-digit',minute:'2-digit'}); // เวลาไทย
+  const dn=DIRS[Math.round(p.az/(Math.PI/4))%8]; // ชื่อทิศของดวงอาทิตย์
+  q('#b3chip').innerHTML=`<b>🏥 Hospital Yantakhao</b> · <a href="https://www.google.com/maps?q=${LAT},${LON}" target="_blank" rel="noopener">${COORD()} ↗</a><small><a href="#" id="b3pinb" title="เปิด/ปิดหมุดตำแหน่งอ้างอิงในฉาก">📍 หมุด: ${pinOn?'เปิด':'ปิด'}</a> · ${alt>0?'☀':'🌙'} ${t} น. · ${alt>0?'ดวงอาทิตย์สูง '+Math.round(alt*180/Math.PI)+'° ทิศ'+dn:'กลางคืน — หน้าต่างและไฟถนนสว่าง'}</small>`; // ป้ายพิกัด + ลิงก์แผนที่ + ตำแหน่งดวงอาทิตย์
+  need=true // สั่งวาดใหม่
+}
+function bind(cv){ // ผูกการลาก/คลิก/ซูม
+  let dn=null,mv=0; // dn=ตำแหน่งที่กดลง, mv=ระยะที่ลาก
+  const pick=e=>{const r=cv.getBoundingClientRect();ray.v.set((e.clientX-r.left)/r.width*2-1,-((e.clientY-r.top)/r.height)*2+1);ray.r.setFromCamera(ray.v,camera);const h=ray.r.intersectObjects(B.map(b=>b.body),false);return h.length?h[0].object.userData.id:null}; // หาอาคารที่ชี้
+  cv.addEventListener('pointerdown',e=>{dn={x:e.clientX,y:e.clientY,az:cam.az,el:cam.el};mv=0;cv.setPointerCapture(e.pointerId);cv.classList.add('dg');touched=true}); // เริ่มลาก
+  cv.addEventListener('pointermove',e=>{ // ลาก/เลื่อนเมาส์
+    if(dn){const dx=e.clientX-dn.x,dy=e.clientY-dn.y;mv=Math.max(mv,Math.abs(dx)+Math.abs(dy));cam.az=dn.az-dx*.006;cam.el=Math.max(.12,Math.min(1.35,dn.el+dy*.005));need=true;return} // กำลังลาก → หมุนกล้อง
+    const id=pick(e);if(id!==hover){hover=id;cv.classList.toggle('pt',!!id)} // ไม่ได้ลาก → ไฮไลต์เมาส์ชี้
+  });
+  cv.addEventListener('pointerup',e=>{cv.classList.remove('dg');if(dn&&mv<5){const id=pick(e);if(id)select(id,false);else if(SEL)select(SEL,false)}dn=null}); // ปล่อย: ถ้าไม่ได้ลากถือเป็นคลิก
+  cv.addEventListener('pointercancel',()=>{dn=null;cv.classList.remove('dg')}); // ยกเลิกการลาก
+  cv.addEventListener('wheel',e=>{if(!(e.ctrlKey||e.metaKey||(wrap&&wrap._wz)))return;e.preventDefault();cam.dist=Math.max(40,Math.min(330,cam.dist*(e.deltaY>0?1.1:.9)));touched=true;need=true},{passive:false}); // Ctrl + ล้อเมาส์ = ซูม (ล้อปกติใช้เลื่อนหน้า)
+  new ResizeObserver(()=>{need=true;resize()}).observe(cv.parentNode) // ปรับขนาดตามกรอบ
+}
+function resize(){ // ปรับขนาดตัววาดและอัตราส่วนกล้อง
+  if(!renderer)return; // ยังไม่พร้อม
+  const v=q('#b3c').parentNode,w=v.clientWidth||800,h=v.clientHeight||500; // ขนาดกรอบ
+  renderer.setSize(w,h,false);camera.aspect=w/h;camera.updateProjectionMatrix(); // ตั้งขนาด + อัตราส่วน
+  if(w/h<1.2)cam.dist=Math.max(cam.dist,230) // จอแคบ (มือถือ) ถอยกล้องให้เห็นครบ
+}
+let last=0; // เวลาเฟรมก่อนหน้า
+function loop(t){ // วนวาดเฉพาะตอนมองเห็นการ์ด
+  if(!vis){running=false;return} // ไม่เห็นแล้ว หยุดวน
+  requestAnimationFrame(loop); // เรียกเฟรมถัดไป
+  const dt=Math.min(.1,(t-last)/1000||0);last=t; // เวลาที่ผ่านไป (วินาที)
+  if(!touched){cam.az+=dt*.045;need=true} // ยังไม่มีใครแตะ → หมุนกล้องช้า ๆ
+  if(cam.tgt.distanceTo(goal)>.05){cam.tgt.lerp(goal,Math.min(1,dt*5));need=true} // เลื่อนจุดมองไปหาเป้าหมายนุ่ม ๆ
+  if(!need)return; // ไม่มีอะไรเปลี่ยน ไม่ต้องวาด
+  need=false; // วาดแล้ว
+  if(wrap&&wrap._zs)wrap._zs(); // อัปเดต % ซูมและแถบเลื่อน
+  const ce=Math.cos(cam.el);camera.position.set(cam.tgt.x+Math.sin(cam.az)*ce*cam.dist,cam.tgt.y+Math.sin(cam.el)*cam.dist,cam.tgt.z+Math.cos(cam.az)*ce*cam.dist);camera.lookAt(cam.tgt); // ตำแหน่งกล้องจากมุม/ระยะ
+  q('#b3n').style.transform='rotate('+(cam.az*180/Math.PI)+'deg)'; // หมุนเข็มทิศตามมุมกล้อง
+  renderer.render(scene,camera) // วาดภาพ
+}
+let running=false; // กำลังวนวาดอยู่ไหม
+function start(){if(running||!ready)return;running=true;last=performance.now();requestAnimationFrame(loop)} // เริ่มวนวาด
+
+/* ----- จุดเชื่อมกับแดชบอร์ด ----- */
+function observe(){ // เปิดฉาก 3D เมื่อการ์ดเลื่อนมาใกล้จอ และหยุดวาดเมื่อพ้นจอ
+  if(wrap._obs)return; // ผูกแล้ว
+  wrap._obs=1; // จดว่าผูกแล้ว
+  const go=()=>{ // โหลด three.js แล้วสร้างฉาก
+    if(ready||wrap._ld)return; // สร้างแล้ว หรือกำลังโหลด
+    wrap._ld=1; // จดว่ากำลังโหลด
+    window.loadThree(()=>{ // โหลดเสร็จ
+      try{T=window.THREE;buildScene();ready=true;q('#b3msg').style.display='none';resize();refreshDom();start()} // สร้างฉาก
+      catch(e){q('#b3msg').textContent='แสดงผล 3 มิติไม่ได้ในอุปกรณ์นี้ ('+e.message+') — ดูรายการอาคารด้านล่างแทน';console.error(e)} // WebGL ใช้ไม่ได้
+    },()=>{q('#b3msg').textContent='โหลดไลบรารี 3 มิติไม่สำเร็จ — ตรวจอินเทอร์เน็ต'}) // โหลดไม่สำเร็จ
+  };
+  if(window.IntersectionObserver)new IntersectionObserver(es=>{vis=es[0].isIntersecting;if(vis){go();start()}},{rootMargin:'300px'}).observe(wrap.querySelector('.b3v')); // ดูว่าการ์ดอยู่ในจอไหม
+  else{vis=true;go()} // เบราว์เซอร์เก่า: โหลดเลย
+}
+window.b3Mount=function(){ // แดชบอร์ดเรียกทุกครั้งที่วาดหน้าใหม่ (และเมื่อมีข้อมูลใหม่)
+  host=document.getElementById('b3host'); // ที่วางการ์ด
+  if(!host)return; // ไม่มีส่วนนี้ในหน้า
+  DATA=window.__b3data||DATA; // ข้อมูลล่าสุดจากแดชบอร์ด
+  if(!wrap)createDom(); // สร้างการ์ดครั้งแรก
+  if(window.clBox)window.clBox(host.closest('section'),'b3cl'); // ปุ่มปิด/เปิดการแสดงผล 3D ที่หัวการ์ด (หัวถูกสร้างใหม่ทุกครั้งที่วาดหน้า)
+  if(wrap.classList.contains('fsx')){if(wrap._fsph)host.appendChild(wrap._fsph)} // กำลังเต็มจออยู่: คงการ์ดไว้ แค่ย้ายตัวกั้นไปที่วางใหม่
+  else if(wrap.parentNode!==host)host.appendChild(wrap); // ย้ายการ์ดเข้าที่ (แดชบอร์ดล้างหน้าทุกครั้งที่วาดใหม่)
+  refreshDom(); // อัปเดตข้อความ/รายการ/ป้ายในฉาก
+  observe() // ผูกการโหลดฉาก 3D
+};
+setInterval(()=>{if(ready)sky()},60000); // ปรับแสงอาทิตย์ทุก 1 นาที
+if(window.__b3data&&document.getElementById('b3host'))window.b3Mount() // กรณีข้อมูลมาก่อนสคริปต์นี้
+})();
+</script>
+</body>
+</html>
