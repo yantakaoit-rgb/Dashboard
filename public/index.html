@@ -586,7 +586,8 @@ function render(cur,prev,a,b){
      kpi('ระยะเวลาตรวจแพทย์',fm(consult,1),'นาที',consult,avg(pd,r=>r.avg_doctor_consult_time),1,ser(d,r=>r.avg_doctor_consult_time),'#0b7a8a')+
      kpi('วันนอนเฉลี่ย',fm(los,1),'วัน',los,avg(pd,r=>r.ipd_avg_length_of_stay),1,ser(d,r=>r.ipd_avg_length_of_stay),'#7c6bd6')+
      kpi('รายได้รวม',fm(inc),'บาท',inc,pinc,0,ser(d,r=>num(r.opd_his_income)+num(r.ipd_his_discharge_income)))}</div></div>`,'w12')+
-   sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+
+   // [ปิดการแสดงผลชั่วคราว] การ์ดอาคารโรงพยาบาล 3 มิติ + แผง "ภาพรวมเตียงผู้ป่วยในทั้งโรงพยาบาล" (อยู่ในการ์ดเดียวกัน) — ต้องการเปิดกลับ: ลบ // หน้าบรรทัดนี้, บล็อกส่งข้อมูล __b3data ด้านล่าง และรายการ 'secB' ในแถบเมนูลัด
+   // sec('B','อาคารโรงพยาบาล 3 มิติ','Hospital Campus 3D · 7.3874°N 99.6671°E','<div id="b3host"></div>','w12')+
    sec(2,'แนวโน้มจำนวนผู้ป่วย','Patient Volume Trend',keys.length?chart(keys,[{n:'OPD',c:'#0b7a8a',u:' ครั้ง',v:mv(d,r=>r.opd_daily_count)},{n:'IPD รับใหม่',c:'#2f9e6b',u:' ราย',v:mv(d,r=>r.ipd_new_admit_daily)},{n:'ER',c:'#e2563c',u:' ครั้ง',v:mv(erR,r=>r.service_count)}],null,'ผลรวมทั้งเดือน'):'<div class="nd">ไม่มีข้อมูล</div>','w6')+
    sec(3,'ผู้ป่วยตามแผนก','Patient by Department',bars(dep),'w6')+
    sec(4,'ระยะเวลารอ OPD','OPD Flow & Waiting Time',nowStamp(a,b)+bars(flow.map(f=>[f[0],f[1]||0,PAL[0]]),' นาที'))+
@@ -598,13 +599,14 @@ function render(cur,prev,a,b){
    // [เพิ่มใหม่] การ์ดรายรับแยกตามแผนก/หอผู้ป่วย/สิทธิ (เป็นกล่องว่าง #dpc แล้ว dpRender() ค่อยเติมเนื้อหา)
    sec('8.1','รายรับแยกตามแผนก หอผู้ป่วย และสิทธิการรักษา','Revenue by Department, Ward & Patient Right','<div id="dpc"></div>','w12')+
    sec(10,'แจ้งเตือนและสิ่งที่ต้องดำเนินการ','Hospital Alert & Action',`<table class="al"><tr><th>เรื่อง</th><th>ค่าปัจจุบัน</th><th>เป้าหมาย</th><th>สถานะ</th></tr>${al.map(r=>{const g=r[1]==null?null:r[1]<=r[2];return `<tr class="${g===false?'b':''}"><td>${r[0]}</td><td><b>${fm(r[1],1)}${r[3]}</b></td><td>≤ ${r[2]}${r[3]}</td><td><span class="chip ${g===false?'bad':'ok'}">${g==null?'-':g?'ปกติ':'ต้องปรับปรุง'}</span></td></tr>`}).join('')}</table>`,'w12')+deep;
-  { // ส่งข้อมูลให้การ์ดอาคาร 3 มิติ: เตียงล่าสุดรายหอผู้ป่วย + ผู้ป่วยนอก/ER ของวันล่าสุดในช่วงที่เลือก
-    const bw={}; // เตียงล่าสุดของแต่ละหอ
-    (cur.bed_occupancy||[]).forEach(r=>{const o=bw[r.ward];if(!o||String(r.record_date)>String(o.record_date))bw[r.ward]=r}); // เลือกแถววันที่ใหม่สุดต่อหอ
-    const ld=d.reduce((m,r)=>String(r.record_date)>m?String(r.record_date):m,''); // วันล่าสุดในช่วงที่เลือก
-    window.__b3data={wards:Object.values(bw).map(r=>({code:r.ward,name:r.ward_name,total:num(r.total_beds),used:num(r.used_beds),male:num(r.male_count),female:num(r.female_count),date:r.record_date})),opdLast:sum(d.filter(r=>r.record_date===ld),r=>r.opd_daily_count),erLast:sum(erR.filter(r=>r.record_date===ld),r=>r.service_count),ld,opd,er,date:Object.values(bw).map(r=>r.record_date).sort().pop()}; // ข้อมูลสำหรับอาคาร 3 มิติ
-    window.b3Mount&&window.b3Mount() // สั่งวาง/อัปเดตการ์ดอาคาร
-  }
+  // [ปิดการแสดงผลชั่วคราว] บล็อกส่งข้อมูลให้การ์ดอาคาร 3 มิติ (เปิดกลับพร้อมกับ sec('B',...) ด้านบน)
+  // { // ส่งข้อมูลให้การ์ดอาคาร 3 มิติ: เตียงล่าสุดรายหอผู้ป่วย + ผู้ป่วยนอก/ER ของวันล่าสุดในช่วงที่เลือก
+  //   const bw={}; // เตียงล่าสุดของแต่ละหอ
+  //   (cur.bed_occupancy||[]).forEach(r=>{const o=bw[r.ward];if(!o||String(r.record_date)>String(o.record_date))bw[r.ward]=r}); // เลือกแถววันที่ใหม่สุดต่อหอ
+  //   const ld=d.reduce((m,r)=>String(r.record_date)>m?String(r.record_date):m,''); // วันล่าสุดในช่วงที่เลือก
+  //   window.__b3data={wards:Object.values(bw).map(r=>({code:r.ward,name:r.ward_name,total:num(r.total_beds),used:num(r.used_beds),male:num(r.male_count),female:num(r.female_count),date:r.record_date})),opdLast:sum(d.filter(r=>r.record_date===ld),r=>r.opd_daily_count),erLast:sum(erR.filter(r=>r.record_date===ld),r=>r.service_count),ld,opd,er,date:Object.values(bw).map(r=>r.record_date).sort().pop()}; // ข้อมูลสำหรับอาคาร 3 มิติ
+  //   window.b3Mount&&window.b3Mount() // สั่งวาง/อัปเดตการ์ดอาคาร
+  // }
   // [เพิ่มใหม่] ส่งข้อมูลแผนก หอผู้ป่วย และสิทธิ (ช่วงปัจจุบัน/ก่อนหน้า) เข้าสู่การ์ด
   DPS={dept:cur.department||[],pt:cur.pttype||[],ward:cur.ward||[],ipt:cur.ipd_pttype||[]}; // ข้อมูลช่วงปัจจุบัน
   DPQ={dept:prev.department||[],pt:prev.pttype||[],ward:prev.ward||[],ipt:prev.ipd_pttype||[]}; // ข้อมูลช่วงก่อนหน้า
@@ -752,6 +754,7 @@ function clBox(sec,key){
 clBox(document.getElementById('s3d'),'v3cl'); // การ์ดห้องบริการ 3 มิติ
 function init3D(){
 const LIVE3D={win:15,pad:60,speed:1}; // win=ความยาวช่วงย้อนหลังที่เล่นซ้ำ (นาที) · pad=ดึงข้อมูลก่อนช่วงเล่นเพิ่มกี่นาที (ใช้รู้ว่าใครนั่งรออยู่ตอนเริ่ม และตัดผู้ป่วยค้างเก่าที่เงียบไปนานออก) · speed=ความเร็วรีเพลย์ (1 = เวลาจริง: เล่นจบ 15 นาทีพอดีเมื่อเวลาจริงผ่านไป 15 นาที ช่วงถัดไปจึงต่อกันพอดี · 5 = วนเล่น 15 นาทีล่าสุดซ้ำทุก 3 นาที)
+const thToday=()=>new Date().toLocaleDateString('en-CA',{timeZone:'Asia/Bangkok'}); // วันที่วันนี้ตามเวลาไทย (YYYY-MM-DD) — เรียกใหม่ทุกครั้งเพื่อให้ขึ้นวันใหม่เองหลังเที่ยงคืน
 const nowSec=()=>(Date.now()/1000+25200)%86400; // เวลาปัจจุบันเป็นวินาทีนับจากเที่ยงคืน (เวลาไทย UTC+7)
 const rwin=()=>{const e=nowSec();return[Math.max(0,e-LIVE3D.win*60),e]}; // ช่วงย้อนหลัง [เริ่ม,จบ] ณ ตอนนี้ เป็นวินาทีนับจากเที่ยงคืนเวลาไทย
 const hhmm=t=>{t=Math.max(0,Math.floor(t))%86400;return String(Math.floor(t/3600)).padStart(2,'0')+':'+String(Math.floor(t%3600/60)).padStart(2,'0')}; // แปลงวินาทีเป็น HH:MM
@@ -762,7 +765,7 @@ const val=v=>v===null||v===undefined||v===''||!isFinite(+v)?null:+v;
 /* ---------- data ---------- */
 const sb=async p=>{const c=cfg(),r=await fetch(c.u+'/rest/v1/'+p,{headers:{apikey:c.k,Authorization:'Bearer '+c.k}});if(!r.ok){let m='';try{m=(await r.text()).replace(/\s+/g,' ').slice(0,160)}catch(e){}throw new Error(p.split('?')[0]+' HTTP '+r.status+(m?' — '+m:''))}return san(await r.json())};
 async function loadData(day){
-  if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||new Date().toISOString().slice(0,10),demo:1,q:demoQ(day||new Date().toISOString().slice(0,10)),er:48+R(10),
+  if(!cfg().u||!cfg().k){const R=x=>Math.round(Math.random()*x);return{day:day||thToday(),demo:1,q:demoQ(day||thToday()),er:48+R(10),
     d:{opd_daily_count:260+R(40),ipd_current_beds:62,ipd_total_beds:80,ipd_new_admit_daily:18,ipd_discharged_daily:16,ipd_avg_length_of_stay:3.8,readmit_28days_pct:7.2,avg_wait_reg_to_triage:9,avg_wait_for_doctor:26,avg_doctor_consult_time:12,avg_wait_for_pharmacy:17,avg_total_process_time:58},
     oh:Array.from({length:24},(_,h)=>({time_hour:String(h).padStart(2,'0')+':00',service_count:String(h<7||h>20?R(3):12+R(20))})),
     st:[[1,150],[2,22],[3,9],[4,14],[5,31],[6,3],[7,0]].map(a=>({stage_order:a[0],patient_count:a[1]})),
@@ -1442,9 +1445,31 @@ function build(D){
   if(sel!=null)select(sel)}
 
 async function load(){ // โหลดข้อมูลของวันนี้จากฐานข้อมูล แล้ววาดฉาก
-  try{build(await loadData(null))} // loadData(null) = วันนี้ตามเวลาไทย
+  try{
+    const D=await loadData(null); // loadData(null) = วันนี้ตามเวลาไทย
+    if(!D.demo&&D.day!==thToday()){load();return} // ระหว่างรอข้อมูลเลยเที่ยงคืนไปแล้ว → ทิ้งข้อมูลของเมื่อวาน แล้วดึงของวันใหม่ทันที
+    build(D)
+  }
   catch(e){MSG='โหลดข้อมูลไม่สำเร็จ: '+e.message+' — ตรวจตารางและสิทธิ์อ่าน (RLS)';rui()} // พลาด → แสดงข้อผิดพลาด
 }
+/* ===== ข้ามวัน (เที่ยงคืนเวลาไทย): ล้างสถานะของเมื่อวานแล้วโหลดของวันใหม่เอง ไม่ต้องรีเฟรชเบราว์เซอร์ =====
+   เดิม: ข้อมูลดึงใหม่ทุก 60 วินาทีก็จริง แต่ตัวเล่นซ้ำ (RP) ยังถือเหตุการณ์ของเมื่อวาน + ตัวละครค้างในฉาก + ที่เก็บตำแหน่งใน localStorage
+   ตอนนี้: ตรวจวันที่ทุก 1 วินาที (และทันทีที่กลับมาเปิดแท็บ/ปลุกเครื่อง) พอวันเปลี่ยนจะเคลียร์ฉากทั้งหมดแล้วเรียก load() ทันที */
+let DAYNOW=thToday(); // วันที่ (เวลาไทย) ที่ฉากกำลังแสดงอยู่
+function dayRoll(){
+  const t=thToday();if(t===DAYNOW)return; // วันเดิม ไม่ต้องทำอะไร
+  DAYNOW=t;
+  rclear();pats.forEach(p=>SC.remove(p.g));pats.length=0; // เอาผู้ป่วยทุกคนออกจากฉาก
+  [GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false; // ล้างคิว/ที่นั่งค้างของเมื่อวาน
+  try{localStorage.removeItem(WKEY)}catch(e){} // ลบตำแหน่งตัวละครที่บันทึกไว้ (ไม่ให้ฟื้นภาพของเมื่อวานตอนเปิดหน้าใหม่)
+  RP.on=false;RP.all=[];RP.visits=[];RP.nx=0;RP.t=0;RP.w0=0;RP.w1=0;RP.loop=0;RP.sig='';RP.day=''; // ล้างตัวเล่นซ้ำ → รอบถัดไปตั้งช่วงเล่นใหม่จากเวลาปัจจุบัน
+  ITEMS.forEach(it=>it._n=-1); // บังคับให้ป้ายความหนาแน่นของแต่ละจุดคำนวณใหม่
+  MSG='ขึ้นวันใหม่ ('+t+') — กำลังโหลดข้อมูลของวันนี้…';rui();
+  load() // ดึงข้อมูลวันใหม่ทันที ไม่รอรอบ 60 วินาที
+}
+setInterval(dayRoll,1000); // ตรวจทุก 1 วินาที
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)dayRoll()}); // กลับมาเปิดแท็บ (เบราว์เซอร์อาจหน่วงตัวตั้งเวลาไว้ตอนซ่อนแท็บ)
+addEventListener('focus',dayRoll);addEventListener('pageshow',dayRoll);
 const resetScene=()=>{pats.forEach(p=>SC.remove(p.g));pats.length=0;[GQ,SO,OC].forEach(o=>{for(const k in o)delete o[k]});warmed=false;try{localStorage.removeItem(WKEY)}catch(e){}if(window._D)build({...window._D})};
 /* ===== เครื่องมือย่อ/ขยาย: ปุ่ม ＋ −, แถบเลื่อน, % ซูม, ดูทั้งหมด, ล้อเมาส์, แป้นพิมพ์ (+ − 0) ===== */
 fsBox(V,$('#vfs')); // ปุ่มขยายเต็มจอ ⇄ ย่อกลับ
@@ -1483,7 +1508,7 @@ logo();setRange(7,document.querySelector('[data-d="7"]'));
 </script>
 <script>
 /* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
-(function(){const L=[['sec1','ภาพรวม'],['secB','อาคาร'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+(function(){const L=[['sec1','ภาพรวม'],/* ['secB','อาคาร'], */['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
 const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
 n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
 const h=document.querySelector('header');h.after(n);
