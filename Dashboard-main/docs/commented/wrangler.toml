@@ -1,0 +1,13 @@
+# ============================================================================
+# wrangler.toml — ตั้งค่า Cloudflare Workers (ทุกบรรทัดมีคำอธิบาย)
+# ============================================================================
+name = "dashboard-ytkhos"          # ชื่อ Worker บน Cloudflare (กลายเป็นส่วนหนึ่งของโดเมน)
+main = "worker.js"                 # ไฟล์ทางเข้า: Cloudflare เรียก worker.js ทุกคำขอ
+compatibility_date = "2025-09-01"  # วันที่กำหนดเวอร์ชันพฤติกรรมของ runtime (ให้ผลลัพธ์คงที่)
+
+# ไฟล์หน้าเว็บ (ไฟล์ที่ตรงกับ path จะถูกเสิร์ฟก่อน ที่เหลือส่งเข้า Worker)
+[assets]                           # หมวด Static Assets
+directory = "./public"             # โฟลเดอร์ไฟล์หน้าเว็บ
+binding = "ASSETS"                 # ชื่อตัวแปรที่ worker.js ใช้เรียก (env.ASSETS.fetch)
+
+# ห้ามใส่ SUPABASE_URL / SUPABASE_KEY ที่นี่ — ตั้งเป็น Secret แทน (ดู README)

@@ -1,0 +1,12 @@
+# ============================================================================
+# netlify.toml — ตั้งค่าการ build/deploy บน Netlify (ทุกบรรทัดมีคำอธิบาย)
+# ============================================================================
+[build]                          # หมวดการ build
+  publish = "public"             # โฟลเดอร์ที่เป็นเว็บไซต์จริง (หน้าเว็บอยู่ใน public/)
+  functions = "netlify/functions" # โฟลเดอร์ที่เก็บ Netlify Functions (ตัวกลางไป Supabase)
+
+[functions]                      # หมวดตั้งค่า Functions
+  node_bundler = "esbuild"       # ใช้ esbuild รวมโค้ด (ทำให้ import ../../src/proxy.js ใช้งานได้)
+
+# เส้นทาง /api/sb/* ถูกกำหนดในไฟล์ฟังก์ชันเอง (netlify/functions/sb.mjs)
+# security headers อยู่ใน public/_headers (ใช้ร่วมกับ Cloudflare)

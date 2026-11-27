@@ -1,0 +1,66 @@
+<script>
+/* แถบเมนูลัดไปแต่ละส่วน (เลื่อนตามหน้าจอ) */
+(function(){const L=[['sec1','ภาพรวม'],['secB','อาคาร'],['sec2','แนวโน้ม'],['sec3','แผนก'],['sec4','รอ OPD'],['sec5','เตียง IPD'],['sec6','ER'],['sec7','แพทย์/คลินิก'],['sec8','รายได้'],['sec9','คุณภาพ'],['sec10','แจ้งเตือน'],['sec19','รายเดือน'],['s3d','3D']];
+const n=document.createElement('nav');n.id='snav';n.setAttribute('aria-label','ไปยังส่วนต่าง ๆ');
+n.innerHTML=L.map(([i,t])=>`<a href="#${i}">${t}</a>`).join('');
+const h=document.querySelector('header');h.after(n);
+n.onclick=e=>{const a=e.target.closest('a');if(!a)return;e.preventDefault();const t=document.getElementById(a.getAttribute('href').slice(1));if(t)t.scrollIntoView({behavior:'smooth'})};
+if(window.IntersectionObserver){const io=new IntersectionObserver(es=>es.forEach(x=>{if(x.isIntersecting)n.querySelectorAll('a').forEach(a=>a.classList.toggle('on',a.getAttribute('href')==='#'+x.target.id))}),{rootMargin:'-30% 0px -60% 0px'});
+const watch=()=>L.forEach(([i])=>{const e=document.getElementById(i);if(e&&!e._w){e._w=1;io.observe(e)}});watch();new MutationObserver(watch).observe(document.body,{childList:true,subtree:true})}
+})();
+</script>
+<script>
+/* นาฬิกาเวลาปัจจุบัน (เขตเวลาไทย) สำหรับการ์ด 4 และ 3D */
+(function(){const f=new Intl.DateTimeFormat('th-TH',{timeZone:'Asia/Bangkok',day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false});
+const t=()=>{const x=f.format(new Date()).replace(/\s+(?=\d{2}:)/,' · ')+' น.';document.querySelectorAll('.nowclk').forEach(e=>e.textContent=x)};t();setInterval(t,1000)})();
+</script>
+<script>
+/* ปรับขนาดตัวเลขในการ์ด KPI ให้พอดีกับความกว้างการ์ด (ตัวเลขย่อลงอัตโนมัติ / ข้อความยาวใช้ตัวเล็กลงและขึ้นบรรทัดใหม่) */
+(function(){
+ function fit(){document.querySelectorAll('main .k strong').forEach(el=>{
+  if(!el.clientWidth)return;
+  const txt=[...el.childNodes].filter(n=>n.nodeType===3).map(n=>n.textContent).join('').trim();
+  const isNum=/^[\d\s,.\-+%฿\/:]+$/.test(txt);
+  if(!isNum){el.style.whiteSpace='normal';el.style.fontSize='18px';el.style.lineHeight='1.3';return}
+  el.style.whiteSpace='nowrap';el.style.lineHeight='';let fs=28;el.style.fontSize=fs+'px';
+  while(el.scrollWidth>el.clientWidth+1&&fs>13){fs--;el.style.fontSize=fs+'px'}
+ })}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(fit)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+ addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* จัดการ์ด KPI ภาพรวมให้แบ่งแถวเท่า ๆ กัน (เช่น 8 ใบ = 4+4, 7 ใบ = 4+3) และขยายเต็มความกว้างอัตโนมัติ */
+(function(){
+ const MIN=200; // ความกว้างขั้นต่ำต่อการ์ด (px)
+ function balance(){const MIN=innerWidth<560?150:200;document.querySelectorAll('#sec1 .kp').forEach(kp=>{
+  const n=kp.children.length,w=kp.clientWidth;if(!n||!w)return;
+  const maxCols=Math.max(1,Math.floor((w+14)/(MIN+14))),rows=Math.ceil(n/maxCols),cols=Math.ceil(n/rows);
+  const v=`repeat(${cols},minmax(0,1fr))`;if(kp.style.gridTemplateColumns!==v)kp.style.gridTemplateColumns=v})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(balance)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});
+ addEventListener('resize',go);if(document.fonts&&document.fonts.ready)document.fonts.ready.then(go);go();
+})();
+</script>
+<script>
+/* ตอบสนองทุกอุปกรณ์: ห่อตารางให้เลื่อนแนวนอน + วาดกราฟใหม่เมื่อจอข้ามจุดเปลี่ยน (แคบ/กว้าง) */
+(function(){
+ function wrap(){document.querySelectorAll('main table').forEach(t=>{const p=t.parentElement;
+  if(!p||p.classList.contains('tw')||p.classList.contains('dpw')||getComputedStyle(p).overflowX==='auto')return;
+  const w=document.createElement('div');w.className='tw';t.replaceWith(w);w.append(t)})}
+ let q=0;const go=()=>{cancelAnimationFrame(q);q=requestAnimationFrame(wrap)};
+ new MutationObserver(go).observe(document.querySelector('main')||document.body,{childList:true,subtree:true});go();
+ let nar=innerWidth<640,t=0;
+ addEventListener('resize',()=>{clearTimeout(t);t=setTimeout(()=>{const n=innerWidth<640;if(n!==nar){nar=n;if(typeof LAST!=='undefined'&&LAST&&typeof render==='function'){render(...LAST);if(typeof xtra==='function')xtra()}}},200)});
+})();
+</script>
+<script>
+/* ส่วนหัวคงที่: ย่อขนาดเมื่อเลื่อนลง + แจ้งความสูงให้แถบเมนูลัดเกาะต่อใต้ส่วนหัว */
+(function(){const h=document.querySelector('header'),r=document.documentElement;if(!h)return;
+ const set=()=>r.style.setProperty('--hh',h.offsetHeight+'px');
+ if(window.ResizeObserver)new ResizeObserver(set).observe(h);addEventListener('resize',set);
+ const on=()=>{const y=scrollY;if(y>80)h.classList.add('stuck');else if(y<20)h.classList.remove('stuck')};
+ addEventListener('scroll',on,{passive:true});on();set();
+})();
+</script>
